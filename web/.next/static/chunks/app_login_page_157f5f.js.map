@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///workspaces/organiser/web/app/login/page.js"],"sourcesContent":["'use client';\n\nimport { LoginForm } from '../auth';\n\nexport default function Login() {\n\n  return ( <LoginForm /> );\n}"],"names":[],"mappings":";;;;AAEA;AAFA;;;AAIe,SAAS;IAEtB,qBAAS,6LAAC,8GAAA,CAAA,YAAS;;;;;AACrB;KAHwB"}},
+    {"offset": {"line": 28, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
+}

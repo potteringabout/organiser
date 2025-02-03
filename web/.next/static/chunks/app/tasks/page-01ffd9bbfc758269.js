@@ -1,0 +1,1 @@
+(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[147],{6977:(e,s,r)=>{Promise.resolve().then(r.bind(r,3023))},3023:(e,s,r)=>{"use strict";r.r(s),r.d(s,{default:()=>l});var n=r(5155);function l(){return(0,n.jsx)("h1",{children:"Hello Tasks"})}}},e=>{var s=s=>e(e.s=s);e.O(0,[441,517,358],()=>s(6977)),_N_E=e.O()}]);

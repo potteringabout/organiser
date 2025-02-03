@@ -1,0 +1,9 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///workspaces/organiser/web/app/client.js"],"sourcesContent":["// client.js\nimport { getIdToken } from './auth';\n\nexport async function apiRequest(endpoint, options = {}) {\n  const headers = {\n    ...options.headers,\n    Authorization: `Bearer ${getIdToken()}`,\n    'Content-Type': 'application/json',\n  };\n\n  const response = await fetch(endpoint, {\n    ...options,\n    headers,\n  });\n\n  if (!response.ok) {\n    throw new Error('Network response was not ok');\n  }\n\n  return response.json();\n}"],"names":[],"mappings":"AAAA,YAAY;;;;AACZ;;AAEO,eAAe,WAAW,QAAQ,EAAE,UAAU,CAAC,CAAC;IACrD,MAAM,UAAU;QACd,GAAG,QAAQ,OAAO;QAClB,eAAe,CAAC,OAAO,EAAE,CAAA,GAAA,2GAAA,CAAA,aAAU,AAAD,KAAK;QACvC,gBAAgB;IAClB;IAEA,MAAM,WAAW,MAAM,MAAM,UAAU;QACrC,GAAG,OAAO;QACV;IACF;IAEA,IAAI,CAAC,SAAS,EAAE,EAAE;QAChB,MAAM,IAAI,MAAM;IAClB;IAEA,OAAO,SAAS,IAAI;AACtB"}},
+    {"offset": {"line": 28, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}},
+    {"offset": {"line": 34, "column": 0}, "map": {"version":3,"sources":["file:///workspaces/organiser/web/app/tasks/page.js"],"sourcesContent":["\"use client\";\n\nimport { apiRequest } from '../client';\n\nasync function fetchData() {\n  try {\n    const data = await apiRequest('https://your-api.com/data');\n    console.log(data);\n  } catch (error) {\n    console.error('Failed to fetch data:', error);\n  }\n}\n\nexport default function Page() {\n  return <h1>Hello Tasks</h1>\n}"],"names":[],"mappings":";;;;AAEA;AAFA;;;AAIA,eAAe;IACb,IAAI;QACF,MAAM,OAAO,MAAM,CAAA,GAAA,6GAAA,CAAA,aAAU,AAAD,EAAE;QAC9B,QAAQ,GAAG,CAAC;IACd,EAAE,OAAO,OAAO;QACd,QAAQ,KAAK,CAAC,yBAAyB;IACzC;AACF;AAEe,SAAS;IACtB,qBAAO,8OAAC;kBAAG;;;;;;AACb"}},
+    {"offset": {"line": 59, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
+}

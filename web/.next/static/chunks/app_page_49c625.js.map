@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///workspaces/organiser/web/app/page.js"],"sourcesContent":["\"use client\";\nimport React from 'react';\n\nexport default function App({ children }) {\n  // Removed login logic, no longer needed here since handled in DashboardLayout\n  return (\n    <div className=\"flex\">Welcome</div>\n  );\n}"],"names":[],"mappings":";;;;AACA;AADA;;;AAGe,SAAS,IAAI,EAAE,QAAQ,EAAE;IACtC,8EAA8E;IAC9E,qBACE,6LAAC;QAAI,WAAU;kBAAO;;;;;;AAE1B;KALwB"}},
+    {"offset": {"line": 32, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
+}

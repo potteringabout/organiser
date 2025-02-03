@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///workspaces/organiser/web/app/boards/layout.js"],"sourcesContent":["\"use client\";\n//import isAuth from \"../auth\";\n\nfunction BoardLayout({ children }) {\n  return <section>{children}</section>\n}\n\nexport default BoardLayout;"],"names":[],"mappings":";;;;AAAA;;AACA,+BAA+B;AAE/B,SAAS,YAAY,EAAE,QAAQ,EAAE;IAC/B,qBAAO,6LAAC;kBAAS;;;;;;AACnB;KAFS;uCAIM"}},
+    {"offset": {"line": 30, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
+}

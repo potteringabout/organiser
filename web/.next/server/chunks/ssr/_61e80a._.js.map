@@ -1,0 +1,9 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///workspaces/organiser/web/app/boards/layout.js"],"sourcesContent":["export default function BoardLayout({ children }) {\n  return <section>{children}</section>\n}\n\nexport default isAuth(BoardLayout);"],"names":[],"mappings":";;;;;AAAe,SAAS,YAAY,EAAE,QAAQ,EAAE;IAC9C,qBAAO,8OAAC;kBAAS;;;;;;AACnB;uCAEe,OAAO"}},
+    {"offset": {"line": 22, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}},
+    {"offset": {"line": 33, "column": 0}, "map": {"version":3,"sources":["file:///workspaces/organiser/web/node_modules/next/src/server/route-modules/app-page/vendored/rsc/react-jsx-dev-runtime.ts"],"sourcesContent":["module.exports = require('../../module.compiled').vendored[\n  'react-rsc'\n].ReactJsxDevRuntime\n"],"names":["module","exports","require","vendored","ReactJsxDevRuntime"],"mappings":";AAAAA,OAAOC,OAAO,GAAGC,QAAQ,0HAAyBC,QAAQ,CACxD,YACD,CAACC,kBAAkB","ignoreList":[0]}},
+    {"offset": {"line": 35, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
+}
