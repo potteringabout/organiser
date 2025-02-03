@@ -1,0 +1,52 @@
+# Node.js / React
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+dist/
+build/
+.cache/
+.vscode/
+.DS_Store
+.env*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+terraform.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+venv/
+.env
+.envrc
+python_env/
+.venv/
+poetry.lock
+Pipfile
+Pipfile.lock
+
+# IDE / OS / Misc
+.idea/
+*.swp
+*.swo
+Thumbs.db
+ehthumbs.db
+Desktop.ini
