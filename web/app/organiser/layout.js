@@ -53,15 +53,15 @@ export default function OrganiserLayout({ children }) {
   }, [pathname]);
 
   return (
-    <div>
+    <div className="h-screen flex">
       <aside
-        className={`w-50 p-6 transition-colors fixed top-16 left-0 h-full ${
+        className={`h-screen w-64 p-4 transition-colors shadow-xl ${
           darkMode ? "bg-gray-800" : "bg-white"
-        } shadow-lg`}
+        }`}
       >
         <SideBar />
       </aside>
-      <main className="flex flex-1 p-6 overflow-auto mt-16">{children}</main>
+      <main className={`flex-1 shadow-2xl p-6 overflow-auto ${darkMode ? "bg-gray-700" : "bg-gray-100"}`}>{children}</main>
     </div>
   );
 }

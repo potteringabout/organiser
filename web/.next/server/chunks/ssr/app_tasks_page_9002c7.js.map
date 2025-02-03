@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///workspaces/organiser/web/app/tasks/page.js"],"sourcesContent":["\"use client\";\n\n//import isAuth from \"../auth\";\n\nfunction Page() {\n  return <h1>Hello Tasks</h1>\n}\n\nexport default Page;"],"names":[],"mappings":";;;;AAAA;;AAEA,+BAA+B;AAE/B,SAAS;IACP,qBAAO,8OAAC;kBAAG;;;;;;AACb;uCAEe"}},
-    {"offset": {"line": 24, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
-}

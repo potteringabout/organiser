@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///workspaces/organiser/web/app/organiser/tasks/page.js"],"sourcesContent":["\"use client\";\n\n//import isAuth from \"../auth\";\n\nfunction Page() {\n\n  console.log(\"Hello from tasks\");\n  return <div>Hello Tasks</div>\n}\n\nexport default Page;"],"names":[],"mappings":";;;;AAAA;;AAEA,+BAA+B;AAE/B,SAAS;IAEP,QAAQ,GAAG,CAAC;IACZ,qBAAO,6LAAC;kBAAI;;;;;;AACd;KAJS;uCAMM"}},
-    {"offset": {"line": 31, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
-}

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///workspaces/organiser/web/app/organiser/boards/page.js"],"sourcesContent":["\"use client\";\n\nimport { useEffect } from 'react';\nimport { getBoards } from '../../client';\nimport { useAlert } from '../../contexts';\n\nexport default function Page() {\n\n  //const { showAlert } = useAlert();\n\n\n\n  return (\n    <div>\n      Hello\n      \n    </div>\n  );\n}"],"names":[],"mappings":";;;;AAEA;AACA;AACA;AAJA;;;;;AAMe,SAAS;IAEtB,mCAAmC;IAInC,qBACE,8OAAC;kBAAI;;;;;;AAKT"}},
-    {"offset": {"line": 29, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
-}

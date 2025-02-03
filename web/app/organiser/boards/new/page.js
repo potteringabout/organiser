@@ -57,8 +57,8 @@ export default function CreateBoardPage() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
+    <div className="flex justify-center items-center min-h-screen">
+      <div className="bg-gray-400 p-6 rounded-lg shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold text-gray-800 mb-4 text-center">
           Create a New Board
         </h1>

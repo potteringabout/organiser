@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///workspaces/organiser/web/app/boards/page.js"],"sourcesContent":["\"use client\";\n\nimport { apiRequest } from '../client';\n\nasync function fetchData() {\n  try {\n    const data = await apiRequest('https://afuoaqahz7.execute-api.eu-west-2.amazonaws.com/dev/boards/Board-af39ae0d-82e2-4d66-bc70-6e3d10585d0a');\n    console.log(data);\n  } catch (error) {\n    console.error('Failed to fetch data:', error);\n  }\n}\n\nexport default function Page() {\n  return (\n    <h1>\n      <button \n        onClick={fetchData} \n        className=\"px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75\"\n      >\n        Fetch Data\n      </button>\n    </h1>\n  );\n}"],"names":[],"mappings":";;;;AAEA;AAFA;;;AAIA,eAAe;IACb,IAAI;QACF,MAAM,OAAO,MAAM,CAAA,GAAA,6GAAA,CAAA,aAAU,AAAD,EAAE;QAC9B,QAAQ,GAAG,CAAC;IACd,EAAE,OAAO,OAAO;QACd,QAAQ,KAAK,CAAC,yBAAyB;IACzC;AACF;AAEe,SAAS;IACtB,qBACE,8OAAC;kBACC,cAAA,8OAAC;YACC,SAAS;YACT,WAAU;sBACX;;;;;;;;;;;AAKP"}},
-    {"offset": {"line": 40, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
-}

@@ -20,7 +20,7 @@ function TopBar() {
 
   return (
     <header
-      className={`h-14 w-full bg-blue-500 text-white flex items-center px-4 shadow-md ${
+      className={`h-14 w-full bg-blue-500 flex items-center px-4 shadow-md ${
         darkMode ? "bg-gray-800" : "bg-white"
       } shadow-md`}
     >
@@ -52,7 +52,7 @@ function TopBar() {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="bg-[#BBB2A9]">
-      <body className="bg-[#BBB2A9] h-screen w-full flex flex-col">
+      <body className="h-screen w-full flex flex-col">
       <AuthProvider>
         <DarkModeProvider>
           <BodyWithAuthCheck>{children}</BodyWithAuthCheck>
@@ -94,9 +94,7 @@ function Body({ children }) {
         }`}
       >
           <TopBar darkMode={darkMode} setDarkMode={setDarkMode} />
-          <div className="flex flex-1">
-            {children}
-          </div>
+          {children}
       </div>
   );
 }
