@@ -42,6 +42,13 @@ resource "aws_dynamodb_table" "organiser" {
     projection_type    = "ALL"         # Include all attributes in the GSI
   }
 
+  global_secondary_index {
+    name               = "OwnerItemID"
+    hash_key           = "Owner"         # Tag becomes the GSI partition key
+    range_key          = "ID"        # Optional: Use ItemReference for more precise filtering
+    projection_type    = "ALL"         # Include all attributes in the GSI
+  }
+
   tags = {
     Environment = "Development"
     Team        = "Platform"

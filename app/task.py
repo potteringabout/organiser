@@ -252,6 +252,14 @@ def get_boards(user):
     except RuntimeError as e:
         return jsonify({"error": str(e)})
 
+@app.route("/boards/<board_id>/items/<item_id>")
+def get_item(board_id):
+
+    try:
+        r = dynamo.get("Board", board_id)
+        return jsonify(r)
+    except RuntimeError as e:
+        return jsonify({"error": str(e)})
 
 @app.after_request
 def add_header(response):

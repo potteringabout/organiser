@@ -26,12 +26,12 @@ function TopBar() {
     >
       <div className="flex items-center">
         <Image src="/mug.png" width="40" height="49" alt="Logo" className="mr-2" />
-        <h1 className="text-xl font-semibold">potteringabout</h1>
+        <h1 className="text-xl font-bold text-gray-900">potteringabout</h1>
       </div>
       <nav className="flex-1 flex justify-center space-x-4">
         {menuItems.map((item) => (
           <Link key={item.path} href={item.path}>
-            {item.name}
+            <h4 className="font-medium text-gray-800">{item.name}</h4>
           </Link>
         ))}
       </nav>

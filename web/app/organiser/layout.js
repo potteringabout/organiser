@@ -25,10 +25,10 @@ function SideBar() {
 
   return (
     <div>
-      <h2>
-        Boards
+      <div className="flex justify-between">
+        <h4 className="font-bold text-gray-800">Boards</h4>
         <AddButton href="/organiser/boards/new"/>
-      </h2>
+      </div>
       <ul>
         {menuItems.map((item) => (
           <li key={item.ID} className="mb-2">

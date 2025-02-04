@@ -58,8 +58,12 @@ class Task(OrganiserItem):
   def __init__(self, object: str, format: FormatType = FormatType.JSON):
     super().__init__(object, format)
 
-
 class Note(OrganiserItem):
+  def __init__(self, object: str, format: FormatType = FormatType.JSON):
+    super().__init__(object, format)
+
+# This servers as a link between a board and a task and a board and a note
+class BoardItem(OrganiserItem):
   def __init__(self, object: str, format: FormatType = FormatType.JSON):
     super().__init__(object, format)
 

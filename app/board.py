@@ -71,4 +71,4 @@ TABLE_NAME = "Organiser"
 dynamo = DynamoDBHelper(TABLE_NAME, "EntityType", "ID")
 
 if __name__ == "__main__":
-  get_boards()
+  print(get_boards())

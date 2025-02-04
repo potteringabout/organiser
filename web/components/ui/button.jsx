@@ -1,6 +1,6 @@
 "use client"; 
 import React from "react";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, Check } from "lucide-react";
 
 export const Button = ({ className = "", children, onClick, variant = "primary", ...props }) => {
   const baseStyles = "px-4 py-2 font-semibold rounded-lg transition duration-200 focus:outline-none";
@@ -40,5 +40,19 @@ export function AddButton({ href }) {
     >
       <Plus className="w-4 h-4" />
     </a>
+  );
+}
+
+export function TickButton({ onClick }) {
+  return (
+    <button
+      id="tick-button"
+      onClick={() => {
+        onClick(); 
+      }}
+      className="w-6 h-6 flex items-center justify-center rounded-full bg-green-500 text-white hover:bg-green-700 transition"
+    >
+      <Check className="w-4 h-4" />
+    </button>
   );
 }

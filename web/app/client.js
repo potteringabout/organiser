@@ -74,3 +74,15 @@ export async function getBoards() {
     console.error('Failed to fetch data:', error);
   }
 }
+
+
+export async function addUpdate(update) {
+  try {
+    const data = apiRequest(`${API_ENDPOINT}/upload`, {method: "POST", body: JSON.stringify({text: update})});
+    console.log("Data is " + data);
+    return data;
+  }
+  catch (error) {
+    throw new Error('Failed to fetch data:', error);
+  }
+}
