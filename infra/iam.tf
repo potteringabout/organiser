@@ -30,7 +30,9 @@ data "aws_iam_policy_document" "policy" {
     resources = [
       "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/Organiser",
       "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/Organiser/*",
-      "arn:aws:bedrock:${var.aws_region}::foundation-model/meta.llama3-70b-instruct-v1:0"
+      "arn:aws:bedrock:${var.aws_region}::foundation-model/meta.llama3-70b-instruct-v1:0",
+      "arn:aws:bedrock:${var.aws_region}::foundation-model/mistral.mixtral-8x7b-instruct-v0:1",
+      
     ]
   }
 }

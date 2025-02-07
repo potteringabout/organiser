@@ -1,14 +1,16 @@
 import boto3
 import json
 from datetime import date
+
 # Initialize the Bedrock client
-client = boto3.client('bedrock', region_name='eu-west-2')
+client = boto3.client("bedrock", region_name="eu-west-2")
 
 
 from botocore.exceptions import ClientError
 import json
 import re
 from datetime import datetime
+
 
 def parse_dates(obj):
     """Recursively converts ISO date strings to datetime objects."""
@@ -18,15 +20,18 @@ def parse_dates(obj):
         return [parse_dates(i) for i in obj]
     elif isinstance(obj, str):
         try:
-            return datetime.fromisoformat(obj.replace("Z", "+00:00"))  # Handle UTC Z format
+            return datetime.fromisoformat(
+                obj.replace("Z", "+00:00")
+            )  # Handle UTC Z format
         except ValueError:
             return obj  # Return as-is if not a valid date
     return obj
 
+
 def extract_json_from_string(text):
     """
     Extracts JSON objects from a given string and returns them as Python objects.
-    
+
     Args:
         text (str): The input string containing JSON.
 
@@ -34,13 +39,13 @@ def extract_json_from_string(text):
         list: A list of extracted JSON objects (dicts or lists).
     """
     json_objects = []
-    
+
     # Regular expression to find JSON objects (matches {...} or [...])
-    json_pattern = r'(\{.*?\}|\[.*?\])'
-    
+    json_pattern = r"(\{.*?\}|\[.*?\])"
+
     # Find all matches
     matches = re.findall(json_pattern, text, re.DOTALL)
-    
+
     for match in matches:
         try:
             parsed_json = json.loads(match)
@@ -51,12 +56,13 @@ def extract_json_from_string(text):
 
     return json_objects
 
+
 # Create an Amazon Bedrock Runtime client.
-brt = boto3.client("bedrock-runtime", region_name='eu-west-2')
+brt = boto3.client("bedrock-runtime", region_name="eu-west-2")
 
 
 # Set the model ID, e.g., Amazon Titan Text G1 - Express.
-#model_id = "amazon.titan-text-express-v1"
+# model_id = "amazon.titan-text-express-v1"
 model_id = "meta.llama3-70b-instruct-v1:0"
 
 today = date.today()
@@ -81,40 +87,36 @@ formatted_prompt = f"""
 """
 
 # Define the request payload
-payload = {
-    "prompt": formatted_prompt,
-    "max_gen_len": 512,
-    "temperature": 0.5
-}
+payload = {"prompt": formatted_prompt, "max_gen_len": 512, "temperature": 0.5}
 
 
 # Invoke the model
 response = brt.invoke_model(
     modelId=model_id,
-    contentType='application/json',
-    accept='application/json',
-    body=json.dumps(payload)
+    contentType="application/json",
+    accept="application/json",
+    body=json.dumps(payload),
 )
 
 # Parse the response
-response_body = json.loads(response['body'].read())
-generated_text = response_body.get('generation', '')
+response_body = json.loads(response["body"].read())
+generated_text = response_body.get("generation", "")
 
-x =extract_json_from_string(generated_text)
+x = extract_json_from_string(generated_text)
 
 print("Generated Text:", generated_text)
 
 # Format the request payload using the model's native structure.
-'''native_request = {
+"""native_request = {
     "inputText": prompt,
     "textGenerationConfig": {
         "maxTokenCount": 512,
         "temperature": 0.5,
         "topP": 0.9
     },
-}'''
+}"""
 
-'''
+"""
 native_request = {
     "prompt": prompt,
     "temperature": 0.8,
@@ -139,7 +141,7 @@ print(model_response)
 # Extract and print the response text.
 #response_text = model_response["results"][0]["outputText"]
 #print(response_text)
-'''
+"""
 
 '''
 def list_foundation_models(bedrock_client):
@@ -164,5 +166,3 @@ for model in fm_models:
   print(json.dumps(model, indent=2))
   print("---------------------------\n")
 '''
-
-
