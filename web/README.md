@@ -34,3 +34,23 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+# UI Components
+
+For the UI components, we are using [Tailwind CSS](https://tailwindcss.com/) and [React](https://reactjs.org/).
+
+We will also be using shadcn UI components for the UI. https://ui.shadcn.com/docs/components/
+
+To use Shadcn
+
+## Installation in the project
+npx shadcn@latest init
+
+## We can now add components to the project from shadcn UI ( https://ui.shadcn.com/docs/components/ )
+
+Eg.
+npx shadcn@latest add input
+npx shadcn@latest add button
+
+

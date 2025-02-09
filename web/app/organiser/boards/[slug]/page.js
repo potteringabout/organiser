@@ -8,6 +8,8 @@ import { showAlert } from "@/app/utils/alertEmitter";
 import { EditableTextArea } from "@/components/ui/editableText";
 import { DeleteButton } from "@/components/ui/button";
 import { StatusDropdown } from "@/components/ui/dropdown";
+import { useSidebarStore } from "@/store/sidebar"
+import TaskOrNoteForm from "@/components/ui/taskOrNoteForm";
 
 export default function Page() {
 	const { slug } = useParams();
@@ -15,6 +17,7 @@ export default function Page() {
 	const router = useRouter();
 
 	const [board, setBoard] = useState({});
+  const reloadSidebar = useSidebarStore((state) => state.reloadSidebar)
 
 	function handlesubmission(text) {
 		console.log(text);
@@ -44,6 +47,7 @@ export default function Page() {
 	function handleDelete() {
 		deleteBoard(slug)
 			.then(() => {
+        reloadSidebar();
 				console.log("Deleted board");
 				showAlert("Board deleted successfully");
 				//redirect("/organiser/boards");
@@ -76,8 +80,8 @@ export default function Page() {
 				/>
 			</div>
 			<div className="flex-1">
-				<StatusDropdown onDelete={handleDelete} />
-			</div>
+        <TaskOrNoteForm boardId={board.ID} />
+      </div>
 		</div>
 	);
 }

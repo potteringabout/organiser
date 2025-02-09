@@ -31,6 +31,16 @@ function apiRequest(endpoint, options = {}) {
     });
 }
 
+export async function upsertItem(boardId, item) {
+  try {
+    const data = apiRequest(`${API_ENDPOINT}/boards/${boardId}/items`, {method: "POST", body: JSON.stringify({item})});
+    console.log("Data is " + data);
+    return data;
+  }
+  catch (error) {
+    throw new Error('Failed to fetch data:', error);
+  }
+}
 
 export async function createBoard(name, description) {
   try {

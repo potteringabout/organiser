@@ -8,7 +8,7 @@ from organisertypes import Board, Note, Task, BoardItem
 user = {"user_id": "e642b2e4-a0b1-7061-35d0-58916d67f684"}
 
 
-def create_note(user, board_id, text):
+def create_note(user, board_id, ob):
     """
     Create a note with associated tags and tasks in DynamoDB.
 

@@ -1,27 +1,28 @@
 "use client";
 import "../globals.css";
+import { useSidebarStore } from "@/store/sidebar"
 import Link from "next/link";
 import { useDarkMode } from "../contexts";
-import FancyDropdown from "../../components/ui/dropdown";
-
 import { useEffect, useState } from "react";
 import { redirect, usePathname } from "next/navigation";
 import { AddButton } from "../../components/ui/button";
 
 import { getBoards } from "../client";
-import { m } from "framer-motion";
 
 function SideBar() {
   const [menuItems, setMenuItems] = useState([]);
+  const reloadTrigger = useSidebarStore((state) => state.reloadTrigger)
 
   useEffect(() => {
     async function loadMenuItems() {
       const data = await getBoards();
       // Assuming `data` is an array with objects containing `name` and `path`
+      console.log(data);
       setMenuItems(data || []);
     }
     loadMenuItems();
-  }, []);
+  }, [reloadTrigger]);
+
 
   return (
     <div>

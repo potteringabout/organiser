@@ -4,10 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 //import { useAlert } from "../../../contexts";
 import { showAlert } from "@/app/utils/alertEmitter";
+import { useSidebarStore } from "@/store/sidebar"
 
 export default function CreateBoardPage() {
 
   const router = useRouter();
+  const reloadSidebar = useSidebarStore((state) => state.reloadSidebar)
+
   //const { showAlert } = useAlert();
 
   const [formData, setFormData] = useState({
@@ -36,6 +39,7 @@ export default function CreateBoardPage() {
       
       createBoard(formData.name, formData.description)
       .then(() => {
+        reloadSidebar();
         console.log("Created board");
         showAlert("Board created successfully");
         router.push("/organiser/boards"); 

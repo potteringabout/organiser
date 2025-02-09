@@ -5,7 +5,7 @@ from flask import Flask, jsonify, request
 from functools import wraps
 import awsgi
 from dynamo import DynamoDBHelper
-from organisertypes import Board
+from organisertypes import Board, Task, Note
 from datetime import datetime
 from bedrock import Mistral, Meta
 from db import (
@@ -126,7 +126,7 @@ def protected_endpoint(user_id, user_name, email, groups):
 @app.route("/boards", methods=["POST"])
 @user_info
 @parse_json
-def create_board(user, name, description):
+def upsert_board(user, name, description):
     """
     Create a board with associated tags and tasks in DynamoDB.
 
@@ -195,6 +195,35 @@ def get_boards(user):
         return jsonify(r)
     except RuntimeError as e:
         return jsonify({"error": str(e)})
+
+@app.route("/boards/<board_id>/items", methods=["POST"])
+@user_info
+def upsert_board_item(user, board_id):
+    item = request.get_json() 
+    print(item)
+    dt = datetime.now(timezone.utc).isoformat()
+    item["Owner"] = user["user_id"]
+    item["LastUpdate"] = dt
+
+    entityType = item["EntityType"]
+
+    if "ID" not in item or item["ID"] == "":
+      item["CreatedDate"] = dt
+      if entityType == "task":
+        item["ID"] = f"{board_id}-Task-{str(uuid.uuid4())}"
+      else:
+        item["ID"] = f"{board_id}-Note-{str(uuid.uuid4())}"
+
+    if entityType == "task":
+      i = Task(item)
+    else:
+      i = Note(item)
+    
+    try:
+      r = dynamo.upsert(i.to_dict())
+      return jsonify(r)
+    except RuntimeError as e:
+      return jsonify({"error": str(e)})  
 
 
 @app.route("/boards/<board_id>/items/<item_id>")
