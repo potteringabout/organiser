@@ -15,8 +15,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useDarkMode, useAlert } from "@/app/contexts";
 
 const poolData = {
-  UserPoolId: "eu-west-2_Qv91VSnrS",
-  ClientId: "533mf4s6jof94htjam2dut05hd",
+  UserPoolId: "eu-west-2_NHFK9ZIHw",
+  ClientId: "av2na55klmkv01n7ud0t68ltj",
 };
 
 const userPool = new CognitoUserPool(poolData);

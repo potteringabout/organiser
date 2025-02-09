@@ -36,7 +36,7 @@ variable "account_full" {
 
 variable "costcentre" {
   description = "The cost centre to charge the asset to"
-  default     = "123" // TODO: Confirm appropriate value
+  default     = "123" 
   type        = string
 }
 
@@ -53,7 +53,7 @@ variable "deployment_repo" {
 
 variable "email" {
   description = "Email contact for the asset owner"
-  default     = "platformengineering@allwyn.co.uk" // TODO: Confirm appropriate value
+  default     = "platformengineering@allwyn.co.uk" 
   type        = string
 }
 
@@ -71,7 +71,7 @@ variable "environment_full" {
 
 variable "owner" {
   description = "The individual or team owner of the asset"
-  default     = "Platform Engineering" // TODO: Confirm appropriate value
+  default     = "Platform Engineering" 
   type        = string
 }
 

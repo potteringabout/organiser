@@ -199,7 +199,7 @@ def get_boards(user):
 @app.route("/boards/<board_id>/items", methods=["POST"])
 @user_info
 def upsert_board_item(user, board_id):
-    item = request.get_json() 
+    item = request.get_json()["item"] 
     print(item)
     dt = datetime.now(timezone.utc).isoformat()
     item["Owner"] = user["user_id"]

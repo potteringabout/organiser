@@ -121,7 +121,7 @@ export default function TaskOrNoteForm({boardId}) {
     upsertItem(boardId, formData)
       .then(() => {
         console.log("Item added");
-        setFormData({});
+        setFormData({});  // TODO: The data is inserted.  Needo to redirect to the board.
       })
       .catch((error) => {
         console.error("Error:", error.message);

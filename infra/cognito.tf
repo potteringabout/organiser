@@ -40,6 +40,16 @@ resource "aws_cognito_user_pool_domain" "user_pool_domain" {
   user_pool_id = aws_cognito_user_pool.user_pool.id
 }
 
+import {
+  to = aws_cognito_user_pool_domain.user_pool_domain
+  id = "organiser"
+}
+
+import {
+  to = aws_cognito_resource_server.resource_server
+  id = "eu-west-2_Qv91VSnrS|api.organiser.potteringabout.net"
+}
+
 resource "aws_cognito_resource_server" "resource_server" {
   user_pool_id = aws_cognito_user_pool.user_pool.id
   identifier   = "api.organiser.potteringabout.net"
