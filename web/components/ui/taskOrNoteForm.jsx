@@ -297,8 +297,8 @@ export default function TaskOrNoteForm({boardId}) {
                     onSelect={() =>
                       setFormData({ ...formData, dependentOn: person })
                     }
-                    className={dependentOn === person ? "bg-gray-200" : ""}>
-                    {person} {dependentOn === person && "✅"}
+                    className={formData.dependentOn === person ? "bg-gray-200" : ""}>
+                    {person} {formData.dependentOn === person && "✅"}
                   </CommandItem>
                 ))}
               </CommandGroup>
