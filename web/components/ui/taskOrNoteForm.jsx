@@ -66,16 +66,18 @@ const statusOptions = [
   },
 ];
 
+const defaultFormData = {
+  EntityType: "task",
+  details: "",
+  forWho: "",
+  dependentOn: "",
+  dueDate: "",
+  status: "todo",
+  refs: [],
+};
+
 export default function TaskOrNoteForm({boardId}) {
-  const [formData, setFormData] = useState({
-    EntityType: "task",
-    details: "",
-    forWho: "",
-    dependentOn: "",
-    dueDate: "",
-    status: "todo",
-    refs: [],
-  });
+  const [formData, setFormData] = useState(defaultFormData);
 
   const [error, setError] = useState("");
   const [customPerson, setCustomPerson] = useState("");
@@ -120,8 +122,8 @@ export default function TaskOrNoteForm({boardId}) {
 
     upsertItem(boardId, formData)
       .then(() => {
-        console.log("Item added");
-        setFormData({});  // TODO: The data is inserted.  Needo to redirect to the board.
+        console.log("Item added");  // TODO: Have a meeting template which is notes and optional multiple tasks
+        setFormData(defaultFormData);  // TODO: The data is inserted.  Needo to redirect to the board.
       })
       .catch((error) => {
         console.error("Error:", error.message);
