@@ -4,19 +4,18 @@ from datetime import datetime, timezone
 from flask import Flask, jsonify, request
 from functools import wraps
 import awsgi
-from dynamo import DynamoDBHelper
+from dynamoutils import DynamoDBHelper
 from organisertypes import Board, Task, Note
 from datetime import datetime
 from bedrock import Mistral, Meta
 from db import (
-    create_note,
-    create_task,
+    upsert_note,
+    upsert_task,
     delete_note,
     delete_task,
     get_note,
-    get_notes,
     get_task,
-    get_tasks,
+    get_items,
 )
 
 
@@ -100,9 +99,9 @@ def upload(user, text):
         print(i)
         if i["type"] == "note":
             # TODO: Need to pass the board id in the POST
-            create_note(user["user_id"], i.get("board_id"), i.get("text"))
+            upsert_note(user["user_id"], i.get("board_id"), i.get("text"))
         elif i["type"] == "task":
-            create_task(
+            upsert_task(
                 user["user_id"], i.get("board_id"), i.get("text"), i.get("dueDate")
             )
 
@@ -125,8 +124,8 @@ def protected_endpoint(user_id, user_name, email, groups):
 
 @app.route("/boards", methods=["POST"])
 @user_info
-@parse_json
-def upsert_board(user, name, description):
+#@parse_json
+def upsert_board(user):
     """
     Create a board with associated tags and tasks in DynamoDB.
 
@@ -140,20 +139,15 @@ def upsert_board(user, name, description):
     Returns:
         str: The unique ID of the created board.
     """
-    board_id = f"Board-{str(uuid.uuid4())}"
+    item = request.get_json()
+    now = datetime.now(timezone.utc).isoformat()
+    if "ID" not in item or item["ID"] == "":
+        item["ID"] = f"Board-{str(uuid.uuid4())}"
+        item["CreatedDate"] = now
 
-    created_date = datetime.now(timezone.utc).isoformat()
-
-    board = {
-        "EntityType": "Board",
-        "ID": board_id,
-        "Name": name,
-        "Description": description,
-        "CreatedDate": created_date,
-        "Owner": user["user_id"],
-    }
-
-    board = Board(board)
+    item["Owner"] = user["user_id"]
+    item["LastUpdate"] = now
+    board = Board(item)
     try:
         r = dynamo.upsert(board.to_dict())
         return jsonify(r)
@@ -196,10 +190,10 @@ def get_boards(user):
     except RuntimeError as e:
         return jsonify({"error": str(e)})
 
-@app.route("/boards/<board_id>/items", methods=["POST"])
+@app.route("/boards/<board_id>/items", methods=["POST"]) // TODO: This fails and I don't know why.  Not even sure the method is called
 @user_info
 def upsert_board_item(user, board_id):
-    item = request.get_json()["item"] 
+    item = request.get_json()
     print(item)
     dt = datetime.now(timezone.utc).isoformat()
     item["Owner"] = user["user_id"]
@@ -209,15 +203,17 @@ def upsert_board_item(user, board_id):
 
     if "ID" not in item or item["ID"] == "":
       item["CreatedDate"] = dt
-      if entityType == "task":
+      if entityType == "Task":
         item["ID"] = f"{board_id}-Task-{str(uuid.uuid4())}"
       else:
         item["ID"] = f"{board_id}-Note-{str(uuid.uuid4())}"
 
-    if entityType == "task":
+    if entityType == "Task":
       i = Task(item)
-    else:
+    elif entityType == "Note":
       i = Note(item)
+    else:
+      raise ValueError("Invalid entity type")
     
     try:
       r = dynamo.upsert(i.to_dict())
@@ -227,10 +223,15 @@ def upsert_board_item(user, board_id):
 
 
 @app.route("/boards/<board_id>/items/<item_id>")
-def get_item(board_id):
-
+def get_item(board_id, item_id):
+    if "Note" in item_id:
+      entityType = "Note"
+    elif "Task" in item_id:
+      entityType = "Task"
+    else:
+      raise ValueError("Invalid entity type")
     try:
-        r = dynamo.get("Board", board_id)
+        r = dynamo.get(entityType, item_id)
         return jsonify(r)
     except RuntimeError as e:
         return jsonify({"error": str(e)})

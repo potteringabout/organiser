@@ -32,7 +32,7 @@ import {
 import { upsertItem } from "@/app/client";
 
 const f = {
-  EntityType: "task",
+  EntityType: "Task",
   details: "Fix the bug in login form",
   forWho: "Alice",
   dependentOn: "Bob",
@@ -67,7 +67,7 @@ const statusOptions = [
 ];
 
 const defaultFormData = {
-  EntityType: "task",
+  EntityType: "Task",
   details: "",
   forWho: "",
   dependentOn: "",
@@ -99,7 +99,7 @@ export default function TaskOrNoteForm({boardId}) {
       return;
     }
     // Check if due date is in the past
-    if (formData.EntityType === "task" && formData.dueDate) {
+    if (formData.EntityType === "Task" && formData.dueDate) {
       const today = new Date().toISOString().split("T")[0];
       if (formData.dueDate < today) {
         setError("Due date cannot be in the past.");
@@ -166,8 +166,8 @@ export default function TaskOrNoteForm({boardId}) {
           value={formData.EntityType}
           onValueChange={(value) => setFormData({ ...formData, EntityType: value })}
           className="mt-2">
-          <ToggleGroupItem value="task">Task</ToggleGroupItem>
-          <ToggleGroupItem value="note">Note</ToggleGroupItem>
+          <ToggleGroupItem value="Task">Task</ToggleGroupItem>
+          <ToggleGroupItem value="Note">Note</ToggleGroupItem>
         </ToggleGroup>
       </div>
       
@@ -190,7 +190,7 @@ export default function TaskOrNoteForm({boardId}) {
         />
       </div>
       {/* Task Status (Only for Task) */}
-      {formData.EntityType === "task" && (
+      {formData.EntityType === "Task" && (
         <div>
           <Label className="font-semibold">Status</Label>
           <Select
@@ -234,7 +234,7 @@ export default function TaskOrNoteForm({boardId}) {
       )}
 
       {/* "For" Field (Only for Task) */}
-      {formData.EntityType === "task" && (
+      {formData.EntityType === "Task" && (
         <div>
           <Label className="font-semibold">For (optional)</Label>
           {formData.forWho && (
@@ -280,7 +280,7 @@ export default function TaskOrNoteForm({boardId}) {
       )}
       {/* "Dependent On" Field (Only for Task) */}
       {/* Dependent On (Only if Task is Blocked) */}
-      {formData.EntityType === "task" && formData.status === "blocked" && (
+      {formData.EntityType === "Task" && formData.status === "blocked" && (
         <div>
           <Label className="font-semibold">Dependent On</Label>
           {formData.dependentOn && (
@@ -308,7 +308,7 @@ export default function TaskOrNoteForm({boardId}) {
           </Command>
         </div>
       )}
-      {formData.EntityType === "task" && (
+      {formData.EntityType === "Task" && (
         <div className="relative">
           <Label className="font-semibold">Due Date</Label>
           <Input
