@@ -76,12 +76,29 @@ def user_info(func):
 
 
 def parse_json(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        kwargs.update(request.get_json() or {})
-        return func(*args, **kwargs)
+  @wraps(func)
+  def wrapper(*args, **kwargs):
+    try:
+      json_data = request.get_json(silent=True) or {}
 
-    return wrapper
+      if not isinstance(json_data, dict):  # Ensure JSON is a dictionary
+        return jsonify({"error": "Invalid JSON format"}), 400
+      
+      # Assign the entire body to 'body' param for POST/PUT
+      if request.method in ['POST', 'PUT']:
+        kwargs['body'] = json_data
+      else:
+        # Merge JSON fields into kwargs (avoiding conflicts)
+        for key in json_data:
+          if key in kwargs:
+            return jsonify({"error": f"Conflict: '{key}' already in function parameters"}), 400
+        kwargs.update(json_data)
+
+      return func(*args, **kwargs)
+    except Exception as e:
+      return jsonify({"error": str(e)}), 400
+
+  return wrapper
 
 
 def generate_id():
@@ -120,6 +137,47 @@ def protected_endpoint(user_id, user_name, email, groups):
             "groups": groups,
         }
     )
+
+
+@app.route("/boards2", methods=["POST"])
+#@user_info
+#@parse_json
+def upsert_board2():
+    return jsonify({"success": True})
+
+
+@app.route("/boards3", methods=["POST"])
+#@user_info
+#@parse_json
+def upsert_board3():
+    x = request.get_json()
+    return jsonify(x)
+
+@app.route("/boards4", methods=["POST"])
+@user_info
+#@parse_json
+def upsert_board4(user):
+    item = request.get_json()
+    return jsonify(user)
+
+
+@app.route("/boards5", methods=["POST"])
+@user_info
+@parse_json
+def upsert_board5(user, body):
+    item = request.get_json()
+    return jsonify(user)
+
+
+    #now = datetime.now(timezone.utc).isoformat()
+    #if "ID" not in item or item["ID"] == "":
+    #    item["ID"] = f"Board-{str(uuid.uuid4())}"
+    #    item["CreatedDate"] = now
+
+    #item["Owner"] = user["user_id"]
+    #item["LastUpdate"] = now
+    #board = Board(item)
+    #return jsonify(board.to_dict())
 
 
 @app.route("/boards", methods=["POST"])
@@ -190,7 +248,7 @@ def get_boards(user):
     except RuntimeError as e:
         return jsonify({"error": str(e)})
 
-@app.route("/boards/<board_id>/items", methods=["POST"]) // TODO: This fails and I don't know why.  Not even sure the method is called
+@app.route("/boards/<board_id>/items", methods=["POST"]) # TODO: This fails and I don't know why.  Not even sure the method is called
 @user_info
 def upsert_board_item(user, board_id):
     item = request.get_json()
