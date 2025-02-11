@@ -79,24 +79,28 @@ def parse_json(func):
   @wraps(func)
   def wrapper(*args, **kwargs):
     try:
+      if not request.is_json:  # Avoid calling get_json unnecessarily
+        return jsonify({"error": "Request must be JSON"}), 400
+      
       json_data = request.get_json(silent=True) or {}
 
       if not isinstance(json_data, dict):  # Ensure JSON is a dictionary
         return jsonify({"error": "Invalid JSON format"}), 400
-      
-      # Assign the entire body to 'body' param for POST/PUT
+
+      # Assign entire body to 'body' for POST/PUT requests
       if request.method in ['POST', 'PUT']:
         kwargs['body'] = json_data
       else:
-        # Merge JSON fields into kwargs (avoiding conflicts)
+        # Merge JSON fields into kwargs, avoiding conflicts
         for key in json_data:
           if key in kwargs:
             return jsonify({"error": f"Conflict: '{key}' already in function parameters"}), 400
         kwargs.update(json_data)
 
       return func(*args, **kwargs)
+      
     except Exception as e:
-      return jsonify({"error": str(e)}), 400
+      return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
   return wrapper
 
@@ -138,37 +142,6 @@ def protected_endpoint(user_id, user_name, email, groups):
         }
     )
 
-
-@app.route("/boards2", methods=["POST"])
-#@user_info
-#@parse_json
-def upsert_board2():
-    return jsonify({"success": True})
-
-
-@app.route("/boards3", methods=["POST"])
-#@user_info
-#@parse_json
-def upsert_board3():
-    x = request.get_json()
-    return jsonify(x)
-
-@app.route("/boards4", methods=["POST"])
-@user_info
-#@parse_json
-def upsert_board4(user):
-    item = request.get_json()
-    return jsonify(user)
-
-
-@app.route("/boards5", methods=["POST"])
-@user_info
-@parse_json
-def upsert_board5(user, body):
-    item = request.get_json()
-    return jsonify(user)
-
-
     #now = datetime.now(timezone.utc).isoformat()
     #if "ID" not in item or item["ID"] == "":
     #    item["ID"] = f"Board-{str(uuid.uuid4())}"
@@ -182,8 +155,8 @@ def upsert_board5(user, body):
 
 @app.route("/boards", methods=["POST"])
 @user_info
-#@parse_json
-def upsert_board(user):
+@parse_json
+def upsert_board(user, body):
     """
     Create a board with associated tags and tasks in DynamoDB.
 
@@ -197,15 +170,14 @@ def upsert_board(user):
     Returns:
         str: The unique ID of the created board.
     """
-    item = request.get_json()
     now = datetime.now(timezone.utc).isoformat()
-    if "ID" not in item or item["ID"] == "":
-        item["ID"] = f"Board-{str(uuid.uuid4())}"
-        item["CreatedDate"] = now
+    if "ID" not in body or body["ID"] == "":
+        body["ID"] = f"Board-{str(uuid.uuid4())}"
+        body["CreatedDate"] = now
 
-    item["Owner"] = user["user_id"]
-    item["LastUpdate"] = now
-    board = Board(item)
+    body["Owner"] = user["user_id"]
+    body["LastUpdate"] = now
+    board = Board(body)
     try:
         r = dynamo.upsert(board.to_dict())
         return jsonify(r)
@@ -214,7 +186,8 @@ def upsert_board(user):
 
 
 @app.route("/boards/<board_id>", methods=["DELETE"])
-def delete_board(board_id):
+@user_info
+def delete_board(user, board_id):
 
     try:
         r = dynamo.delete("Board", board_id)
@@ -224,7 +197,8 @@ def delete_board(board_id):
 
 
 @app.route("/boards/<board_id>")
-def get_board(board_id):
+@user_info
+def get_board(user, board_id):
 
     try:
         r = dynamo.get("Board", board_id)
@@ -250,26 +224,26 @@ def get_boards(user):
 
 @app.route("/boards/<board_id>/items", methods=["POST"]) # TODO: This fails and I don't know why.  Not even sure the method is called
 @user_info
-def upsert_board_item(user, board_id):
-    item = request.get_json()
-    print(item)
+@parse_json
+def upsert_board_item(user, board_id, body):
+    print(body)
     dt = datetime.now(timezone.utc).isoformat()
-    item["Owner"] = user["user_id"]
-    item["LastUpdate"] = dt
+    body["Owner"] = user["user_id"]
+    body["LastUpdate"] = dt
 
-    entityType = item["EntityType"]
+    entityType = body["EntityType"]
 
-    if "ID" not in item or item["ID"] == "":
-      item["CreatedDate"] = dt
+    if "ID" not in body or body["ID"] == "":
+      body["CreatedDate"] = dt
       if entityType == "Task":
-        item["ID"] = f"{board_id}-Task-{str(uuid.uuid4())}"
+        body["ID"] = f"{board_id}-Task-{str(uuid.uuid4())}"
       else:
-        item["ID"] = f"{board_id}-Note-{str(uuid.uuid4())}"
+        body["ID"] = f"{board_id}-Note-{str(uuid.uuid4())}"
 
     if entityType == "Task":
-      i = Task(item)
+      i = Task(body)
     elif entityType == "Note":
-      i = Note(item)
+      i = Note(body)
     else:
       raise ValueError("Invalid entity type")
     
@@ -281,7 +255,8 @@ def upsert_board_item(user, board_id):
 
 
 @app.route("/boards/<board_id>/items/<item_id>")
-def get_item(board_id, item_id):
+@user_info
+def get_item(user, board_id, item_id):
     if "Note" in item_id:
       entityType = "Note"
     elif "Task" in item_id:

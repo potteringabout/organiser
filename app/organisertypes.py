@@ -12,12 +12,15 @@ class OrganiserItem:
 
     def __init__(self, object: dict, format: FormatType = FormatType.JSON, extra_required_fields=None):
         self.required_fields = self.base_required_fields | (extra_required_fields or set())
+
         if format == FormatType.DYNAMODB:
             object = dynamodb_to_json(object)
 
         self.validate_object(object)  # Parent validation
-        self._data = object
-        self.format = format
+
+        # Use direct attribute assignment to bypass __setattr__
+        super().__setattr__("_data", object)
+        super().__setattr__("format", format)
 
     def __getattr__(self, name):
         """
@@ -32,10 +35,9 @@ class OrganiserItem:
         """
         Dynamically set an attribute.
         """
-        if name == "_data":
-            # Allow setting _data during initialization
+        if name in ("_data", "format", "required_fields"):  # Allow normal attribute setting
             super().__setattr__(name, value)
-        elif name in self._data:
+        elif name in self._data:  # Set within _data dict
             self._data[name] = value
         else:
             raise AttributeError(
@@ -53,7 +55,7 @@ class OrganiserItem:
         """
         return json_to_dynamodb(self._data)
 
-    def validate_object(self, object, required_fields):
+    def validate_object(self, object):
         missing = self.required_fields - object.keys()
         if missing:
             raise ValueError(f"Missing required fields: {missing}")
