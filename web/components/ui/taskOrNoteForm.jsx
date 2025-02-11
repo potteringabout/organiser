@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -78,6 +79,7 @@ const defaultFormData = {
 
 export default function TaskOrNoteForm({boardId}) {
   const [formData, setFormData] = useState(defaultFormData);
+  const router = useRouter();
 
   const [error, setError] = useState("");
   const [customPerson, setCustomPerson] = useState("");
@@ -124,6 +126,8 @@ export default function TaskOrNoteForm({boardId}) {
       .then(() => {
         console.log("Item added");  // TODO: Have a meeting template which is notes and optional multiple tasks
         setFormData(defaultFormData);  // TODO: The data is inserted.  Needo to redirect to the board.
+        router.push("/organiser/boards/" + boardId);
+				//router.refresh();
       })
       .catch((error) => {
         console.error("Error:", error.message);

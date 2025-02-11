@@ -268,7 +268,38 @@ def get_item(user, board_id, item_id):
         return jsonify(r)
     except RuntimeError as e:
         return jsonify({"error": str(e)})
+    
+@app.route("/boards/<board_id>/tasks")
+@user_info
+def get_board_tasks(user, board_id):
+    try:
+        r = dynamo.query_gsi(
+            gsi_name="OwnerItemID",
+            k1="Owner",
+            v1=user["user_id"],
+            k2="ID",
+            v2=f"{board_id}-Task",
+            startswith=True
+        )
+        return jsonify(r)
+    except RuntimeError as e:
+        return jsonify({"error": str(e)})
 
+@app.route("/boards/<board_id>/notes")
+@user_info
+def get_board_notes(user, board_id):
+    try:
+        r = dynamo.query_gsi(
+            gsi_name="OwnerItemID",
+            k1="Owner",
+            v1=user["user_id"],
+            k2="ID",
+            v2=f"{board_id}-Notes",
+            startswith=True
+        )
+        return jsonify(r)
+    except RuntimeError as e:
+        return jsonify({"error": str(e)})
 
 @app.after_request
 def add_header(response):

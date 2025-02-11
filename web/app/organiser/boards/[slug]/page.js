@@ -2,7 +2,7 @@
 
 import { redirect, useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { addUpdate, getBoard, deleteBoard } from "../../../client";
+import { addUpdate, getBoard, deleteBoard, getTasks } from "../../../client";
 //import { useAlert } from '../../../contexts';
 import { showAlert } from "@/app/utils/alertEmitter";
 import { EditableTextArea } from "@/components/ui/editableText";
@@ -10,6 +10,8 @@ import { DeleteButton } from "@/components/ui/button";
 import { StatusDropdown } from "@/components/ui/dropdown";
 import { useSidebarStore } from "@/store/sidebar"
 import TaskOrNoteForm from "@/components/ui/taskOrNoteForm";
+import {TaskBoard, TaskBoard2, TaskList} from "@/components/ui/tasks";
+import { AddButton } from "@/components/ui/button";
 
 export default function Page() {
 	const { slug } = useParams();
@@ -18,6 +20,8 @@ export default function Page() {
 
 	const [board, setBoard] = useState({});
   const reloadSidebar = useSidebarStore((state) => state.reloadSidebar)
+
+  const [tasks, setTasks] = useState([]);
 
 	function handlesubmission(text) {
 		console.log(text);
@@ -61,7 +65,10 @@ export default function Page() {
 	}
 
 	useEffect(() => {
-		getBoard(slug)
+    getTasks(slug)
+      .then((data) => setTasks(data))
+      .catch((error) => console.error("Error:", error.message));
+    getBoard(slug)
 			.then((data) => setBoard(data))
 			.catch((error) => console.error("Error:", error.message));
 	}, [slug]);
@@ -79,8 +86,11 @@ export default function Page() {
 					onSubmit={handlesubmission}
 				/>
 			</div>
+      <div className="flex-1 p-4">
+        <AddButton href={`/organiser/boards/${slug}/new`} />
+      </div>
 			<div className="flex-1">
-        <TaskOrNoteForm boardId={board.ID} />
+        <TaskBoard2 tasks={tasks} />
       </div>
 		</div>
 	);
