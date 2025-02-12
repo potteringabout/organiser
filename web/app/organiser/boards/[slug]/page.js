@@ -10,7 +10,7 @@ import { DeleteButton } from "@/components/ui/button";
 import { StatusDropdown } from "@/components/ui/dropdown";
 import { useSidebarStore } from "@/store/sidebar"
 import TaskOrNoteForm from "@/components/ui/taskOrNoteForm";
-import {TaskBoard, TaskBoard2, TaskList} from "@/components/ui/tasks";
+import {TaskBoard, TaskBoard2, TaskList, EditableTaskBoard} from "@/components/ui/tasks";
 import { AddButton } from "@/components/ui/button";
 
 export default function Page() {
@@ -90,7 +90,7 @@ export default function Page() {
         <AddButton href={`/organiser/boards/${slug}/new`} />
       </div>
 			<div className="flex-1">
-        <TaskBoard2 tasks={tasks} />
+        <EditableTaskBoard tasks={tasks} />
       </div>
 		</div>
 	);
