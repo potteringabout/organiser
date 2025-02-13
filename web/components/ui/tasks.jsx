@@ -89,17 +89,17 @@ function TaskSection({ title, tasks, expandedTask, toggleTaskDetails, handleUpda
 
 function EditableTaskCard({ task, expandedTask, toggleTaskDetails, handleUpdateTask }) {
   const isExpanded = expandedTask === task.ID;
-  const [editingField, setEditingField] = useState(null);
-
-  const handleEditField = (field) => setEditingField(field);
-  const handleBlur = () => setEditingField(null);
 
   return (
     <Card className="bg-white shadow-md rounded-lg px-3 py-2">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => toggleTaskDetails(task.ID)}>
           {statusIcons[task.status]}
-          {!isExpanded && <span className="font-medium truncate max-w-[250px]">{task.details}</span>}
+          {!isExpanded && (
+            <span className="font-medium truncate max-w-[250px]">
+              {task.details?.length ? task.details[task.details.length - 1].text : "-"}
+            </span>
+          )}
         </div>
         <Button size="icon" variant="ghost" className="w-6 h-6" onClick={() => toggleTaskDetails(task.ID)}>
           {isExpanded ? "−" : "+"}
@@ -108,7 +108,7 @@ function EditableTaskCard({ task, expandedTask, toggleTaskDetails, handleUpdateT
 
       {isExpanded && (
         <CardContent className="p-2 space-y-2">
-          <EditableField label="Details" value={task.details} field="details" task={task} handleUpdateTask={handleUpdateTask} />
+          <EditableField label="Details" value={task.details} field="details" task={task} handleUpdateTask={handleUpdateTask} isList />
           <EditableField label="Status" value={task.status} field="status" task={task} handleUpdateTask={handleUpdateTask} isSelect />
           <EditableField label="Due Date" value={task.dueDate} field="dueDate" task={task} handleUpdateTask={handleUpdateTask} isDate />
           <EditableField label="Assigned To" value={task.forWho} field="forWho" task={task} handleUpdateTask={handleUpdateTask} />
@@ -119,22 +119,49 @@ function EditableTaskCard({ task, expandedTask, toggleTaskDetails, handleUpdateT
 }
 
 
-function EditableField({ label, value, field, task, handleUpdateTask, isSelect = false, isDate = false }) {
+function EditableField({ label, value, field, task, handleUpdateTask, isList = false, isSelect = false, isDate = false }) {
   const [isEditing, setEditing] = useState(false);
-  const [editedValue, setEditedValue] = useState(value || "");
+  const [editedValue, setEditedValue] = useState(isList ? value || [] : value || "");
+  const [newDetail, setNewDetail] = useState("");
 
   const handleBlur = () => {
     setEditing(false);
-    if (editedValue !== value) {
+    if (JSON.stringify(editedValue) !== JSON.stringify(value)) {
       handleUpdateTask(task.ID, field, editedValue);
     }
   };
 
+  const addNewDetail = () => {
+    if (newDetail.trim() === "") return;
+    const updatedDetails = [...editedValue, { text: newDetail, date: new Date().toISOString() }];
+    setEditedValue(updatedDetails);
+    setNewDetail("");
+  };
+
   return (
-    <div onClick={() => setEditing(true)}>
+    <div onClick={() => setEditing(true)} className="space-y-2">
       <Label className="text-gray-600 text-sm">{label}</Label>
+      
       {isEditing ? (
-        isSelect ? (
+        isList ? (
+          <div className="space-y-1">
+            {editedValue.map((item, index) => (
+              <div key={index} className="flex justify-between bg-gray-100 p-2 rounded-md">
+                <span>{item.text}</span>
+                <span className="text-xs text-gray-500">{new Date(item.date).toLocaleDateString()}</span>
+              </div>
+            ))}
+            <div className="flex gap-2">
+              <Input
+                value={newDetail}
+                onChange={(e) => setNewDetail(e.target.value)}
+                placeholder="Add new detail..."
+              />
+              <Button onClick={addNewDetail} variant="outline">+</Button>
+            </div>
+            <Button onClick={handleBlur} variant="default">Save</Button>
+          </div>
+        ) : isSelect ? (
           <Select
             value={editedValue}
             onValueChange={(newValue) => {
@@ -170,6 +197,19 @@ function EditableField({ label, value, field, task, handleUpdateTask, isSelect =
             autoFocus
           />
         )
+      ) : isList ? (
+        <div className="space-y-1">
+          {value?.length > 0 ? (
+            value.map((item, index) => (
+              <div key={index} className="flex justify-between bg-gray-100 p-2 rounded-md">
+                <span>{item.text}</span>
+                <span className="text-xs text-gray-500">{new Date(item.date).toLocaleDateString()}</span>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500">No details added yet.</p>
+          )}
+        </div>
       ) : (
         <p>{value || "-"}</p>
       )}

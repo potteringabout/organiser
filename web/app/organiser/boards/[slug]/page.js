@@ -66,7 +66,14 @@ export default function Page() {
 
 	useEffect(() => {
     getTasks(slug)
-      .then((data) => setTasks(data))
+      .then((data) => {
+        data = data.map(task => ({
+          ...task,
+          details: task.details ? JSON.parse(task.details) : []
+        }));
+        
+        setTasks(data);
+      })
       .catch((error) => console.error("Error:", error.message));
     getBoard(slug)
 			.then((data) => setBoard(data))
