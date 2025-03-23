@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime, timezone
 from flask import Flask, jsonify, request
 from functools import wraps
+import functools
 import awsgi
 from dynamoutils import DynamoDBHelper
 from organisertypes import Board, Task, Note
@@ -31,13 +32,13 @@ def log_io(enabled=True):
     """
 
     def decorator(func):
-        @wraps(func)
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
             if enabled:
                 print(f"Calling function: {func.__name__}")
                 print(f"Input args: {args}")
                 print(f"Input kwargs: {kwargs}")
-            result = func(*args, **kwargs)
+            result = func(*args, **kwargs)  # Execute the actual function
             if enabled:
                 print(f"Output: {result}")
             return result
@@ -60,7 +61,8 @@ def user_info(func):
             "cognito:username"
         )  # Cognito User ID
         email = authorizer.get("claims", {}).get("email")  # Cognito User ID
-        groups = authorizer.get("claims", {}).get("cognito:groups", "").split(",")
+        groups = authorizer.get("claims", {}).get(
+            "cognito:groups", "").split(",")
 
         user = {
             "user_id": user_id,
@@ -76,33 +78,34 @@ def user_info(func):
 
 
 def parse_json(func):
-  @wraps(func)
-  def wrapper(*args, **kwargs):
-    try:
-      if not request.is_json:  # Avoid calling get_json unnecessarily
-        return jsonify({"error": "Request must be JSON"}), 400
-      
-      json_data = request.get_json(silent=True) or {}
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            if not request.is_json:  # Avoid calling get_json unnecessarily
+                return jsonify({"error": "Request must be JSON"}), 400
 
-      if not isinstance(json_data, dict):  # Ensure JSON is a dictionary
-        return jsonify({"error": "Invalid JSON format"}), 400
+            json_data = request.get_json(silent=True) or {}
 
-      # Assign entire body to 'body' for POST/PUT requests
-      if request.method in ['POST', 'PUT']:
-        kwargs['body'] = json_data
-      else:
-        # Merge JSON fields into kwargs, avoiding conflicts
-        for key in json_data:
-          if key in kwargs:
-            return jsonify({"error": f"Conflict: '{key}' already in function parameters"}), 400
-        kwargs.update(json_data)
+            if not isinstance(json_data, dict):  # Ensure JSON is a dictionary
+                return jsonify({"error": "Invalid JSON format"}), 400
 
-      return func(*args, **kwargs)
-      
-    except Exception as e:
-      return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+            # Assign entire body to 'body' for POST/PUT requests
+            if request.method in ['POST', 'PUT']:
+                print("Assigning body to kwargs")
+                kwargs['body'] = json_data
+            else:
+                # Merge JSON fields into kwargs, avoiding conflicts
+                for key in json_data:
+                    if key in kwargs:
+                        return jsonify({"error": f"Conflict: '{key}' already in function parameters"}), 400
+                kwargs.update(json_data)
 
-  return wrapper
+            return func(*args, **kwargs)
+
+        except Exception as e:
+            return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+
+    return wrapper
 
 
 def generate_id():
@@ -110,23 +113,31 @@ def generate_id():
 
 
 @app.route("/upload", methods=["POST"])
+@log_io()
 @user_info
 @parse_json
-def upload(user, text):
+def upload(user, body):
 
     mistral = Mistral()
-    x = mistral.invoke(text)
-    for i in x:
+    x = mistral.invoke(body["text"])
+    print("here")
+    print(x)
+    for i in x[0]:
+        print("here in loop")
+
         print(i)
         if i["type"] == "note":
             # TODO: Need to pass the board id in the POST
-            upsert_note(user["user_id"], i.get("board_id"), i.get("text"))
+            upsert_note(user["user_id"], i.get("board_id"), i)
+            print("upserted note")
         elif i["type"] == "task":
+            print("here3")
             upsert_task(
-                user["user_id"], i.get("board_id"), i.get("text"), i.get("dueDate")
+                user["user_id"], i.get("board_id"), i
             )
-
-    return jsonify(x)
+            print("upserted task")
+    print("Done")
+    return jsonify(x[0])
 
 
 @app.route("/protected", methods=["GET"])
@@ -142,15 +153,15 @@ def protected_endpoint(user_id, user_name, email, groups):
         }
     )
 
-    #now = datetime.now(timezone.utc).isoformat()
-    #if "ID" not in item or item["ID"] == "":
+    # now = datetime.now(timezone.utc).isoformat()
+    # if "ID" not in item or item["ID"] == "":
     #    item["ID"] = f"Board-{str(uuid.uuid4())}"
     #    item["CreatedDate"] = now
 
-    #item["Owner"] = user["user_id"]
-    #item["LastUpdate"] = now
-    #board = Board(item)
-    #return jsonify(board.to_dict())
+    # item["Owner"] = user["user_id"]
+    # item["LastUpdate"] = now
+    # board = Board(item)
+    # return jsonify(board.to_dict())
 
 
 @app.route("/boards", methods=["POST"])
@@ -222,7 +233,9 @@ def get_boards(user):
     except RuntimeError as e:
         return jsonify({"error": str(e)})
 
-@app.route("/boards/<board_id>/items", methods=["POST"]) # TODO: This fails and I don't know why.  Not even sure the method is called
+
+# TODO: This fails and I don't know why.  Not even sure the method is called
+@app.route("/boards/<board_id>/items", methods=["POST"])
 @user_info
 @parse_json
 def upsert_board_item(user, board_id, body):
@@ -234,41 +247,42 @@ def upsert_board_item(user, board_id, body):
     entityType = body["EntityType"]
 
     if "ID" not in body or body["ID"] == "":
-      body["CreatedDate"] = dt
-      if entityType == "Task":
-        body["ID"] = f"{board_id}-Task-{str(uuid.uuid4())}"
-      else:
-        body["ID"] = f"{board_id}-Note-{str(uuid.uuid4())}"
+        body["CreatedDate"] = dt
+        if entityType == "Task":
+            body["ID"] = f"{board_id}-Task-{str(uuid.uuid4())}"
+        else:
+            body["ID"] = f"{board_id}-Note-{str(uuid.uuid4())}"
 
     if entityType == "Task":
-      i = Task(body)
+        i = Task(body)
     elif entityType == "Note":
-      i = Note(body)
+        i = Note(body)
     else:
-      raise ValueError("Invalid entity type")
-    
+        raise ValueError("Invalid entity type")
+
     try:
-      r = dynamo.upsert(i.to_dict())
-      return jsonify(r)
+        r = dynamo.upsert(i.to_dict())
+        return jsonify(r)
     except RuntimeError as e:
-      return jsonify({"error": str(e)})  
+        return jsonify({"error": str(e)})
 
 
 @app.route("/boards/<board_id>/items/<item_id>")
 @user_info
 def get_item(user, board_id, item_id):
     if "Note" in item_id:
-      entityType = "Note"
+        entityType = "Note"
     elif "Task" in item_id:
-      entityType = "Task"
+        entityType = "Task"
     else:
-      raise ValueError("Invalid entity type")
+        raise ValueError("Invalid entity type")
     try:
         r = dynamo.get(entityType, item_id)
         return jsonify(r)
     except RuntimeError as e:
         return jsonify({"error": str(e)})
-    
+
+
 @app.route("/boards/<board_id>/tasks")
 @user_info
 def get_board_tasks(user, board_id):
@@ -285,6 +299,7 @@ def get_board_tasks(user, board_id):
     except RuntimeError as e:
         return jsonify({"error": str(e)})
 
+
 @app.route("/boards/<board_id>/notes")
 @user_info
 def get_board_notes(user, board_id):
@@ -300,6 +315,7 @@ def get_board_notes(user, board_id):
         return jsonify(r)
     except RuntimeError as e:
         return jsonify({"error": str(e)})
+
 
 @app.after_request
 def add_header(response):

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import uuid
+import json
 from datetime import datetime, timezone
 from dynamoutils import DynamoDBHelper
 from organisertypes import Board, Note, Task
@@ -53,6 +54,10 @@ def upsert_note(user, board_id, ob):
     Returns:
         str: The unique ID of the created board.
     """
+    if isinstance(ob, str):
+        ob = json.loads(ob)
+
+    print(f"Posting note: {ob}")
     now = datetime.now(timezone.utc).isoformat()
     if "ID" not in ob or ob["ID"] == "":
         ob["ID"] = f"{board_id}-Note-{str(uuid.uuid4())}"
@@ -61,6 +66,7 @@ def upsert_note(user, board_id, ob):
     ob["Owner"] = user["user_id"]
     ob["LastUpdate"] = now
     
+    print(f"Note: {ob}")
     note = Note(ob)
 
     try:
@@ -84,6 +90,10 @@ def upsert_task(user, board_id, ob):
     Returns:
         str: The unique ID of the created board.
     """
+    if isinstance(ob, str):
+        ob = json.loads(ob)
+
+    print(f"Posting task: {ob}")
     now = datetime.now(timezone.utc).isoformat()
     if "ID" not in ob or ob["ID"] == "":
         ob["ID"] = f"{board_id}-Task-{str(uuid.uuid4())}"
@@ -91,7 +101,7 @@ def upsert_task(user, board_id, ob):
     
     ob["Owner"] = user["user_id"]
     ob["LastUpdate"] = now
-    
+    print(f"Task: {ob}")
     task = Task(ob)
 
     try:

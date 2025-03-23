@@ -1,0 +1,83 @@
+import useOrganiserStore from "./store/organiserStore";
+import { useParams } from "react-router-dom";
+import { getTasks, getBoard, getBoards } from "@/client";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { EditableTaskBoard } from "@/components/ui/tasks";
+
+function Boards({ id }) {
+  const [tasks, setTasks] = useState([]);
+  const [board, setBoard] = useState({});
+
+  useEffect(() => {
+    // get the tasks for the board and take the details and convert it from string to list
+    getTasks(id)
+      .then((data) => {
+        console.log("Data is ", data);
+        data = data.map((task) => ({
+          ...task,
+          details: task.details ? JSON.parse(task.details) : [],
+        }));
+
+        setTasks(data);
+      })
+      .catch((error) => console.error("Error:", error.message));
+
+    getBoard(id)
+      .then((data) => setBoard(data))
+      .catch((error) => console.error("Error:", error.message));
+
+  }, [id]);
+
+  function handleDelete() {
+		deleteBoard(id)
+			.then(() => {
+        //reloadSidebar();
+				console.log("Deleted board");
+				//showAlert("Board deleted successfully");
+				//redirect("/organiser/boards");
+				//router.push("/organiser/boards");
+				//router.refresh();
+			})
+			.catch((error) => {
+				console.error("Error:", error.message);
+				//showAlert("Error deleting board", "error");
+			});
+	}
+
+  return (
+		<div className="flex flex-col">
+			<div className="flex flex-1 justify-between">
+				<p>Board: {board.Name}</p>
+				<p>Description: {board.Description}</p>
+				<Button onClick={handleDelete} />
+			</div>
+			<div className="flex-1 p-4">
+				
+			</div>
+      <div className="flex-1 p-4">
+        <Button href={`/organiser/boards/${id}/new`} />
+      </div>
+			<div className="flex-1">
+        <EditableTaskBoard tasks={tasks} />
+      </div>
+		</div>
+	);
+}
+
+function Main() {
+  const { id } = useParams();
+  const { darkMode, menu } = useOrganiserStore();
+
+  return (
+    <main
+      className={`flex-1 shadow-2xl p-6 overflow-auto ${
+        darkMode ? "bg-gray-700" : "bg-gray-100"
+      }`}>
+      {menu === "boards" && <Boards id={id} />}
+      {menu !== "boards" && <p>Select an option from the menu</p>}
+    </main>
+  );
+}
+
+export default Main;
