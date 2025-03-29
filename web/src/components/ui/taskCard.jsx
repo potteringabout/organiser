@@ -153,7 +153,7 @@ export default function TaskCard({ task }) {
           {task.updates.map((u) => (
             <div
               key={u.id}
-              className="text-sm bg-gray-50 p-2 rounded mt-2 flex justify-between items-start gap-4">
+              className="text-sm p-2 rounded mt-2 flex justify-between items-start gap-4">
               <div className="prose prose-sm max-w-none flex-1">
                 <MarkdownEditable
                   key={u.id}
