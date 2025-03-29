@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import { Sun, Moon } from "lucide-react";
 import "./App.css"; // Ensure your Tailwind imports are here
@@ -9,7 +9,6 @@ import Home from "./Home";
 import useOrganiserStore from "./organiser/store/organiserStore";
 
 function TopBar() {
-
   const { darkMode, setDarkMode } = useOrganiserStore();
 
   const menuItems = [
@@ -19,9 +18,8 @@ function TopBar() {
 
   return (
     <header
-      className={`h-14 w-full bg-blue-500 flex items-center px-4 shadow-md ${
-        darkMode ? "bg-gray-800" : "bg-white"
-      } shadow-md`}>
+      className="h-14 w-full flex items-center px-4 shadow-md bg-white dark:bg-gray-800 text-gray-800 dark:text-white shadow-md">
+      
       <div className="flex items-center">
         <img
           src="/mug.png"
@@ -29,7 +27,9 @@ function TopBar() {
           height="49"
           alt="Logo"
         />
-        <h1 className="text-xl font-bold text-gray-900">potteringabout</h1>
+        <h1 className="text-xl font-bold">
+          potteringabout
+        </h1>
       </div>
       <nav className="flex-1 flex justify-center space-x-4">
         {menuItems.map((item) => (
@@ -44,7 +44,7 @@ function TopBar() {
       <div className="flex items-center space-x-4">
         <button
           onClick={() => setDarkMode(!darkMode)}
-          className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 transition-colors">
+          className="p-2 rounded-full transition-colors">
           {darkMode ? "☀️" : "🌙"}
         </button>
         <LogoutButton />
@@ -54,29 +54,38 @@ function TopBar() {
 }
 
 function App() {
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode } = useOrganiserStore();
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", darkMode);
+    console.log("SETTING DARK MODE", darkMode);
+  }, [darkMode]);
 
   return (
     <AuthProvider>
       <BodyWithAuthCheck>
         <Router>
-        <div className="flex flex-col min-h-screen">
-          <div className={`${darkMode ? "bg-gray-900 text-white" : "bg-white text-black"} `}>
-            <TopBar/>
-            <main className="p-4">
-              <Routes>
-                <Route
-                  path="/"
-                  element={<Home />}
-                />
-                <Route
-                  path="/organiser"
-                  element={<Organiser />}
-                />
-                <Route path="/organiser/:type/:id" element={<Organiser />} />
-              </Routes>
-            </main>
-          </div>
+          <div className="flex flex-col min-h-screen">
+            <div
+              >
+              <TopBar />
+              <main className="p-4 pt-0">
+                <Routes>
+                  <Route
+                    path="/"
+                    element={<Home />}
+                  />
+                  <Route
+                    path="/organiser"
+                    element={<Organiser />}
+                  />
+                  <Route
+                    path="/organiser/:type/:id"
+                    element={<Organiser />}
+                  />
+                </Routes>
+              </main>
+            </div>
           </div>
         </Router>
       </BodyWithAuthCheck>
@@ -99,7 +108,13 @@ function Loading() {
 }
 
 function Body({ children }) {
-  return <div className={`bg-gray-100 text-gray-900`}>{children}</div>;
+  const { darkMode } = useOrganiserStore();
+
+  return (
+    <div className="bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
+      {children}
+    </div>
+  );
 }
 
 function BodyWithAuthCheck({ children }) {

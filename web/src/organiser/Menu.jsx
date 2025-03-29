@@ -1,43 +1,55 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { getBoards } from "@/organiser/store/client";
 import { useSidebarStore } from "./store/sidebar";
-import { Link } from "react-router-dom";
 import useOrganiserStore from "./store/organiserStore";
+import { Menu as MenuIcon, X } from "lucide-react";
 
 function Menu() {
-  const navigate = useNavigate();
-  const { darkMode, menu } = useOrganiserStore();
-
+  const { darkMode } = useOrganiserStore();
   const { id } = useParams();
 
   const [menuItems, setMenuItems] = useState([]);
+  const [isOpen, setIsOpen] = useState(true);
   const reloadTrigger = useSidebarStore((state) => state.reloadTrigger);
 
   useEffect(() => {
     async function loadMenuItems() {
       const data = await getBoards();
-      // Assuming `data` is an array with objects containing `name` and `path`
-      console.log(data);
       setMenuItems(data || []);
     }
     loadMenuItems();
   }, [reloadTrigger]);
 
+  if (!isOpen) {
+    return (
+      <div className="w-8 pt-2 flex-shrink-0">
+        <button
+          className="p-2 hover:bg-gray-100 border rounded shadow"
+          onClick={() => setIsOpen(true)}
+        >
+          <MenuIcon size={10} />
+        </button>
+      </div>
+    );
+  }
+
   return (
     <aside
-      className={`h-screen w-64 p-4 transition-colors shadow-xl ${
-        darkMode ? "bg-gray-800" : "bg-white"
-      }`}>
+      className="h-screen w-64 p-4 transition-colors shadow-xl relative bg-white dark:bg-gray-800">
+      {/* Collapse button */}
+      <button
+        className="absolute top-2 right-2 p-1 bg-transparent hover:bg-gray-200 rounded"
+        onClick={() => setIsOpen(false)}
+      >
+        <X size={16} />
+      </button>
+
       <div>
-        <div className="flex justify-between">
-          <h4 className="font-bold text-gray-800">Boards</h4>
-        </div>
+        <h4 className="font-bold mb-2">Boards</h4>
         <ul>
           {menuItems.map((item) => (
-            <li
-              key={item.ID}
-              className="mb-2">
+            <li key={item.ID} className="mb-2">
               <Link
                 to={`/organiser/boards/${item.ID}`}
                 className="hover:underline">

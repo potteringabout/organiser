@@ -26,8 +26,6 @@ export default function StatusDropdown({ currentStatus, onChange }) {
         className="flex items-center gap-2 border border-gray-300 px-3 py-1.5 rounded text-sm text-gray-700 hover:bg-gray-50"
       >
         {selected?.icon && <selected.icon size={16} />}
-        {selected?.label}
-        <ChevronDown size={16} className="ml-1" />
       </button>
 
       {open && (

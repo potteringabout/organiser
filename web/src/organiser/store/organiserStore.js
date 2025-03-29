@@ -24,19 +24,28 @@ set((state) => ({ ... }))	✅ When you do need the current state to compute the 
 const useOrganiserStore = create((set, get) => ({
   developerMode: true,
 
-  darkMode: false,
   selectedItem: "Home",
   menu: "Boards",
 
-  setDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
+  darkMode: localStorage.getItem("darkMode") === "true",
+  setDarkMode: (value) => {
+    localStorage.setItem("darkMode", value);
+    set({ darkMode: value });
+  },
+
+  /*setDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),*/
   setSelectedItem: (item) => set(() => ({ selectedItem: item })),
   setMenu: (menu) => set(() => ({ menu: menu })),
+
+  editingUpdateId: null,
+  setEditingUpdateId: (id) => set({ editingUpdateId: id }),
+  clearEditingUpdateId: () => set({ editingUpdateId: null }),
 
   board:{},
   boards: [],
   //setBoard: (board) => set(() => ({ board: board })),
   loadBoards: async () => {
-    boards = await client.getBoards();
+    const boards = await client.getBoards();
     set({ boards: boards });
   },
   getBoardById: (id) => get().boards.find((b) => b.ID === id),
@@ -79,6 +88,8 @@ const useOrganiserStore = create((set, get) => ({
         t.ID === taskId ? { ...t, ...updates } : t
       ),
     });
+
+    console.log('updated Task!!', updates);
 
     /*try {
       const res = await fetch(`/api/tasks/${taskId}`, {
