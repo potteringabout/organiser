@@ -127,7 +127,7 @@ resource "aws_cloudfront_distribution" "distribution" {
     viewer_protocol_policy = "redirect-to-https"
     allowed_methods        = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "DELETE", "PATCH"]
     cached_methods         = ["GET", "HEAD"]
-    
+
 
     forwarded_values {
       query_string = true
