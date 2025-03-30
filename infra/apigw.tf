@@ -34,10 +34,10 @@ resource "aws_api_gateway_method" "options_method" {
 }
 
 resource "aws_api_gateway_integration" "options_method_integration" {
-  rest_api_id       = aws_api_gateway_rest_api.api.id
-  resource_id       = aws_api_gateway_resource.resource.id
-  http_method       = aws_api_gateway_method.options_method.http_method
-  type              = "MOCK"
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  resource_id = aws_api_gateway_resource.resource.id
+  http_method = aws_api_gateway_method.options_method.http_method
+  type        = "MOCK"
 
   request_templates = {
     "application/json" = "{\"statusCode\": 204}"
@@ -101,20 +101,20 @@ resource "aws_api_gateway_authorizer" "cognito_authorizer" {
 }
 
 resource "aws_api_gateway_stage" "stage" {
-  stage_name          = "dev"
-  rest_api_id         = aws_api_gateway_rest_api.api.id
-  deployment_id       = aws_api_gateway_deployment.deployment.id
+  stage_name           = "dev"
+  rest_api_id          = aws_api_gateway_rest_api.api.id
+  deployment_id        = aws_api_gateway_deployment.deployment.id
   xray_tracing_enabled = true
 }
 
 resource "aws_api_gateway_deployment" "deployment" {
-  
+
   rest_api_id = aws_api_gateway_rest_api.api.id
 
   triggers = {
     redeployment = sha1(jsonencode(aws_api_gateway_rest_api.api.body))
   }
-  
+
   lifecycle {
     create_before_destroy = true
   }

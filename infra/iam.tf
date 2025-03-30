@@ -32,7 +32,7 @@ data "aws_iam_policy_document" "policy" {
       "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/Organiser/*",
       "arn:aws:bedrock:${var.aws_region}::foundation-model/meta.llama3-70b-instruct-v1:0",
       "arn:aws:bedrock:${var.aws_region}::foundation-model/mistral.mixtral-8x7b-instruct-v0:1",
-      
+
     ]
   }
 }
@@ -40,11 +40,11 @@ data "aws_iam_policy_document" "policy" {
 resource "aws_iam_policy" "policy" {
   name        = "potteringabout-organiser-lambda"
   description = "Organiser policy for Lambda"
-  policy = data.aws_iam_policy_document.policy.json
+  policy      = data.aws_iam_policy_document.policy.json
 }
 
-  
-  
+
+
 resource "aws_iam_role" "lambda_exec" {
   name = "potteringabout-organiser-lambda"
 
@@ -63,7 +63,7 @@ resource "aws_iam_role" "lambda_exec" {
 }
 
 resource "aws_iam_policy_attachment" "test-attach" {
-  name      = "potteringabout-organiser-lambda-policy-attach"
+  name       = "potteringabout-organiser-lambda-policy-attach"
   roles      = [aws_iam_role.lambda_exec.name]
   policy_arn = aws_iam_policy.policy.arn
 

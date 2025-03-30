@@ -86,10 +86,10 @@ resource "aws_cloudfront_distribution" "distribution" {
   default_root_object = "index.html"
 
   default_cache_behavior {
-    target_origin_id = "s3_origin"
+    target_origin_id       = "s3_origin"
     viewer_protocol_policy = "redirect-to-https"
-    allowed_methods  = ["GET", "HEAD"]
-    cached_methods   = ["GET", "HEAD"]
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
 
     forwarded_values {
       query_string = false
@@ -102,17 +102,17 @@ resource "aws_cloudfront_distribution" "distribution" {
     # Enable X-Ray tracing
     #enable_tracing = true
 
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
+    min_ttl     = 0
+    default_ttl = 3600
+    max_ttl     = 86400
   }
 
   ordered_cache_behavior {
-    path_pattern     = "/api/*"
-    target_origin_id = "api_gateway_origin"
+    path_pattern           = "/api/*"
+    target_origin_id       = "api_gateway_origin"
     viewer_protocol_policy = "redirect-to-https"
-    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
-    cached_methods   = ["GET", "HEAD"]
+    allowed_methods        = ["GET", "HEAD", "OPTIONS"]
+    cached_methods         = ["GET", "HEAD"]
 
     forwarded_values {
       query_string = true
@@ -121,9 +121,9 @@ resource "aws_cloudfront_distribution" "distribution" {
       }
     }
 
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
+    min_ttl     = 0
+    default_ttl = 3600
+    max_ttl     = 86400
   }
 
   restrictions {

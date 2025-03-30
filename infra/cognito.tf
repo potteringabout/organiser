@@ -6,7 +6,7 @@ resource "aws_cognito_user_pool_client" "user_pool_client" {
   name         = "organiser_user_pool_client" # Fixed double underscore
   user_pool_id = aws_cognito_user_pool.user_pool.id
 
-  generate_secret     = false
+  generate_secret = false
   explicit_auth_flows = [
     "ALLOW_USER_PASSWORD_AUTH",
     "ALLOW_REFRESH_TOKEN_AUTH",
@@ -14,7 +14,7 @@ resource "aws_cognito_user_pool_client" "user_pool_client" {
     "ALLOW_USER_SRP_AUTH",
     "ALLOW_ADMIN_USER_PASSWORD_AUTH"
   ]
-  
+
   access_token_validity  = 4  # 4 hours in minutes
   id_token_validity      = 4  # 4 hours in minutes
   refresh_token_validity = 24 # 1 day in minutes
@@ -22,13 +22,13 @@ resource "aws_cognito_user_pool_client" "user_pool_client" {
   allowed_oauth_flows = [
     "code",
     "implicit"
-  ] 
+  ]
 
   allowed_oauth_scopes = [
     "email",
     "openid",
     "profile"
-  ] 
+  ]
 
   allowed_oauth_flows_user_pool_client = false
   callback_urls                        = ["https://d3731pww2dbm89.cloudfront.net/callback"]
@@ -56,12 +56,12 @@ resource "aws_cognito_resource_server" "resource_server" {
   name         = "Organiser Resource Server"
 
   scope {
-    scope_name  = "read"
+    scope_name        = "read"
     scope_description = "Read access"
   }
 
   scope {
-    scope_name  = "write"
+    scope_name        = "write"
     scope_description = "Write access"
   }
 }
