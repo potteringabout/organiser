@@ -1,4 +1,4 @@
-name: "Plan"
+name: "Terraform Plan"
 on:
   workflow_dispatch:
     #checkov:skip=CKV_GHA_7:Deliberately added input parameters for specfic deployments
