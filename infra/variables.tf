@@ -5,11 +5,11 @@ variable "deployment_role_arn" {
   type        = string
 }
 
-/*variable "dns_role_arn" {
+variable "dns_role_arn" {
   description = "The ARN of role to be assumed for DNS updates"
   default     = ""
   type        = string
-}*/
+}
 
 
 variable "aws_region" {
