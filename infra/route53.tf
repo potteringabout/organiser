@@ -22,7 +22,7 @@ resource "aws_acm_certificate" "cert" {
   domain_name       = "${var.project}-${var.environment}.${var.zone}"
   validation_method = "DNS"
 
-  provider          = aws.us_east_1  
+  provider = aws.us_east_1
 }
 
 resource "aws_route53_record" "cert_validation" {
