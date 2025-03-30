@@ -25,7 +25,7 @@ function Menu() {
     return (
       <div className="w-8 pt-2 flex-shrink-0">
         <button
-          className="p-2 hover:bg-gray-100 border rounded shadow"
+          className="p-2 bg-white hover:bg-gray-100 border rounded shadow"
           onClick={() => setIsOpen(true)}
         >
           <MenuIcon size={10} />
