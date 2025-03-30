@@ -1,0 +1,72 @@
+name: Terraform Plan/Apply
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Terraform Action'
+        required: true
+        default: 'plan'
+        type: choice
+        options:
+          - plan
+          - apply
+      #environment:
+      #  description: 'Environment'
+      #  required: true
+      #  default: 'dev'
+      #  type: choice
+      #  options:
+      #    - dev
+      #    - prod
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    #environment: ${{ github.event.inputs.environment }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.6
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume:  ${{ secrets.DEPLOYMENT_ROLE }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Assume deploy role
+        id: assume-role
+        run: |
+          CREDS=$(aws sts assume-role \
+            --role-arn ${{ secrets.TARGET_ROLE }} \
+            --role-session-name github-terraform \
+            --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \
+            --output text)
+
+          echo "AWS_ACCESS_KEY_ID=$(echo $CREDS | cut -d ' ' -f1)" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=$(echo $CREDS | cut -d ' ' -f2)" >> $GITHUB_ENV
+          echo "AWS_SESSION_TOKEN=$(echo $CREDS | cut -d ' ' -f3)" >> $GITHUB_ENV
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./infra
+
+      - name: Terraform Plan
+        if: ${{ github.event.inputs.action == 'plan' }}
+        run: terraform plan -out=tfplan
+        working-directory: ./infra
+
+      - name: Terraform Apply
+        if: ${{ github.event.inputs.action == 'apply' }}
+        run: terraform apply -auto-approve tfplan
+        working-directory: ./infra
