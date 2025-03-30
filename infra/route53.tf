@@ -18,14 +18,9 @@ resource "aws_route53_record" "address" {
   provider = aws.dns
 }
 
-output "cert_domain_name" {
-  value = "${var.project}-${var.environment}.${var.zone}"
-}
-
 resource "aws_acm_certificate" "cert" {
-  #domain_name       = "${var.project}-${var.environment}.${var.zone}"
-  domain_name = "test.potteringabout.net"
-
+  domain_name       = "${var.project}-${var.environment}.${var.zone}"
+  
   validation_method = "DNS"
 
   provider = aws.us_east_1

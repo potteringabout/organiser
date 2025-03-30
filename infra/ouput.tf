@@ -6,6 +6,10 @@ output "cloudfront_distribution_domain_name" {
   value = aws_cloudfront_distribution.distribution.domain_name
 }
 
+output "cloudfront_url" {
+  value = "https://${var.project}-${var.environment}.${var.zone}"
+}
+
 output "dynamodb_table_name" {
   value = aws_dynamodb_table.organiser.name
 }
