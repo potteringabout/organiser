@@ -43,17 +43,24 @@ jobs:
         run: npm run build
         working-directory: web
 
+      - name: Get config
+        id: get-vars
+        shell: bash
+        run: |
+          region=$(echo '${{ vars.CONFIG }}' | jq -r '.deployment_role_arn')
+          echo "deployment_role_arn=$deployment_role_arn" >> $GITHUB_OUTPUT
+          
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: ${{ secrets.DEPLOYMENT_ROLE }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.IDENTITY_ROLE }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Assume deployer role in target account
         id: assume-role
         run: |
           CREDS=$(aws sts assume-role \
-            --role-arn ${{ secrets.TARGET_ROLE }} \
+            --role-arn ${{ steps.get-vars.outputs.deployment_role_arn }} \
             --role-session-name github-deploy \
             --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \
             --output text)

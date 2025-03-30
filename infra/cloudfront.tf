@@ -35,7 +35,14 @@ resource "aws_wafv2_web_acl" "waf" {
 
 # Define the S3 bucket
 resource "aws_s3_bucket" "bucket" {
-  bucket = "potterinabout-organiser-static-content"
+  #bucket = "potterinabout-organiser-static-content"
+  bucket = "potteringabout-${var.project}-${var.environment}-static-content"
+}
+
+resource "aws_ssm_parameter" "bucket_name" {
+  name  = "/${var.project}/${var.environment}/static-content-bucket"
+  type  = "SecureString"
+  value = aws_s3_bucket.bucket.bucket
 }
 
 data "aws_iam_policy_document" "s3_policy" {
@@ -151,7 +158,7 @@ resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
 }
 
 resource "aws_cloudwatch_log_group" "cloudfront_log_group" {
-  name              = "/potteringabout/organiser/cloudfront"
+  name              = "/${var.project}/${var.environment}/cloudfront"
   retention_in_days = 7
 }
 
