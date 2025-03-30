@@ -1,6 +1,6 @@
 import { getIdToken } from '../../Auth';
 
-const API_ENDPOINT = 'https://n5g2b62p7c.execute-api.eu-west-2.amazonaws.com/dev';
+const API_ENDPOINT = 'https://organiser-dev01.potteringabout.net/api/dev';
 
 async function apiRequest(endpoint, options = {}) {
   const headers = {
