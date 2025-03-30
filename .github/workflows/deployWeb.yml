@@ -5,15 +5,12 @@ on:
   #  branches: [main]
 
   workflow_dispatch:
-    #inputs:
-    #  environment:
-    #    description: 'Target environment'
-    #    required: true
-    #    default: 'dev'
-    #    type: choice
-    #    options:
-    #      - dev
-    #      - prod
+    #checkov:skip=CKV_GHA_7:Deliberately added input parameters for specfic deployments
+    inputs:
+      ENVIRONMENT_NAME:
+        description: "Environment where the contnet will be deployed to"
+        required: true
+        type: environment
 
 
 permissions:
@@ -24,7 +21,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    #environment: ${{ github.event.inputs.environment }}
+    environment: ${{ github.event.inputs.environment }}
 
     steps:
       - name: Checkout
@@ -47,8 +44,12 @@ jobs:
         id: get-vars
         shell: bash
         run: |
-          region=$(echo '${{ vars.CONFIG }}' | jq -r '.deployment_role_arn')
+          deployment_role_arn=$(echo '${{ vars.CONFIG }}' | jq -r '.deployment_role_arn')
           echo "deployment_role_arn=$deployment_role_arn" >> $GITHUB_OUTPUT
+          environment=$(echo '${{ vars.CONFIG }}' | jq -r '.environment')
+          echo "environment=$environment" >> $GITHUB_OUTPUT
+          project=$(echo '${{ vars.CONFIG }}' | jq -r '.project')
+          echo "project=$project" >> $GITHUB_OUTPUT
           
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v2
@@ -69,12 +70,22 @@ jobs:
           echo "AWS_SECRET_ACCESS_KEY=$(echo $CREDS | cut -d ' ' -f2)" >> $GITHUB_ENV
           echo "AWS_SESSION_TOKEN=$(echo $CREDS | cut -d ' ' -f3)" >> $GITHUB_ENV
 
+
+      - name: Get SSM Parameters
+        id: get-params
+        run: |
+          bucket_name=$(aws ssm get-parameter --name "/${{ steps.get-vars.outputs.project }}/${{ steps.get-vars.outputs.environment }}/static-content-bucket" --with-decryption --query "Parameter.Value" --output text)
+          cloudfront_distribution_id=$(aws ssm get-parameter --name "/${{ steps.get-vars.outputs.project }}/${{ steps.get-vars.outputs.environment }}/cloudfront-distribution-id" --with-decryption --query "Parameter.Value" --output text)
+      
+          echo "bucket_name=$bucket_name" >> $GITHUB_OUTPUT
+          echo "cloudfront_distribution_id=$cloudfront_distribution_id" >> $GITHUB_OUTPUT
+
       - name: Deploy to S3
         run: |
-          aws s3 sync web/dist/ s3://${{ secrets.TARGET_BUCKET }} --delete
+          aws s3 sync web/dist/ s3://${{ steps.get-params.outputs.bucket_name }} --delete
 
       - name: Invalidate CloudFront
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --distribution-id ${{ steps.get-params.outputs.cloudfront_distribution_id }} \
             --paths "/*"

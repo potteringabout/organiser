@@ -45,6 +45,12 @@ resource "aws_ssm_parameter" "bucket_name" {
   value = aws_s3_bucket.bucket.bucket
 }
 
+resource "aws_ssm_parameter" "cloudfront_distribution_id" {
+  name  = "/${var.project}/${var.environment}/cloudfront-distribution-id"
+  type  = "SecureString"
+  value = aws_cloudfront_distribution.distribution.id
+}
+
 data "aws_iam_policy_document" "s3_policy" {
   statement {
     actions   = ["s3:GetObject"]

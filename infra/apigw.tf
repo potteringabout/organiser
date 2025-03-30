@@ -127,8 +127,4 @@ resource "aws_api_gateway_deployment" "deployment" {
   ]
 }
 
-resource "aws_ssm_parameter" "cloudfront_distribution_id" {
-  name  = "/${var.project}/${var.environment}/cloudfront-distribution-id"
-  type  = "SecureString"
-  value = aws_cloudfront_distribution.distribution.id
-}
+
