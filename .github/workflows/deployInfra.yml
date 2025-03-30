@@ -54,7 +54,7 @@ jobs:
           TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
           TF_DYNAMO_TABLE: ${{ vars.TF_DYNAMO_TABLE }}
           IDENTITY_ROLE: ${{ secrets.IDENTITY_ROLE }}
-          INGRESS_IPS: ${{ inputs.INGRESS_IPS }}
+          WORKING_DIRECTORY: "./infra"
     outputs:
       changes_present: ${{ steps.plan.outputs.PLAN_RESULT }}
 
