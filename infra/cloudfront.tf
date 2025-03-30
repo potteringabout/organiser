@@ -124,7 +124,7 @@ resource "aws_cloudfront_distribution" "distribution" {
     path_pattern           = "/api/*"
     target_origin_id       = "api_gateway_origin"
     viewer_protocol_policy = "redirect-to-https"
-    allowed_methods        = ["GET", "HEAD", "OPTIONS"]
+    allowed_methods        = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "DELETE"]
     cached_methods         = ["GET", "HEAD"]
 
     forwarded_values {
@@ -132,6 +132,7 @@ resource "aws_cloudfront_distribution" "distribution" {
       cookies {
         forward = "all"
       }
+      headers = ["*"]
     }
 
     min_ttl     = 0
