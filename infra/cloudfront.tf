@@ -146,8 +146,12 @@ resource "aws_cloudfront_distribution" "distribution" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn = aws_acm_certificate_validation.cert_validation.certificate_arn
+    ssl_support_method  = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
   }
+
+  aliases = ["${var.project}-${var.environment}.${var.zone}"]
 
   # Associate the Real-Time Log Configuration
   #realtime_log_config_arn = aws_cloudfront_realtime_log_config.realtime_logs.arn
