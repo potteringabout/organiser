@@ -48,7 +48,7 @@ jobs:
 
       - name: Plan deployment to ${{ inputs.ENVIRONMENT_NAME }}
         id: plan
-        uses: ../.github/actions/plan
+        uses: ./.github/actions/plan
         working-directory: ./infra
         with:
           ENVIRONMENT_NAME: ${{ inputs.ENVIRONMENT_NAME }}
