@@ -1,0 +1,73 @@
+name: Deploy to S3 + CloudFront
+
+on:
+  #push:
+  #  branches: [main]
+
+  workflow_dispatch:
+    #inputs:
+    #  environment:
+    #    description: 'Target environment'
+    #    required: true
+    #    default: 'dev'
+    #    type: choice
+    #    options:
+    #      - dev
+    #      - prod
+
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    #environment: ${{ github.event.inputs.environment }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: web
+
+      - name: Build
+        run: npm run build
+        working-directory: web
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.DEPLOYMENT_ROLE }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Assume deployer role in target account
+        id: assume-role
+        run: |
+          CREDS=$(aws sts assume-role \
+            --role-arn ${{ secrets.TARGET_ROLE }} \
+            --role-session-name github-deploy \
+            --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \
+            --output text)
+
+          echo "AWS_ACCESS_KEY_ID=$(echo $CREDS | cut -d ' ' -f1)" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=$(echo $CREDS | cut -d ' ' -f2)" >> $GITHUB_ENV
+          echo "AWS_SESSION_TOKEN=$(echo $CREDS | cut -d ' ' -f3)" >> $GITHUB_ENV
+
+      - name: Deploy to S3
+        run: |
+          aws s3 sync web/dist/ s3://${{ secrets.TARGET_BUCKET }} --delete
+
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
