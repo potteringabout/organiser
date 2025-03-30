@@ -84,6 +84,7 @@ resource "aws_cloudfront_distribution" "distribution" {
   origin {
     domain_name = "${aws_api_gateway_rest_api.api.id}.execute-api.${var.aws_region}.amazonaws.com"
     origin_id   = "api_gateway_origin"
+    origin_path = "/dev"
 
     custom_origin_config {
       http_port              = 80
@@ -126,6 +127,7 @@ resource "aws_cloudfront_distribution" "distribution" {
     viewer_protocol_policy = "redirect-to-https"
     allowed_methods        = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "DELETE", "PATCH"]
     cached_methods         = ["GET", "HEAD"]
+    
 
     forwarded_values {
       query_string = true

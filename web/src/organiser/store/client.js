@@ -1,6 +1,6 @@
 import { getIdToken } from '../../Auth';
 
-const API_ENDPOINT = 'https://organiser-dev01.potteringabout.net/api/dev';
+const API_ENDPOINT = 'https://organiser-dev01.potteringabout.net/api';
 
 async function apiRequest(endpoint, options = {}) {
   const headers = {
