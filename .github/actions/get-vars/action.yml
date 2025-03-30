@@ -10,6 +10,7 @@ runs:
   steps:
     - name: Get TF Vars
       id: get_vars
+      working-directory: ./infra
       run: |
         mkdir -p variables
         printf '${{ inputs.CONFIG }}' > ./variables/input.tfvars.json
