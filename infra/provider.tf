@@ -26,7 +26,6 @@ provider "aws" {
     tags = {
       account          = var.account
       account_full     = var.account_full
-      costcentre       = var.costcentre
       deployment_mode  = var.deployment_mode
       deployment_repo  = var.deployment_repo
       email            = var.email
@@ -51,7 +50,6 @@ provider "aws" {
     tags = {
       account          = var.account
       account_full     = var.account_full
-      costcentre       = var.costcentre
       deployment_mode  = var.deployment_mode
       deployment_repo  = var.deployment_repo
       email            = var.email

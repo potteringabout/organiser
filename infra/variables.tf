@@ -17,10 +17,6 @@ variable "aws_region" {
   type    = string
 }
 
-/*variable "deploy_region" {
-  type = string
-}*/
-
 // Tags - https://allwynuk.atlassian.net/wiki/spaces/DevOps/pages/135758056/Tagging
 variable "account" {
   description = "Account name abbreviation"
@@ -31,12 +27,6 @@ variable "account" {
 variable "account_full" {
   description = "Account name"
   default     = "Production Account"
-  type        = string
-}
-
-variable "costcentre" {
-  description = "The cost centre to charge the asset to"
-  default     = "123"
   type        = string
 }
 
@@ -85,4 +75,8 @@ variable "project_full" {
   description = "The project name in full"
   default     = "Shared Services"
   type        = string
+}
+
+variable "zone" {
+  type = string
 }
