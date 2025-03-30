@@ -20,8 +20,7 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
-    environment: ${{ github.event.inputs.environment }}
+    environment: ${{ inputs.ENVIRONMENT_NAME }}
 
     steps:
       - name: Checkout
