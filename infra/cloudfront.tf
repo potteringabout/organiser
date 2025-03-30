@@ -124,7 +124,7 @@ resource "aws_cloudfront_distribution" "distribution" {
     path_pattern           = "/api/*"
     target_origin_id       = "api_gateway_origin"
     viewer_protocol_policy = "redirect-to-https"
-    allowed_methods        = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "DELETE"]
+    allowed_methods        = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "DELETE", "PATCH"]
     cached_methods         = ["GET", "HEAD"]
 
     forwarded_values {
