@@ -70,6 +70,14 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
   policy = data.aws_iam_policy_document.s3_policy.json
 }
 
+data "aws_cloudfront_cache_policy" "cache_policy" {
+  name = "CachingDisabled"
+}
+
+data "aws_cloudfront_origin_request_policy" "origin_request_policy" {
+  name = "AllViewerExceptHostHeader"
+}
+
 # Define the CloudFront distribution
 resource "aws_cloudfront_distribution" "distribution" {
   origin {
@@ -128,6 +136,9 @@ resource "aws_cloudfront_distribution" "distribution" {
     allowed_methods        = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "DELETE", "PATCH"]
     cached_methods         = ["GET", "HEAD"]
 
+    cache_policy_id = data.aws_cloudfront_cache_policy.cache_policy.id
+    
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.origin_request_policy.id
 
     forwarded_values {
       query_string = true
