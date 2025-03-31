@@ -71,11 +71,11 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
 }
 
 data "aws_cloudfront_cache_policy" "cache_policy" {
-  name = "CachingDisabled"
+  name = "Managed-CachingDisabled"
 }
 
 data "aws_cloudfront_origin_request_policy" "origin_request_policy" {
-  name = "AllViewerExceptHostHeader"
+  name = "Managed-AllViewerExceptHostHeader"
 }
 
 # Define the CloudFront distribution
