@@ -137,7 +137,7 @@ resource "aws_cloudfront_distribution" "distribution" {
     cached_methods         = ["GET", "HEAD"]
 
     cache_policy_id = data.aws_cloudfront_cache_policy.cache_policy.id
-    
+
     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.origin_request_policy.id
 
     forwarded_values {
