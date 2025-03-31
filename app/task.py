@@ -112,7 +112,7 @@ def generate_id():
     return uuid.uuid4().hex
 
 
-@app.route("/upload", methods=["POST"])
+@app.route("/api/upload", methods=["POST"])
 @log_io()
 @user_info
 @parse_json
@@ -140,7 +140,7 @@ def upload(user, body):
     return jsonify(x[0])
 
 
-@app.route("/protected", methods=["GET"])
+@app.route("/api/protected", methods=["GET"])
 @user_info
 def protected_endpoint(user_id, user_name, email, groups):
     return jsonify(
@@ -164,7 +164,7 @@ def protected_endpoint(user_id, user_name, email, groups):
     # return jsonify(board.to_dict())
 
 
-@app.route("/boards", methods=["POST"])
+@app.route("/api/boards", methods=["POST"])
 @user_info
 @parse_json
 def upsert_board(user, body):
@@ -196,7 +196,7 @@ def upsert_board(user, body):
         return jsonify({"error": str(e)})
 
 
-@app.route("/boards/<board_id>", methods=["DELETE"])
+@app.route("/api/boards/<board_id>", methods=["DELETE"])
 @user_info
 def delete_board(user, board_id):
 
@@ -207,7 +207,7 @@ def delete_board(user, board_id):
         return jsonify({"error": str(e)})
 
 
-@app.route("/boards/<board_id>")
+@app.route("/api/boards/<board_id>")
 @user_info
 def get_board(user, board_id):
 
@@ -218,7 +218,7 @@ def get_board(user, board_id):
         return jsonify({"error": str(e)})
 
 
-@app.route("/boards")
+@app.route("/api/boards")
 @user_info
 def get_boards(user):
     try:
@@ -235,7 +235,7 @@ def get_boards(user):
 
 
 # TODO: This fails and I don't know why.  Not even sure the method is called
-@app.route("/boards/<board_id>/items", methods=["POST"])
+@app.route("/api/boards/<board_id>/items", methods=["POST"])
 @user_info
 @parse_json
 def upsert_board_item(user, board_id, body):
@@ -267,7 +267,7 @@ def upsert_board_item(user, board_id, body):
         return jsonify({"error": str(e)})
 
 
-@app.route("/boards/<board_id>/items/<item_id>")
+@app.route("/api/boards/<board_id>/items/<item_id>")
 @user_info
 def get_item(user, board_id, item_id):
     if "Note" in item_id:
@@ -283,7 +283,7 @@ def get_item(user, board_id, item_id):
         return jsonify({"error": str(e)})
 
 
-@app.route("/boards/<board_id>/tasks")
+@app.route("/api/boards/<board_id>/tasks")
 @user_info
 def get_board_tasks(user, board_id):
     try:
@@ -300,7 +300,7 @@ def get_board_tasks(user, board_id):
         return jsonify({"error": str(e)})
 
 
-@app.route("/boards/<board_id>/notes")
+@app.route("/api/boards/<board_id>/notes")
 @user_info
 def get_board_notes(user, board_id):
     try:
