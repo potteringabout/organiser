@@ -1,3 +1,41 @@
+resource "aws_cloudwatch_log_group" "api_gw_logs" {
+  name              = "/aws/apigateway/${var.project}-${var.environment}"
+  retention_in_days = 14
+}
+
+resource "aws_iam_role" "api_gw_logging_role" {
+  name = "${var.project}-${var.environment}-api-gw-logging-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Principal = {
+        Service = "apigateway.amazonaws.com"
+      },
+      Action = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "api_gw_logging_policy" {
+  name = "${var.project}-${var.environment}-api-gw-logging"
+  role = aws_iam_role.api_gw_logging_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Action = [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      Resource = "*"
+    }]
+  })
+}
+
 resource "aws_api_gateway_rest_api" "api" {
   name        = "Organiser API"
   description = "API Gateway for Organiser Lambda function"
@@ -105,6 +143,23 @@ resource "aws_api_gateway_stage" "stage" {
   rest_api_id          = aws_api_gateway_rest_api.api.id
   deployment_id        = aws_api_gateway_deployment.deployment.id
   xray_tracing_enabled = true
+
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.api_gw_logs.arn
+    format = jsonencode({
+      requestId       = "$context.requestId",
+      ip              = "$context.identity.sourceIp",
+      caller          = "$context.identity.caller",
+      user            = "$context.identity.user",
+      requestTime     = "$context.requestTime",
+      httpMethod      = "$context.httpMethod",
+      resourcePath    = "$context.resourcePath",
+      status          = "$context.status",
+      protocol        = "$context.protocol",
+      responseLength  = "$context.responseLength"
+    })
+  }
+
 }
 
 resource "aws_api_gateway_deployment" "deployment" {
