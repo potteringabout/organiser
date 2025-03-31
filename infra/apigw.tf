@@ -154,6 +154,7 @@ resource "aws_api_gateway_stage" "stage" {
       requestTime    = "$context.requestTime",
       httpMethod     = "$context.httpMethod",
       resourcePath   = "$context.resourcePath",
+      path           = "$context.path",
       status         = "$context.status",
       protocol       = "$context.protocol",
       responseLength = "$context.responseLength"
