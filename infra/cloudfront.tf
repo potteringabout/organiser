@@ -140,13 +140,13 @@ resource "aws_cloudfront_distribution" "distribution" {
 
     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.origin_request_policy.id
 
-    forwarded_values {
+    /*forwarded_values {
       query_string = true
       cookies {
         forward = "all"
       }
       headers = ["*"]
-    }
+    }*/
 
     min_ttl     = 0
     default_ttl = 3600
