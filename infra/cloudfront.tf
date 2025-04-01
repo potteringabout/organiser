@@ -146,11 +146,11 @@ resource "aws_cloudfront_distribution" "distribution" {
         forward = "all"
       }
       headers = ["*"]
-    }*/
+    }
 
     min_ttl     = 0
-    default_ttl = 3600
-    max_ttl     = 86400
+    default_ttl = 0
+    max_ttl     = 0*/
   }
 
   restrictions {
