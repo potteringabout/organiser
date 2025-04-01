@@ -1,11 +1,11 @@
 resource "aws_iam_policy_attachment" "lambda_vpc_execution" {
-  name       = "lambda_vpc_execution"
+  name       = "${var.project}-${var.environment}-lambda-vpc-execution"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
   roles      = [aws_iam_role.lambda_exec.name]
 }
 
 resource "aws_lambda_function" "lambda" {
-  function_name    = "organiser"
+  function_name    = "${var.project}-${var.environment}-lambda"
   handler          = "task.lambda_handler"
   runtime          = "python3.9"
   role             = aws_iam_role.lambda_exec.arn
