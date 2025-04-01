@@ -54,6 +54,10 @@ resource "aws_api_gateway_integration" "any_method_integration" {
   type                    = "AWS_PROXY"
   integration_http_method = "POST"
   uri                     = aws_lambda_function.lambda.invoke_arn
+
+  depends_on = [
+    aws_lambda_function.lambda
+  ]
 }
 
 resource "aws_api_gateway_method" "method" {
@@ -80,6 +84,10 @@ resource "aws_api_gateway_integration" "options_method_integration" {
   request_templates = {
     "application/json" = "{\"statusCode\": 204}"
   }
+
+  depends_on = [
+    aws_lambda_function.lambda
+  ]
 }
 
 resource "aws_api_gateway_method_response" "options_method_response_204" {
@@ -168,7 +176,9 @@ resource "aws_api_gateway_deployment" "deployment" {
   rest_api_id = aws_api_gateway_rest_api.api.id
 
   triggers = {
-    redeployment = sha1(jsonencode(aws_api_gateway_rest_api.api.body))
+    redeployment = sha1(jsonencode({
+      lambda_uri = aws_api_gateway_integration.any_method_integration.uri
+    }))
   }
 
   lifecycle {
