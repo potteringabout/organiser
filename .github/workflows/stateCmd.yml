@@ -8,7 +8,7 @@ on:
         required: true
         type: environment
       STATE_COMMAND:
-        description: "State command ( show, list, rm <resource> )"
+        description: "State command ( show <resource>, list, rm <resource> )"
         required: true
         type: string
       ROLE_DURATION_SECONDS:
@@ -27,7 +27,7 @@ permissions:
   contents: read
 jobs:
   plan:
-    name: "plan-${{ inputs.ENVIRONMENT_NAME }}"
+    name: "state-${{ inputs.ENVIRONMENT_NAME }}"
     environment: ${{ inputs.ENVIRONMENT_NAME }}
     runs-on: ubuntu-latest
 
