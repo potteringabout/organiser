@@ -8,6 +8,7 @@ resource "aws_cloudwatch_query_definition" "query_errors" {
   ]
 
   query_string = <<-QUERY
+    # Coment out 
     fields @timestamp, @message
     | sort @timestamp desc
     | limit 20
