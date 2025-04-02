@@ -1,5 +1,5 @@
 resource "aws_cloudwatch_query_definition" "query_errors" {
-  name = "/organiser/Combined Logs"
+  name = "Organiser/Combined Logs"
 
   log_group_names = [
     "/aws/apigateway/${var.project}-${var.environment}",
