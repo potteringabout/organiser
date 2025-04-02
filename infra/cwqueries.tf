@@ -1,5 +1,5 @@
 resource "aws_cloudwatch_query_definition" "query_errors" {
-  name = "High Error Count in Logs"
+  name = "/organiser/Combined Logs"
 
   log_group_names = [
     "/aws/apigateway/${var.project}-${var.environment}",
@@ -9,7 +9,6 @@ resource "aws_cloudwatch_query_definition" "query_errors" {
 
   query_string = <<-QUERY
     fields @timestamp, @message
-    | filter @message like /ERROR/
     | sort @timestamp desc
     | limit 20
   QUERY
