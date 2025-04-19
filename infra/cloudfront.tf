@@ -36,7 +36,7 @@ resource "aws_wafv2_web_acl" "waf" {
 # Define the S3 bucket
 resource "aws_s3_bucket" "bucket" {
   #bucket = "potterinabout-organiser-static-content"
-  bucket = "potteringabout-${var.project}-${var.environment}-static-content"
+  bucket = "${var.owner}-${var.project}-${var.environment}-static-content"
 }
 
 resource "aws_ssm_parameter" "bucket_name" {

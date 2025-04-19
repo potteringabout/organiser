@@ -61,7 +61,7 @@ variable "environment_full" {
 
 variable "owner" {
   description = "The individual or team owner of the asset"
-  default     = "Platform Engineering"
+  default     = "potteringabout"
   type        = string
 }
 

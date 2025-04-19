@@ -38,7 +38,7 @@ data "aws_iam_policy_document" "policy" {
 }
 
 resource "aws_iam_policy" "policy" {
-  name        = "potteringabout-organiser-lambda"
+  name        = "${var.owner}-${var.project}-lambda"
   description = "Organiser policy for Lambda"
   policy      = data.aws_iam_policy_document.policy.json
 }
@@ -46,7 +46,7 @@ resource "aws_iam_policy" "policy" {
 
 
 resource "aws_iam_role" "lambda_exec" {
-  name = "potteringabout-organiser-lambda"
+  name = "${var.owner}-${var.project}-lambda"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -63,7 +63,7 @@ resource "aws_iam_role" "lambda_exec" {
 }
 
 resource "aws_iam_policy_attachment" "test-attach" {
-  name       = "potteringabout-organiser-lambda-policy-attach"
+  name       = "${var.owner}-${var.project}-lambda-policy-attach"
   roles      = [aws_iam_role.lambda_exec.name]
   policy_arn = aws_iam_policy.policy.arn
 
