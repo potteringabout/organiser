@@ -2,7 +2,7 @@ data "aws_caller_identity" "current" {}
 
 data "aws_vpc" "vpc" {
   tags = {
-    Name = "${var.project}-${var.account}-vpc"
+    Name = "${var.owner}-${var.account}-vpc"
   }
 }
 
