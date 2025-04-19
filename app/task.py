@@ -19,6 +19,46 @@ from db import (
     get_items,
 )
 
+rds = boto3.client("rds", region_name="eu-west-2")
+
+DB_INSTANCE_ID = "your-db-instance-id"
+
+
+def get_status():
+    response = rds.describe_db_instances(DBInstanceIdentifier=DB_INSTANCE_ID)
+    return response["DBInstances"][0]["DBInstanceStatus"]
+
+
+def start_instance():
+    status = get_status()
+    if status == "available":
+        print(f"RDS instance '{DB_INSTANCE_ID}' is already running.")
+    elif status in ["stopped", "stopping"]:
+        print(f"Starting RDS instance '{DB_INSTANCE_ID}'...")
+        rds.start_db_instance(DBInstanceIdentifier=DB_INSTANCE_ID)
+    elif status in ["starting"]:
+        print(f"RDS instance '{DB_INSTANCE_ID}' is already starting.")
+    else:
+        print(f"RDS instance in unexpected state: {status}")
+
+
+def stop_instance():
+    status = get_status()
+    if status == "stopped":
+        print(f"RDS instance '{DB_INSTANCE_ID}' is already stopped.")
+    elif status in ["available", "starting"]:
+        print(f"Stopping RDS instance '{DB_INSTANCE_ID}'...")
+        rds.stop_db_instance(DBInstanceIdentifier=DB_INSTANCE_ID)
+    elif status == "stopping":
+        print(f"RDS instance '{DB_INSTANCE_ID}' is already stopping.")
+    else:
+        print(f"RDS instance in unexpected state: {status}")
+
+
+def show_status():
+    status = get_status()
+    print(f"RDS instance '{DB_INSTANCE_ID}' status: {status}")
+
 
 app = Flask(__name__)
 
@@ -120,24 +160,32 @@ def upload(user, body):
 
     mistral = Mistral()
     x = mistral.invoke(body["text"])
-    print("here")
-    print(x)
     for i in x[0]:
-        print("here in loop")
-
-        print(i)
         if i["type"] == "note":
             # TODO: Need to pass the board id in the POST
             upsert_note(user["user_id"], i.get("board_id"), i)
-            print("upserted note")
         elif i["type"] == "task":
-            print("here3")
             upsert_task(
                 user["user_id"], i.get("board_id"), i
             )
             print("upserted task")
     print("Done")
     return jsonify(x[0])
+
+@app.route("/api/dbstatus", methods=["GET"])
+@user_info
+def dbstatus(user_id, user_name, email, groups):
+    show_status()
+    return jsonify(
+        {
+            "message": "Access granted",
+            "user_id": user_id,
+            "user_name": user_name,
+            "email": email,
+            "groups": groups,
+        }
+    )
+
 
 
 @app.route("/api/protected", methods=["GET"])
