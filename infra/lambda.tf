@@ -4,6 +4,19 @@ resource "aws_iam_policy_attachment" "lambda_vpc_execution" {
   roles      = [aws_iam_role.lambda_exec.name]
 }
 
+resource "aws_security_group" "lambda" {
+  name   = "${var.project}-${var.environment}-lambda-security-group"
+  vpc_id = data.aws_vpc.vpc.id
+
+  # Outbound - allow all
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 resource "aws_lambda_function" "lambda" {
   function_name    = "${var.project}-${var.environment}-lambda"
   handler          = "task.lambda_handler"
@@ -15,6 +28,11 @@ resource "aws_lambda_function" "lambda" {
   # Enable X-Ray tracing
   tracing_config {
     mode = "Active"
+  }
+
+  vpc_config {
+    security_group_ids = [aws_security_group.lambda_sg.id]
+    subnet_ids         = data.aws_subnet_ids.app_subnets.ids
   }
 }
 
