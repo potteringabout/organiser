@@ -8,7 +8,7 @@ resource "aws_secretsmanager_secret" "aurora_creds" {
 }
 
 resource "aws_secretsmanager_secret_version" "aurora_creds_version" {
-  secret_id     = aws_secretsmanager_secret.aurora_creds.id
+  secret_id = aws_secretsmanager_secret.aurora_creds.id
   secret_string = jsonencode({
     username = "dbadmin"
     password = random_password.aurora_password.result
@@ -28,14 +28,14 @@ locals {
 # Aurora Serverless v1 Cluster
 # -----------------------------
 resource "aws_rds_cluster" "aurora" {
-  cluster_identifier      = "${var.project}-${var.environment}-aurora"
-  engine                  = "aurora-postgresql"
-  engine_mode             = "serverless"                      # Serverless v1
-  engine_version          = "11.9"                            # Max supported version for Aurora Serverless v1
-  
-  master_username         = local.db_credentials.username
-  master_password         = local.db_credentials.password
-  
+  cluster_identifier = "${var.project}-${var.environment}-aurora"
+  engine             = "aurora-postgresql"
+  engine_mode        = "serverless" # Serverless v1
+  engine_version     = "11.9"       # Max supported version for Aurora Serverless v1
+
+  master_username = local.db_credentials.username
+  master_password = local.db_credentials.password
+
   db_subnet_group_name    = aws_db_subnet_group.aurora.name
   vpc_security_group_ids  = [aws_security_group.rds.id]
   backup_retention_period = 1
