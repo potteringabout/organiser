@@ -13,7 +13,7 @@ data "aws_subnets" "app_subnets" {
   }
   filter {
     name   = "tag:Name"
-    values = ["${var.project}-${var.account}-app-*"]
+    values = ["${var.owner}-${var.account}-app-*"]
   }
 }
 
@@ -24,6 +24,6 @@ data "aws_subnets" "data_subnets" {
   }
   filter {
     name   = "tag:Name"
-    values = ["${var.project}-${var.account}-data-*"]
+    values = ["${var.owner}-${var.account}-data-*"]
   }
 }
