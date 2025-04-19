@@ -82,3 +82,41 @@ resource "aws_security_group" "rds" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+resource "aws_cloudwatch_metric_alarm" "rds_idle" {
+  alarm_name          = "${var.project}-${var.environment}-rds-idle"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = 2                          # 2 x 5 min = 10 mins
+  datapoints_to_alarm = 2
+  metric_name         = "DatabaseConnections"
+  namespace           = "AWS/RDS"
+  statistic           = "Average"
+  period              = 300                        # 5-minute intervals
+  threshold           = 1
+  treat_missing_data  = "breaching"
+
+  dimensions = {
+    DBInstanceIdentifier = aws_db_instance.postgres.id
+  }
+
+  alarm_description = "Triggers when RDS is idle (no connections) for 10 minutes"
+  alarm_actions     = [aws_sns_topic.rds_idle_alarm.arn]
+}
+
+resource "aws_sns_topic" "rds_idle_alarm" {
+  name = "${var.project}-${var.environment}-rds-idle-topic"
+}
+
+resource "aws_sns_topic_subscription" "rds_stop_lambda_sub" {
+  topic_arn = aws_sns_topic.rds_idle_alarm.arn
+  protocol  = "lambda"
+  endpoint  = aws_lambda_function.rds_control.arn
+}
+
+resource "aws_lambda_permission" "sns_invoke_permission" {
+  statement_id  = "AllowSNSInvokeRDSControlLambda"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.rds_control.function_name
+  principal     = "sns.amazonaws.com"
+  source_arn    = aws_sns_topic.rds_idle_alarm.arn
+}

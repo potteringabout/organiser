@@ -22,8 +22,8 @@ resource "aws_lambda_function" "lambda" {
   handler          = "task.lambda_handler"
   runtime          = "python3.9"
   role             = aws_iam_role.lambda_exec.arn
-  filename         = "../app/lambda_package.zip"
-  source_code_hash = filebase64sha256("../app/lambda_package.zip")
+  filename         = "../lambda/app/lambda_package.zip"
+  source_code_hash = filebase64sha256("../lambda/app/lambda_package.zip")
   timeout          = 30
   # Enable X-Ray tracing
   tracing_config {
