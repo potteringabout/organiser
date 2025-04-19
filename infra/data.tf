@@ -6,16 +6,22 @@ data "aws_vpc" "vpc" {
   }
 }
 
-data "aws_subnet_ids" "app_subnets" {
-  vpc_id = data.aws_vpc.vpc.id
+data "aws_subnets" "app_subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.vpc.id]
+  }
   filter {
     name   = "tag:Name"
     values = ["${var.project}-${var.environment}-app-*"]
   }
 }
 
-data "aws_subnet_ids" "data_subnets" {
-  vpc_id = data.aws_vpc.vpc.id
+data "aws_subnets" "data_subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.vpc.id]
+  }
   filter {
     name   = "tag:Name"
     values = ["${var.project}-${var.environment}-data-*"]

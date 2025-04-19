@@ -32,7 +32,7 @@ resource "aws_lambda_function" "lambda" {
 
   vpc_config {
     security_group_ids = [aws_security_group.lambda_sg.id]
-    subnet_ids         = data.aws_subnet_ids.app_subnets.ids
+    subnet_ids         = toset(data.aws_subnets.app_subnets.ids)
   }
 }
 

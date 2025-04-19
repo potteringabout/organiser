@@ -25,7 +25,7 @@ resource "aws_rds_cluster_instance" "aurora" {
 
 resource "aws_db_subnet_group" "aurora" {
   name       = "${var.project}-${var.environment}-aurora-subnet-group"
-  subnet_ids = data.aws_subnet_ids.data_subnets.ids
+  subnet_ids = toset(data.aws_subnets.data_subnets.ids)
 
   tags = {
     Name = "${var.project}-${var.environment}-aurora-subnet-group"
