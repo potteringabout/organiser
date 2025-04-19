@@ -16,8 +16,8 @@ resource "aws_secretsmanager_secret_version" "aurora_creds_version" {
 }
 
 data "aws_secretsmanager_secret_version" "aurora_creds" {
-  secret_id = aws_secretsmanager_secret.aurora_creds.id
-  depends_on = [ aws_secretsmanager_secret_version.aurora_creds_version ]
+  secret_id  = aws_secretsmanager_secret.aurora_creds.id
+  depends_on = [aws_secretsmanager_secret_version.aurora_creds_version]
 }
 
 locals {
