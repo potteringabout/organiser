@@ -30,7 +30,7 @@ locals {
 # -----------------------------
 # Provisioned RDS PostgreSQL
 # -----------------------------
-resource "aws_db_instance" "postgres" {
+resource "aws_db_instance" "rds" {
   identifier              = "${var.project}-${var.environment}-postgres"
   engine                  = "postgres"
   engine_version          = "15.5" # or another stable version
@@ -96,7 +96,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_idle" {
   treat_missing_data  = "breaching"
 
   dimensions = {
-    DBInstanceIdentifier = aws_db_instance.postgres.id
+    DBInstanceIdentifier = aws_db_instance.rds.id
   }
 
   alarm_description = "Triggers when RDS is idle (no connections) for 10 minutes"

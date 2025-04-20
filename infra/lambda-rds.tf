@@ -28,7 +28,7 @@ resource "aws_lambda_function" "rds_control" {
 
   environment {
     variables = {
-      RDS_INSTANCE_ID = aws_db_instance.postgres.id
+      RDS_INSTANCE_ID = aws_db_instance.rds.id
     }
   }
 
