@@ -31,20 +31,20 @@ locals {
 # Provisioned RDS PostgreSQL
 # -----------------------------
 resource "aws_db_instance" "postgres" {
-  identifier           = "${var.project}-${var.environment}-postgres"
-  engine               = "postgres"
-  engine_version       = "15.5"                     # or another stable version
-  instance_class       = "db.t4g.micro"
-  allocated_storage    = 20
-  storage_type         = "gp2"
-  db_name              = "organiser"
-  username             = local.db_credentials.username
-  password             = local.db_credentials.password
-  db_subnet_group_name = aws_db_subnet_group.aurora.name
-  vpc_security_group_ids = [aws_security_group.rds.id]
-  skip_final_snapshot  = true
-  publicly_accessible  = false
-  multi_az             = false
+  identifier              = "${var.project}-${var.environment}-postgres"
+  engine                  = "postgres"
+  engine_version          = "15.5" # or another stable version
+  instance_class          = "db.t4g.micro"
+  allocated_storage       = 20
+  storage_type            = "gp2"
+  db_name                 = "organiser"
+  username                = local.db_credentials.username
+  password                = local.db_credentials.password
+  db_subnet_group_name    = aws_db_subnet_group.aurora.name
+  vpc_security_group_ids  = [aws_security_group.rds.id]
+  skip_final_snapshot     = true
+  publicly_accessible     = false
+  multi_az                = false
   backup_retention_period = 1
 
   tags = {
@@ -86,12 +86,12 @@ resource "aws_security_group" "rds" {
 resource "aws_cloudwatch_metric_alarm" "rds_idle" {
   alarm_name          = "${var.project}-${var.environment}-rds-idle"
   comparison_operator = "LessThanThreshold"
-  evaluation_periods  = 2                          # 2 x 5 min = 10 mins
+  evaluation_periods  = 2 # 2 x 5 min = 10 mins
   datapoints_to_alarm = 2
   metric_name         = "DatabaseConnections"
   namespace           = "AWS/RDS"
   statistic           = "Average"
-  period              = 300                        # 5-minute intervals
+  period              = 300 # 5-minute intervals
   threshold           = 1
   treat_missing_data  = "breaching"
 
