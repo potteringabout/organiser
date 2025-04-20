@@ -33,7 +33,7 @@ locals {
 resource "aws_db_instance" "rds" {
   identifier              = "${var.project}-${var.environment}-postgres"
   engine                  = "postgres"
-  engine_version          = "15.5" # or another stable version
+  engine_version          = "17.2" # or another stable version
   instance_class          = "db.t4g.micro"
   allocated_storage       = 20
   storage_type            = "gp2"
