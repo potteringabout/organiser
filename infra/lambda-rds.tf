@@ -1,6 +1,25 @@
+resource "aws_iam_policy_attachment" "lambda_rds_vpc_execution" {
+  name       = "${var.project}-${var.environment}-lambda-rds-control"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+  roles      = [aws_iam_role.lambda_rds.name]
+}
+
+resource "aws_security_group" "lambda_rds" {
+  name   = "${var.project}-${var.environment}-lambda-rds-security-group"
+  vpc_id = data.aws_vpc.vpc.id
+
+  # Outbound - allow all
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 resource "aws_lambda_function" "rds_control" {
   function_name    = "${var.project}-${var.environment}-rds-control"
-  role             = aws_iam_role.rds_control_lambda.arn
+  role             = aws_iam_role.lambda_rds.arn
   handler          = "rds_control.lambda_handler"
   runtime          = "python3.11"
   timeout          = 10
@@ -11,5 +30,10 @@ resource "aws_lambda_function" "rds_control" {
     variables = {
       RDS_INSTANCE_ID = aws_db_instance.postgres.id
     }
+  }
+
+  vpc_config {
+    security_group_ids = [aws_security_group.lambda_rds.id]
+    subnet_ids         = toset(data.aws_subnets.app_subnets.ids)
   }
 }
