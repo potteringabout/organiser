@@ -1,8 +1,5 @@
 
-lambda/app/lambda_package.zip
 lambda/app/package/*
-
-lambda/rdsstop/lambda_package.zip
 lambda/rdsstop/package/*
 **/*OLD*
 
