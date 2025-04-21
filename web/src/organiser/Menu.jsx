@@ -50,9 +50,9 @@ function Menu() {
           {menuItems.map((item) => (
             <li key={item.ID} className="mb-2">
               <Link
-                to={`/organiser/boards/${item.ID}`}
+                to={`/organiser/boards/${item.id}`}
                 className="hover:underline">
-                {item.Name}
+                {item.title}
               </Link>
             </li>
           ))}

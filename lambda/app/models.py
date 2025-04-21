@@ -57,6 +57,22 @@ class Task(SQLModel, table=True):
     board: Optional[Board] = Relationship(back_populates="tasks")
     notes: List["Note"] = Relationship(back_populates="task")
 
+    def to_dict(self):
+        return {
+            "title": self.title,
+            "id": self.id,
+            "created_at": self.created_at,
+            "last_modified": self.last_modified,
+            "archived": self.archived,
+            "description": self.description,
+            "due_date": self.due_date,
+            "priority": self.priority,
+            "assigned_to": self.assigned_to,
+            "snoozed_until": self.snoozed_until,
+            "status": self.status,
+            "board_id": self.board_id
+        }
+
 
 class Note(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)

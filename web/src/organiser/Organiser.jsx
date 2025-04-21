@@ -1,10 +1,9 @@
 import Menu from "./Menu";
 import Main from "./Main";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 import useOrganiserStore from "@/organiser/store/organiserStore";
-import { Bug, RefreshCw } from 'lucide-react'
 
 
 function Organiser() {

@@ -241,6 +241,94 @@ def delete_board(board_id, user):
 # end region Boards
 
 
+@app.route("/api/boards/<int:board_id>/tasks", methods=["POST"])
+@log_io()
+@user_info
+@parse_json
+def add_task(board_id, user, body):
+    try:
+        with get_session() as session:
+            board = session.get(Board, board_id)
+
+            if not board:
+                return jsonify({"error": "Board not found"}), 404
+            if board.owner != user["user_id"]:
+                return jsonify({"error": "Unauthorized"}), 403
+
+            task = Task(title=body["title"], status=body.get(
+                "status", "todo"), board_id=board_id)
+            session.add(task)
+            session.commit()
+
+            return jsonify({"message": "Task created", "task": task.to_dict()}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/tasks/<int:task_id>", methods=["PUT"])
+@log_io()
+@user_info
+@parse_json
+def update_task(task_id, user, body):
+    try:
+        with get_session() as session:
+            task = session.get(Task, task_id)
+
+            if not task:
+                return jsonify({"error": "Task not found"}), 404
+            board = session.get(Board, task.board_id)
+            if board.owner != user["user_id"]:
+                return jsonify({"error": "Unauthorized"}), 403
+
+            task.title = body.get("title", task.title)
+            task.status = body.get("status", task.status)
+            session.commit()
+
+            return jsonify({"message": "Task updated", "task": task.to_dict()})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/boards/<int:board_id>/tasks", methods=["GET"])
+@log_io()
+@user_info
+def list_tasks(board_id, user):
+    try:
+        with get_session() as session:
+            board = session.get(Board, board_id)
+
+            if not board:
+                return jsonify({"error": "Board not found"}), 404
+            if board.owner != user["user_id"]:
+                return jsonify({"error": "Unauthorized"}), 403
+
+            tasks = session.query(Task).filter_by(board_id=board_id).all()
+            return jsonify([task.to_dict() for task in tasks])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/tasks/<int:task_id>", methods=["DELETE"])
+@log_io()
+@user_info
+def delete_task(task_id, user):
+    try:
+        with get_session() as session:
+            task = session.get(Task, task_id)
+
+            if not task:
+                return jsonify({"error": "Task not found"}), 404
+            board = session.get(Board, task.board_id)
+            if board.owner != user["user_id"]:
+                return jsonify({"error": "Unauthorized"}), 403
+
+            session.delete(task)
+            session.commit()
+            return jsonify({"message": "Task deleted", "id": task_id})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.after_request
 def add_header(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
