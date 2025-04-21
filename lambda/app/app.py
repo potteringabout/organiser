@@ -161,6 +161,22 @@ def get_boards(user):
         return jsonify({"error": str(e)})
 
 
+@app.route("/boards", methods=["POST"])
+@log_io()
+@user_info
+@parse_json
+def create_board(user, body):
+    try:
+        with get_session() as session:
+            board = Board(title=body["name"], owner=user["user_id"])
+            session.add(board)
+            session.commit()
+            session.refresh(board)
+            return jsonify(board.model_dump())
+    except RuntimeError as e:
+        return jsonify({"error": str(e)})
+
+
 @app.after_request
 def add_header(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
