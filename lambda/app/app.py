@@ -302,7 +302,7 @@ def list_tasks(board_id, user):
             if board.owner != user["user_id"]:
                 return jsonify({"error": "Unauthorized"}), 403
 
-            tasks = session.query(Task).filter_by(board_id=board_id).all()
+            tasks = session.exec(select(Task).where(Task.board_id == board_id)).all()
             return jsonify([task.to_dict() for task in tasks])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
