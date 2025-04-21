@@ -28,9 +28,11 @@ password = os.environ["DB_PASSWORD"]
 engine = create_engine(f"postgresql://{username}:{password}@{host}:{port}/{dbname}", echo=False)
 
 
-def init_db(drop_all=False):
-    if drop_all:
-        SQLModel.metadata.drop_all(engine)
+def drop_db():
+    SQLModel.metadata.drop_all(engine)
+
+
+def init_db():
     SQLModel.metadata.create_all(engine)
 
 

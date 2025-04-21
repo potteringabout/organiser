@@ -8,7 +8,7 @@ import functools
 import awsgi
 from datetime import datetime
 from bedrock import Mistral, Meta
-from db import get_session, init_db
+from db import get_session, init_db, drop_db
 from models import Board, Task
 from sqlmodel import select
 
@@ -58,7 +58,7 @@ def show_status():
 
 
 app = Flask(__name__)
-init_db(drop_all=True)
+init_db()
 
 
 def log_io(enabled=True):
@@ -150,6 +150,15 @@ def generate_id():
     return uuid.uuid4().hex
 
 
+@app.route("/api/schema-reload")
+@user_info
+def schema_reload(user):
+    drop_db()
+    init_db()
+    return jsonify({"message": "Schema reloaded"})
+
+
+# region Boards
 @app.route("/api/boards")
 @user_info
 def get_boards(user):
@@ -206,7 +215,7 @@ def update_board(board_id, user, body):
         return jsonify({"error": str(e)}), 500
 
 
-# region Board Delete
+# Board Delete
 @app.route("/api/boards/<int:board_id>", methods=["DELETE"])
 @log_io()
 @user_info
@@ -227,7 +236,9 @@ def delete_board(board_id, user):
 
     except RuntimeError as e:
         return jsonify({"error": str(e)}), 500
-# endregion
+# end Board Delete
+
+# end region Boards
 
 
 @app.after_request
