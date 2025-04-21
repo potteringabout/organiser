@@ -161,7 +161,7 @@ def get_boards(user):
         return jsonify({"error": str(e)})
 
 
-@app.route("/boards", methods=["POST"])
+@app.route("/api/boards", methods=["POST"])
 @log_io()
 @user_info
 @parse_json
