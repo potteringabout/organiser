@@ -2,12 +2,37 @@ from sqlmodel import SQLModel, Field, Relationship
 from typing import Optional, List
 from datetime import datetime, timezone
 from sqlalchemy import event
+from enum import Enum
 
 
+class Visibility(str, Enum):
+    PRIVATE = "private"
+    PUBLIC = "public"
+    SHARED = "shared"
+
+
+class Status(str, Enum):
+    TODO = "todo"
+    IN_PROGRESS = "in_progress"
+    DONE = "done"  # or completed
+    CANCELLED = "cancelled"
+    IGNORED = "ignored"
+    BLOCKED = "blocked"
+
+
+class Priority(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    URGENT = "urgent"
+
+  
 class Board(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     title: str
+    description: Optional[str] = None
     owner: str
+    visibility: Visibility = Field(default=Visibility.PRIVATE)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     last_modified: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -20,12 +45,14 @@ class Task(SQLModel, table=True):
     board_id: int = Field(foreign_key="board.id")
     title: str
     description: Optional[str] = None
-    status: str = "todo"
+    status: Status = Field(default=Visibility.PRIVATE)
+    priority: Optional[Priority] = Field(default=None) 
     due_date: Optional[datetime] = None
     assigned_to: Optional[str] = None
     snoozed_until: Optional[datetime] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     last_modified: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    archived: bool = False
 
     board: Optional[Board] = Relationship(back_populates="tasks")
     notes: List["Note"] = Relationship(back_populates="task")

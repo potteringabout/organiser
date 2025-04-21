@@ -168,7 +168,7 @@ def get_boards(user):
 def create_board(user, body):
     try:
         with get_session() as session:
-            board = Board(title=body["name"], owner=user["user_id"])
+            board = Board(title=body["title"], owner=user["user_id"])
             session.add(board)
             session.commit()
             session.refresh(board)
@@ -192,8 +192,8 @@ def update_board(board_id, user, body):
                 return jsonify({"error": "Unauthorized"}), 403
 
             # Apply updates from the request body
-            if "name" in body:
-                board.title = body["name"]
+            if "title" in body:
+                board.title = body["title"]
 
             # Add other fields here if needed
 
