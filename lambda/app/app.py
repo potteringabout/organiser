@@ -128,7 +128,7 @@ def parse_json(func):
                 return jsonify({"error": "Invalid JSON format"}), 400
 
             # Assign entire body to 'body' for POST/PUT requests
-            if request.method in ['POST', 'PUT']:
+            if request.method in ['POST', 'PUT', 'PATCH']:
                 print("Assigning body to kwargs")
                 kwargs['body'] = json_data
             else:
@@ -175,6 +175,59 @@ def create_board(user, body):
             return jsonify(board.model_dump())
     except RuntimeError as e:
         return jsonify({"error": str(e)})
+
+
+@app.route("/api/boards/<int:board_id>", methods=["PATCH"])
+@log_io()
+@user_info
+@parse_json
+def update_board(board_id, user, body):
+    try:
+        with get_session() as session:
+            board = session.get(Board, board_id)
+
+            if not board:
+                return jsonify({"error": "Board not found"}), 404
+            if board.owner != user["user_id"]:
+                return jsonify({"error": "Unauthorized"}), 403
+
+            # Apply updates from the request body
+            if "title" in body:
+                board.title = body["title"]
+
+            # Add other fields here if needed
+
+            session.add(board)
+            session.commit()
+            session.refresh(board)
+            return jsonify(board.model_dump())
+
+    except RuntimeError as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# region Board Delete
+@app.route("/api/boards/<int:board_id>", methods=["DELETE"])
+@log_io()
+@user_info
+def delete_board(board_id, user):
+    try:
+        with get_session() as session:
+            board = session.get(Board, board_id)
+
+            if not board:
+                return jsonify({"error": "Board not found"}), 404
+            if board.owner != user["user_id"]:
+                return jsonify({"error": "Unauthorized"}), 403
+
+            session.delete(board)
+            session.commit()
+
+            return jsonify({"message": "Board deleted", "id": board_id})
+
+    except RuntimeError as e:
+        return jsonify({"error": str(e)}), 500
+# endregion
 
 
 @app.after_request
