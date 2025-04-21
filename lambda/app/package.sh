@@ -2,10 +2,10 @@
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
-rm -rf package
+sudo rm -rf package
 docker run --rm -v "$PWD":/var/task \
   --entrypoint "" \
-  public.ecr.aws/lambda/python:3.11 \
+  public.ecr.aws/lambda/python:3.13 \
   bash -c "pip install -r requirements.txt --platform manylinux2014_x86_64 --target ./package --only-binary=:all:"
 
 cd package

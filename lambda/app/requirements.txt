@@ -1,6 +1,4 @@
-flask==2.3.3
-sqlmodel==0.0.16
-pydantic==2.5.3
-pydantic-core==2.14.6
 aws-wsgi
-psycopg2-binary
+flask
+sqlmodel
+psycopg2-binary  # or psycopg2 if using Aurora PostgreSQL
