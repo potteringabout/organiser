@@ -1,4 +1,5 @@
-from sqlmodel import create_engine, SQLModel, Session 
+from sqlmodel import create_engine, SQLModel, Session
+from contextlib import contextmanager 
 import os
 import boto3
 import json
@@ -20,7 +21,9 @@ def get_secret():
 host = os.environ["DB_HOST"]
 port = os.environ["DB_PORT"]
 dbname = os.environ["DB_NAME"]
-username, password = get_secret()
+#username, password = get_secret()
+username = os.environ["DB_USERNAME"]
+password = os.environ["DB_PASSWORD"]
 
 engine = create_engine(f"postgresql://{username}:{password}@{host}:{port}/{dbname}", echo=False)
 
@@ -29,6 +32,7 @@ def init_db():
     SQLModel.metadata.create_all(engine)
 
 
+@contextmanager
 def get_session():
     with Session(engine) as session:
         yield session

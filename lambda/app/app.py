@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#import boto3
+# import boto3
 import uuid
 from datetime import datetime, timezone
 from flask import Flask, jsonify, request
@@ -10,6 +10,7 @@ from datetime import datetime
 from bedrock import Mistral, Meta
 from db import get_session, init_db
 from models import Board, Task
+from sqlmodel import select
 
 
 '''
@@ -149,155 +150,13 @@ def generate_id():
     return uuid.uuid4().hex
 
 
-@app.route("/api/boards", methods=["POST"])
-@user_info
-@parse_json
-def upsert_board(user, body):
-    """
-    Create a board with associated tags and tasks in DynamoDB.
-
-    Args:
-        board_name (str): The name of the board.
-        board_description (str): The description of the board.
-        tags (list): List of tags to associate with the board.
-        tasks (list): List of tasks to associate with the board.
-        notes (list): List of notes to associate with the board.
-
-    Returns:
-        str: The unique ID of the created board.
-    """
-    now = datetime.now(timezone.utc).isoformat()
-    if "ID" not in body or body["ID"] == "":
-        body["ID"] = f"Board-{str(uuid.uuid4())}"
-        body["CreatedDate"] = now
-
-    body["Owner"] = user["user_id"]
-    body["LastUpdate"] = now
-    board = Board(body)
-    try:
-        r = dynamo.upsert(board.to_dict())
-        return jsonify(r)
-    except RuntimeError as e:
-        return jsonify({"error": str(e)})
-
-
-@app.route("/api/boards/<board_id>", methods=["DELETE"])
-@user_info
-def delete_board(user, board_id):
-
-    try:
-        r = dynamo.delete("Board", board_id)
-        return jsonify(r)
-    except RuntimeError as e:
-        return jsonify({"error": str(e)})
-
-
-@app.route("/api/boards/<board_id>")
-@user_info
-def get_board(user, board_id):
-
-    try:
-        r = dynamo.get("Board", board_id)
-        return jsonify(r)
-    except RuntimeError as e:
-        return jsonify({"error": str(e)})
-
-
 @app.route("/api/boards")
 @user_info
 def get_boards(user):
     try:
-        r = dynamo.query_gsi(
-            gsi_name="OwnerType",
-            k1="Owner",
-            v1=user["user_id"],
-            k2="EntityType",
-            v2="Board",
-        )
-        return jsonify(r)
-    except RuntimeError as e:
-        return jsonify({"error": str(e)})
-
-
-# TODO: This fails and I don't know why.  Not even sure the method is called
-@app.route("/api/boards/<board_id>/items", methods=["POST"])
-@user_info
-@parse_json
-def upsert_board_item(user, board_id, body):
-    print(body)
-    dt = datetime.now(timezone.utc).isoformat()
-    body["Owner"] = user["user_id"]
-    body["LastUpdate"] = dt
-
-    entityType = body["EntityType"]
-
-    if "ID" not in body or body["ID"] == "":
-        body["CreatedDate"] = dt
-        if entityType == "Task":
-            body["ID"] = f"{board_id}-Task-{str(uuid.uuid4())}"
-        else:
-            body["ID"] = f"{board_id}-Note-{str(uuid.uuid4())}"
-
-    if entityType == "Task":
-        i = Task(body)
-    elif entityType == "Note":
-        i = Note(body)
-    else:
-        raise ValueError("Invalid entity type")
-
-    try:
-        r = dynamo.upsert(i.to_dict())
-        return jsonify(r)
-    except RuntimeError as e:
-        return jsonify({"error": str(e)})
-
-
-@app.route("/api/boards/<board_id>/items/<item_id>")
-@user_info
-def get_item(user, board_id, item_id):
-    if "Note" in item_id:
-        entityType = "Note"
-    elif "Task" in item_id:
-        entityType = "Task"
-    else:
-        raise ValueError("Invalid entity type")
-    try:
-        r = dynamo.get(entityType, item_id)
-        return jsonify(r)
-    except RuntimeError as e:
-        return jsonify({"error": str(e)})
-
-
-@app.route("/api/boards/<board_id>/tasks")
-@user_info
-def get_board_tasks(user, board_id):
-    try:
-        r = dynamo.query_gsi(
-            gsi_name="OwnerItemID",
-            k1="Owner",
-            v1=user["user_id"],
-            k2="ID",
-            v2=f"{board_id}-Task",
-            startswith=True
-        )
-        return jsonify(r)
-    except RuntimeError as e:
-        return jsonify({"error": str(e)})
-
-
-@app.route("/api/boards/<board_id>/notes")
-@user_info
-def get_board_notes(user, board_id):
-    try:
-        r = dynamo.query_gsi(
-            gsi_name="OwnerItemID",
-            k1="Owner",
-            v1=user["user_id"],
-            k2="ID",
-            v2=f"{board_id}-Notes",
-            startswith=True
-        )
-        return jsonify(r)
+        with get_session() as session:
+            boards = session.exec(select(Board)).all()
+            return jsonify([b.model_dump() for b in boards])
     except RuntimeError as e:
         return jsonify({"error": str(e)})
 
