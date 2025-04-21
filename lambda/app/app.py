@@ -58,7 +58,7 @@ def show_status():
 
 
 app = Flask(__name__)
-init_db()
+init_db(drop_all=True)
 
 
 def log_io(enabled=True):
