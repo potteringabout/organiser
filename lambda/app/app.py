@@ -192,8 +192,8 @@ def update_board(board_id, user, body):
                 return jsonify({"error": "Unauthorized"}), 403
 
             # Apply updates from the request body
-            if "title" in body:
-                board.title = body["title"]
+            if "name" in body:
+                board.title = body["name"]
 
             # Add other fields here if needed
 
