@@ -6,7 +6,7 @@ rm -rf package
 docker run --rm -v "$PWD":/var/task \
   --entrypoint "" \
   public.ecr.aws/lambda/python:3.11 \
-  bash -c "pip install -r requirements.txt -t ./package"
+  bash -c "pip install -r requirements.txt --platform manylinux2014_x86_64 --target ./package --only-binary=:all:"
 
 cd package
 zip -r ../lambda_package.zip .
