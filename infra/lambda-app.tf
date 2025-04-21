@@ -19,7 +19,7 @@ resource "aws_security_group" "lambda" {
 
 resource "aws_lambda_function" "lambda" {
   function_name    = "${var.project}-${var.environment}-lambda"
-  handler          = "task.lambda_handler"
+  handler          = "app.lambda_handler"
   runtime          = "python3.9"
   role             = aws_iam_role.lambda_exec.arn
   filename         = "../lambda/app/lambda_package.zip"

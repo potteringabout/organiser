@@ -28,7 +28,10 @@ resource "aws_lambda_function" "rds_control" {
 
   environment {
     variables = {
-      RDS_INSTANCE_ID = aws_db_instance.rds.id
+      DB_HOST     = aws_db_instance.rds.address
+      DB_PORT     = aws_db_instance.rds.port
+      DB_NAME     = aws_db_instance.rds.db_name
+      DB_SECRET_ARN = aws_secretsmanager_secret.postgres_creds.arn
     }
   }
 

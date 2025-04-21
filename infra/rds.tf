@@ -23,6 +23,26 @@ data "aws_secretsmanager_secret_version" "postgres_creds" {
   depends_on = [aws_secretsmanager_secret_version.postgres_creds_version]
 }
 
+resource "aws_iam_policy" "secrets_access" {
+  name = "${var.project}-${var.environment}-lambda-secrets-policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect   = "Allow",
+        Action   = ["secretsmanager:GetSecretValue"],
+        Resource = aws_secretsmanager_secret.postgres_creds.arn
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_secrets" {
+  role       = aws_iam_role.lambda_exec.name
+  policy_arn = aws_iam_policy.secrets_access.arn
+}
+
 locals {
   db_credentials = jsondecode(data.aws_secretsmanager_secret_version.postgres_creds.secret_string)
 }
