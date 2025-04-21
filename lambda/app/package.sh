@@ -3,8 +3,11 @@
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 rm -rf package
-mkdir package
-pip install -r requirements.txt --target ./package
+docker run --rm -v "$PWD":/var/task \
+  --entrypoint "" \
+  public.ecr.aws/lambda/python:3.11 \
+  bash -c "pip install -r requirements.txt -t ./package"
+
 cd package
 zip -r ../lambda_package.zip .
 cd ..
