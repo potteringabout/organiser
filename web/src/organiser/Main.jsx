@@ -33,7 +33,7 @@ function TaskList() {
           <h2 className="flex items-center gap-2"><Circle size={16} />Todo</h2>
           {grouped["todo"].map((task) => (
             <TaskCard
-              key={task.ID}
+              key={task.id}
               task={task}
             />
           ))}
@@ -44,7 +44,7 @@ function TaskList() {
           <h2 className="flex items-center gap-2"><Hourglass size={16} />In Progress</h2>
           {grouped["in_progress"].map((task) => (
             <TaskCard
-              key={task.ID}
+              key={task.id}
               task={task}
             />
           ))}
@@ -55,7 +55,7 @@ function TaskList() {
           <h2 className="flex items-center gap-2"><CheckCircle size={16} />Done</h2>
           {grouped["done"].map((task) => (
             <TaskCard
-              key={task.ID}
+              key={task.id}
               task={task}
             />
           ))}
@@ -66,7 +66,7 @@ function TaskList() {
           <h2 className="flex items-center gap-2"><Ban size={16} />Blocked</h2>
           {grouped["blocked"].map((task) => (
             <TaskCard
-              key={task.ID}
+              key={task.id}
               task={task}
             />
           ))}
@@ -78,22 +78,21 @@ function TaskList() {
 
 function Main() {
   const { id } = useParams();
-  const { darkMode, menu } = useOrganiserStore();
-
+  
   const getTasksByBoardId = useOrganiserStore((state) => state.getTasksByBoardId);
 
   useEffect(() => {
     async function loadTasks() {
+      if (!id) return;
       const data = await getTasksByBoardId(id);
       //setTasks(data);
     }
     loadTasks();
-  }, [id]);
+  }, [getTasksByBoardId, id]);
   
 
   return (
-    <main
-      className="flex-1 shadow-2xl p-6 overflow-auto">
+    <main className="flex-1 shadow-2xl p-6 overflow-auto">
       <TaskList />
     </main>
   );

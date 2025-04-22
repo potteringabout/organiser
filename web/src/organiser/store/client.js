@@ -22,11 +22,11 @@ async function apiRequest(endpoint, options = {}) {
 
 export async function getTasks(boardId) {
   var tasks = await apiRequest(`${API_ENDPOINT}/boards/${boardId}/tasks`);
-
-  return tasks.map((task) => ({
+  return tasks;
+  /*return tasks.map((task) => ({
     ...task,
     details: task.details ? JSON.parse(task.details) : [],
-  }));
+  }));*/
 }
 
 /*export async function getTasks(boardId, taskId) {
@@ -52,7 +52,6 @@ export async function getBoard(boardId) {
 export async function getBoards() {
   return apiRequest(`${API_ENDPOINT}/boards`);
 }
-
 
 export async function addUpdate(update) {
   return apiRequest(`${API_ENDPOINT}/upload`, {method: "POST", body: JSON.stringify({text: update})});

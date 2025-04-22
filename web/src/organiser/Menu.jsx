@@ -48,7 +48,7 @@ function Menu() {
         <h4 className="font-bold mb-2">Boards</h4>
         <ul>
           {menuItems.map((item) => (
-            <li key={item.ID} className="mb-2">
+            <li key={item.id} className="mb-2">
               <Link
                 to={`/organiser/boards/${item.id}`}
                 className="hover:underline">

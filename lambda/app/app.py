@@ -153,6 +153,9 @@ def generate_id():
 @app.route("/api/schema-reload")
 @user_info
 def schema_reload(user):
+    '''
+    Reload the database schema
+    '''
     drop_db()
     init_db()
     return jsonify({"message": "Schema reloaded"})
@@ -162,6 +165,9 @@ def schema_reload(user):
 @app.route("/api/boards")
 @user_info
 def get_boards(user):
+    '''
+    Get all boards
+    '''
     try:
         with get_session() as session:
             boards = session.exec(select(Board)).all()
@@ -175,6 +181,9 @@ def get_boards(user):
 @user_info
 @parse_json
 def create_board(user, body):
+    '''
+    Create a board
+    '''
     try:
         with get_session() as session:
             board = Board(title=body["title"], owner=user["user_id"])
@@ -191,6 +200,9 @@ def create_board(user, body):
 @user_info
 @parse_json
 def update_board(board_id, user, body):
+    '''
+    Update a board
+    '''
     try:
         with get_session() as session:
             board = session.get(Board, board_id)
@@ -215,11 +227,13 @@ def update_board(board_id, user, body):
         return jsonify({"error": str(e)}), 500
 
 
-# Board Delete
 @app.route("/api/boards/<int:board_id>", methods=["DELETE"])
 @log_io()
 @user_info
 def delete_board(board_id, user):
+    '''
+    Delete a board
+    '''
     try:
         with get_session() as session:
             board = session.get(Board, board_id)
@@ -236,7 +250,6 @@ def delete_board(board_id, user):
 
     except RuntimeError as e:
         return jsonify({"error": str(e)}), 500
-# end Board Delete
 
 # end region Boards
 
@@ -246,6 +259,9 @@ def delete_board(board_id, user):
 @user_info
 @parse_json
 def add_task(board_id, user, body):
+    '''
+    Add a task to a board
+    '''
     try:
         with get_session() as session:
             board = session.get(Board, board_id)
@@ -270,6 +286,9 @@ def add_task(board_id, user, body):
 @user_info
 @parse_json
 def update_task(task_id, user, body):
+    '''
+    Update a task
+    '''
     try:
         with get_session() as session:
             task = session.get(Task, task_id)
@@ -293,6 +312,9 @@ def update_task(task_id, user, body):
 @log_io()
 @user_info
 def list_tasks(board_id, user):
+    '''
+    List tasks for a board
+    '''
     try:
         with get_session() as session:
             board = session.get(Board, board_id)
@@ -312,6 +334,9 @@ def list_tasks(board_id, user):
 @log_io()
 @user_info
 def delete_task(task_id, user):
+    '''
+    Delete a task
+    '''
     try:
         with get_session() as session:
             task = session.get(Task, task_id)
@@ -325,6 +350,48 @@ def delete_task(task_id, user):
             session.delete(task)
             session.commit()
             return jsonify({"message": "Task deleted", "id": task_id})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/tasks/<int:task_id>", methods=["GET"])
+@log_io()
+@user_info
+def get_task(task_id, user):
+    '''
+    Get a task, including its subtasks and notes, ordered by creation time
+    '''
+    try:
+        with get_session() as session:
+            task = session.get(Task, task_id)
+
+            if not task:
+                return jsonify({"error": "Task not found"}), 404
+
+            board = session.get(Board, task.board_id)
+            if board.owner != user["user_id"]:
+                return jsonify({"error": "Unauthorized"}), 403
+
+            # Subtasks ordered by created_at
+            subtasks = session.exec(
+                select(Task)
+                .where(Task.parent_task_id == task_id)
+                .order_by(Task.created_at)
+            ).all()
+
+            # Notes ordered by created_at
+            notes = session.exec(
+                select(Note)
+                .where(Note.task_id == task_id)
+                .order_by(Note.created_at)
+            ).all()
+
+            return jsonify({
+                "task": task.model_dump(),
+                "subtasks": [t.model_dump() for t in subtasks],
+                "notes": [n.model_dump() for n in notes]
+            })
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

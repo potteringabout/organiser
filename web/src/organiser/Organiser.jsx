@@ -8,14 +8,14 @@ import useOrganiserStore from "@/organiser/store/organiserStore";
 
 function Organiser() {
 
-  const { type, id } = useParams();
+  const { type } = useParams();
   const { setMenu } = useOrganiserStore();
   const loadBoards = useOrganiserStore((s) => s.loadBoards)
   
   useEffect(() => {
     setMenu(type);
     loadBoards();
-  }, [type]);
+  }, [loadBoards, setMenu, type]);
   
   return (
     <div className="h-screen flex">

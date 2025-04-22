@@ -20,16 +20,16 @@ export default function TaskCard({ task }) {
   const isSnoozed =
     task.snoozedUntil && isBefore(new Date(), parseISO(task.snoozedUntil));
 
-  const [newUpdate, setNewUpdate] = useState("");
+  //const [newUpdate, setNewUpdate] = useState("");
 
-  function updateUpdate(id, newText) {
+  /*function updateUpdate(id, newText) {
     console.log("Updating update:", id, newText);
-    updateTask(task.ID, {
+    updateTask(task.id, {
       updates: task.updates.map((u) =>
         u.id === id ? { ...u, text: newText } : u
       ),
     });
-  }
+  }*/
 
   /*function addUpdate() {
     console.log("Adding new update:", newUpdate);
@@ -43,7 +43,7 @@ export default function TaskCard({ task }) {
 
     console.log("Adding update:", update);
 
-    updateTask(task.ID, {
+    updateTask(task.id, {
       updates: [...(task.updates || []), update],
     });
   }*/
@@ -60,7 +60,7 @@ export default function TaskCard({ task }) {
 
     console.log("Adding update:", update);
 
-    updateTask(task.ID, {
+    updateTask(task.id, {
       updates: [...(task.updates || []), update],
     });
     //newUpdate = ""; // Clear input
@@ -86,11 +86,11 @@ export default function TaskCard({ task }) {
         <div className="flex-grow overflow-hidden">
           <div className="prose prose-sm max-w-none">
             <MarkdownEditable
-              updateId={task.ID}
+              updateId={task.id}
               value={task.title}
               showToolbar={false}
               onSave={(newText) => {
-                updateTask(task.ID, { title: newText });
+                updateTask(task.id, { title: newText });
               }}
             />
           </div>
@@ -98,33 +98,33 @@ export default function TaskCard({ task }) {
 
         {/* Actions — shrink to content */}
         <div className="flex items-center gap-2 shrink-0">
-          {task.isSnoozed && (
+          {/*task.isSnoozed && (
             <span className="flex items-center gap-1 text-xs">
               {task.snoozedUntil}
             </span>
-          )}
+          )*/}
 
-          {task.dueDate && (
+          {/*task.dueDate && (
             <span className="flex items-center gap-1 text-xs">
               <Clock size={12} /> Due {format(parseISO(task.dueDate), "dd MMM")}
             </span>
-          )}
+          )*/}
 
           <StatusDropdown
             currentStatus={task.status}
             onChange={(newStatus) => {
               console.log("New status:", newStatus);
-              updateTask(task.ID, { status: newStatus });
+              updateTask(task.id, { status: newStatus });
             }}
           />
-          <SnoozeButton
+          {/*<SnoozeButton
             initialDate={
               task.snoozedUntil ? new Date(task.snoozedUntil) : undefined
             }
             onSnooze={(date) => {
-              updateTask(task.ID, { snoozedUntil: date.toISOString() });
+              updateTask(task.id, { snoozedUntil: date.toISOString() });
             }}
-          />
+          />*/}
           <button
             onClick={() => setExpanded(!expanded)}
             className="text-gray-600 hover:text-gray-800 transition"
@@ -141,16 +141,16 @@ export default function TaskCard({ task }) {
             <div className="text-sm p-2 rounded mt-2">
               <div className="prose prose-sm max-w-none">
                 <MarkdownEditable
-                  updateId={`{${task.ID}description`}
+                  updateId={`{${task.id}description`}
                   value={task.description}
                   onSave={(newText) => {
-                    updateTask(task.ID, { description: newText });
+                    updateTask(task.id, { description: newText });
                   }}
                 />
               </div>
             </div>
           )}
-          {task.updates.map((u) => (
+          {/*{task.updates.map((u) => (
             <div
               key={u.id}
               className="text-sm p-2 rounded mt-2 flex justify-between items-start gap-4">
@@ -160,7 +160,8 @@ export default function TaskCard({ task }) {
                   updateId={u.id}
                   value={u.text}
                   onSave={(newText) => {
-                    updateUpdate(u.id, newText);
+                    
+                    //updateUpdate(u.id, newText);
                   }}
                 />
               </div>
@@ -170,9 +171,9 @@ export default function TaskCard({ task }) {
                 {u.createdAt && <span>Created: {format(parseISO(u.createdAt), "dd MMM YYY")}</span>}
               </div>
             </div>
-          ))}
+          ))}*/}
 
-          <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
+          {/*<div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
             {task.waitingOn && (
               <span className="flex items-center gap-1">
                 <User size={14} /> Waiting on {task.waitingOn}
@@ -192,17 +193,17 @@ export default function TaskCard({ task }) {
             </div>
           )}
 
-          {/* 💬 Add new update field */}
+          
           <div className="w-full">
             <MarkdownEditable
-              updateId={`${task.ID}-new`}
+              updateId={`${task.id}-new`}
               value={newUpdate}
               onSave={(newText) => {
                 addUpdate(newText);
                 setNewUpdate("");
               }}
             />
-          </div>
+          </div>*/}
         </>
       )}
 
