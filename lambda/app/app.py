@@ -9,7 +9,7 @@ import awsgi
 from datetime import datetime
 from bedrock import Mistral, Meta
 from db import get_session, init_db, drop_db
-from models import Board, Task
+from models import Board, Task, Note
 from sqlmodel import select
 
 
