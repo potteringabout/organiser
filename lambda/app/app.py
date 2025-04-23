@@ -324,7 +324,8 @@ def list_tasks(board_id, user):
             if board.owner != user["user_id"]:
                 return jsonify({"error": "Unauthorized"}), 403
 
-            tasks = session.exec(select(Task).where(Task.board_id == board_id)).all()
+            tasks = session.exec(select(Task).where(
+                Task.board_id == board_id)).all()
             return jsonify([task.to_dict() for task in tasks])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -372,14 +373,12 @@ def get_task(task_id, user):
             if board.owner != user["user_id"]:
                 return jsonify({"error": "Unauthorized"}), 403
 
-            # Subtasks ordered by created_at
             subtasks = session.exec(
                 select(Task)
-                .where(Task.parent_task_id == task_id)
+                .where(Task.parent_id == task_id)
                 .order_by(Task.created_at)
             ).all()
 
-            # Notes ordered by created_at
             notes = session.exec(
                 select(Note)
                 .where(Note.task_id == task_id)
