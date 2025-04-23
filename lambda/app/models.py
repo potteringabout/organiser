@@ -33,8 +33,10 @@ class Board(SQLModel, table=True):
     description: Optional[str] = None
     owner: str
     visibility: Visibility = Field(default=Visibility.PRIVATE)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    last_modified: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc))
+    last_modified: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc))
 
     tasks: List["Task"] = Relationship(back_populates="board")
     notes: List["Note"] = Relationship(back_populates="board")
@@ -43,19 +45,31 @@ class Board(SQLModel, table=True):
 class Task(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     board_id: int = Field(foreign_key="board.id")
+    parent_id: Optional[int] = Field(default=None, foreign_key="task.id")
+
     title: str
     description: Optional[str] = None
     status: Status = Field(default=Visibility.PRIVATE)
-    priority: Optional[Priority] = Field(default=None) 
+    priority: Optional[Priority] = Field(default=None)
     due_date: Optional[datetime] = None
     assigned_to: Optional[str] = None
     snoozed_until: Optional[datetime] = None
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    last_modified: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc))
+    last_modified: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc))
     archived: bool = False
 
     board: Optional[Board] = Relationship(back_populates="tasks")
     notes: List["Note"] = Relationship(back_populates="task")
+
+    parent_task: Optional["Task"] = Relationship(
+        back_populates="sub_tasks",
+        sa_relationship_kwargs={"remote_side": "Task.id"}
+    )
+    sub_tasks: List["Task"] = Relationship(
+        back_populates="parent_task"
+    )
 
     def to_dict(self):
         return {
@@ -70,7 +84,8 @@ class Task(SQLModel, table=True):
             "assigned_to": self.assigned_to,
             "snoozed_until": self.snoozed_until,
             "status": self.status,
-            "board_id": self.board_id
+            "board_id": self.board_id,
+            "parent_id": self.parent_id
         }
 
 
@@ -80,8 +95,10 @@ class Note(SQLModel, table=True):
     task_id: Optional[int] = Field(default=None, foreign_key="task.id")
     board_id: Optional[int] = Field(default=None, foreign_key="board.id")
     user_id: Optional[str] = None
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    last_modified: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc))
+    last_modified: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc))
 
     task: Optional[Task] = Relationship(back_populates="notes")
     board: Optional[Board] = Relationship(back_populates="notes")
