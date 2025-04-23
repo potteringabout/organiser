@@ -18,7 +18,7 @@ export default function TaskCard({ task }) {
   const updateTask = useOrganiserStore((s) => s.updateTask);
 
   const isSnoozed =
-    task.snoozedUntil && isBefore(new Date(), parseISO(task.snoozedUntil));
+    task.snoozed_until && isBefore(new Date(), parseISO(task.snoozed_until));
 
   //const [newUpdate, setNewUpdate] = useState("");
 
@@ -98,17 +98,17 @@ export default function TaskCard({ task }) {
 
         {/* Actions — shrink to content */}
         <div className="flex items-center gap-2 shrink-0">
-          {/*task.isSnoozed && (
+          {task.snoozed_until && (
             <span className="flex items-center gap-1 text-xs">
-              {task.snoozedUntil}
+              {task.snoozed_until}
             </span>
-          )*/}
+          )}
 
-          {/*task.dueDate && (
+          {task.due_date && (
             <span className="flex items-center gap-1 text-xs">
-              <Clock size={12} /> Due {format(parseISO(task.dueDate), "dd MMM")}
+              <Clock size={12} /> Due {format(parseISO(task.due_date), "dd MMM")}
             </span>
-          )*/}
+          )}
 
           <StatusDropdown
             currentStatus={task.status}
@@ -117,14 +117,14 @@ export default function TaskCard({ task }) {
               updateTask(task.id, { status: newStatus });
             }}
           />
-          {/*<SnoozeButton
+          {<SnoozeButton  
             initialDate={
-              task.snoozedUntil ? new Date(task.snoozedUntil) : undefined
+              task.snoozed_until ? new Date(task.snoozed_until) : undefined
             }
             onSnooze={(date) => {
-              updateTask(task.id, { snoozedUntil: date.toISOString() });
+              updateTask(task.id, { snoozed_until: date.toISOString() });
             }}
-          />*/}
+          />}
           <button
             onClick={() => setExpanded(!expanded)}
             className="text-gray-600 hover:text-gray-800 transition"
@@ -173,7 +173,7 @@ export default function TaskCard({ task }) {
             </div>
           ))}*/}
 
-          {/*<div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
+          <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
             {task.waitingOn && (
               <span className="flex items-center gap-1">
                 <User size={14} /> Waiting on {task.waitingOn}
@@ -203,7 +203,7 @@ export default function TaskCard({ task }) {
                 setNewUpdate("");
               }}
             />
-          </div>*/}
+          </div>
         </>
       )}
 
