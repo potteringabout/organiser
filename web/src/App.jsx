@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
-import { Sun, Moon } from "lucide-react";
 import "./App.css"; // Ensure your Tailwind imports are here
 import { useAuth, AuthProvider, LoginForm, LogoutButton } from "./Auth";
 import FloatingAlert from "@/components/ui/alert";

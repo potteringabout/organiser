@@ -5,7 +5,6 @@ import { useParams } from "react-router-dom";
 
 import useOrganiserStore from "@/organiser/store/organiserStore";
 
-
 function Organiser() {
 
   const { type } = useParams();

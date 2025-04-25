@@ -13,6 +13,7 @@ export default defineConfig({
       '@/components': path.resolve(__dirname, 'src/components'),
       '@/lib': path.resolve(__dirname, 'src/lib'),
       '@/contexts': path.resolve(__dirname, 'src/contexts.jsx'),
+      '@/hooks': path.resolve(__dirname, 'src/hooks'),
         // Add utils alias if directly used
     }
   },
