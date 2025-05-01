@@ -254,16 +254,17 @@ def delete_board(board_id, user):
 # end region Boards
 
 
-@app.route("/api/boards/<int:board_id>/tasks", methods=["POST"])
+@app.route("/api/tasks", methods=["POST"])
 @log_io()
 @user_info
 @parse_json
-def add_task(board_id, user, body):
+def add_task(user, body):
     '''
     Add a task to a board
     '''
     try:
         with get_session() as session:
+            board_id = body["board_id"]
             board = session.get(Board, board_id)
 
             if not board:

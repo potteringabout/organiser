@@ -1,12 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Menu as MenuIcon, X as CloseIcon } from "lucide-react";
-import useMenuItems from "@/hooks/useMenuItems";
+import { useBoards } from "@/organiser/store/useBoards";
+
+
 
 function Menu() {
-  const [isOpen, setIsOpen] = useState(true);
-  const menuItems = useMenuItems();
+  const { boards, fetchBoards } = useBoards();
 
+  useEffect(() => {
+    fetchBoards()
+  }, [])
+
+  const [isOpen, setIsOpen] = useState(true);
+  
   if (!isOpen) {
     return (
       <div className="w-8 pt-2 flex-shrink-0">
@@ -27,7 +34,7 @@ function Menu() {
       <div>
         <h4 className="font-bold mb-2">Boards</h4>
         <ul>
-          {menuItems.map((item) => (
+          {boards.map((item) => (
             <li key={item.id} className="mb-2">
               <Link to={`/organiser/boards/${item.id}`} className="hover:underline">
                 {item.title}
