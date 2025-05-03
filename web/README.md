@@ -40,3 +40,13 @@ https://reactrouter.com/en/main/start/overview
 I've added a route for the organiser.  I can now navigate to the organiser from the main menu.  The route is /organiser/:boardId
 
 The boardId is passed to the organiser component as a parameter.  I can now use the boardId to fetch the data for the board.
+
+## Service and Zustand
+
+The principle is that services make requests to the server and Zustand stores the data.  The services are in the services folder.  useStore stores the local Zustand state.  We have list of boards, tasks and notes.
+
+Hooks, eg. useBoards, useTasks, useNotes etc are responsible for fetching the data from the server and updating the local state.  The hooks are in the store folder.
+
+The idea is that the components can use the hooks to fetch the data and the store to update the local state. The components don't need to know about the services or the Zustand store.
+
+
