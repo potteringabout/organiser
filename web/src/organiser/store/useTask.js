@@ -4,8 +4,8 @@ import { fetchTask } from '../services/taskService'
 import { useMemo } from 'react'
 
 export const useTask = (taskId) => {
-  const mergeNotesLocal = useStore(state => state.mergeNotesLocal)
-  const mergeTasksLocal = useStore(state => state.mergeTasksLocal)
+  const upsertNoteLocal = useStore(state => state.upsertNoteLocal)
+  const upsertTaskLocal = useStore(state => state.upsertTaskLocal)
   const tasks = useStore(state => state.tasks)
   const notes = useStore(state => state.notes)
 
@@ -23,30 +23,12 @@ export const useTask = (taskId) => {
   const loadChildren = async () => {
     try {
       const task = await fetchTask(taskId)
-      mergeTasksLocal(task.subtasks)
-      mergeNotesLocal(task.notes)
+      upsertTaskLocal(task.subtasks)
+      upsertNoteLocal(task.notes)
     } catch (err) {
       console.error('Failed to fetch tasks for board', err)
     }
   }
-  /*
-  useEffect(() => {
-    const load = async () => {
-      //const hasTasksForBoard = tasks.some(task => task.board_id == boardId);
-      //if (!hasTasksForBoard) {
-      try {
-        const task = await fetchTask(taskId)
-        mergeTasksLocal(task.subtasks)
-        mergeNotesLocal(task.notes)
-      } catch (err) {
-        console.error('Failed to fetch tasks for board', err)
-      }
-      //}
-    }
-    if (active) {
-      load()
-    }
-  }, [taskId, active])
-  */
+  
   return { tasknotes, tasktasks, loadChildren }
 }

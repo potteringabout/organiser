@@ -2,14 +2,14 @@ import { useStore } from './useStore'
 import { createTask as createTaskRemote, deleteTask as deleteTaskRemote, fetchTask } from '../services/taskService'
 
 export const useTasks = () => {
-  const addTaskLocal = useStore(state => state.addTaskLocal)
+  const upsertTaskLocal = useStore(state => state.upsertTaskLocal)
+  const upsertNoteLocal = useStore(state => state.upsertNoteLocal)
+  
   const deleteTaskLocal = useStore(state => state.deleteTaskLocal)
-  const mergeNotesLocal = useStore(state => state.mergeNotesLocal)
-  const mergeTasksLocal = useStore(state => state.mergeTasksLocal)
   const tasks = useStore(state => state.tasks)
 
-  const createTask = async (task, parentBoardId = null, parentTaskId = null) => {
-    addTaskLocal(task, parentBoardId, parentTaskId) // ✅ Use it!
+  const createTask = async (task) => {
+    upsertTaskLocal(task) // ✅ Use it!
   
     try {
       await createTaskRemote(task)
@@ -32,8 +32,8 @@ export const useTasks = () => {
   const getTask = async(taskId) => {
     try {
       const task = await fetchTask(taskId)
-      mergeNotesLocal(task.notes)
-      mergeTasksLocal(task.subtasks)
+      upsertNoteLocal(task.notes)
+      upsertTaskLocal(task.subtasks)
       return task
     } catch (err) {
       console.error('Failed to fetch task from server', err)

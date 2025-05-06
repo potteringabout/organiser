@@ -9,12 +9,10 @@ function Organiser() {
 
   const { type } = useParams();
   const { setMenu } = useOrganiserStore();
-  const loadBoards = useOrganiserStore((s) => s.loadBoards)
   
   useEffect(() => {
     setMenu(type);
-    loadBoards();
-  }, [loadBoards, setMenu, type]);
+  }, [setMenu, type]);
   
   return (
     <div className="h-screen flex">

@@ -7,7 +7,6 @@ import Showdown from "showdown";
 import "react-mde/lib/styles/css/react-mde-all.css";
 import { Pencil } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-//import useOrganiserStore from "@/organiser/store/organiserStore";
 
 export function MarkdownEditable({ updateId, value, onSave, showToolbar = true, placeholder = "Click to add update..." }) {
   

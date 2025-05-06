@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useMemo } from 'react'
 import { useStore } from './useStore'
 import { fetchBoardTasks } from '../services/taskService'
 import { parseISO, isBefore } from "date-fns";
@@ -6,8 +7,7 @@ import { parseISO, isBefore } from "date-fns";
 export const useBoardTasks = (boardId) => {
 
   const tasks = useStore(state => state.tasks)
-  const mergeTasksLocal = useStore(state => state.mergeTasksLocal) 
-  //const [grouped, setGrouped] = useState({});
+  const upsertTaskLocal = useStore(state => state.upsertTaskLocal) 
   
   // Initialize and memoize boardTasks
   const boardTasks = useMemo(() => {
@@ -15,6 +15,17 @@ export const useBoardTasks = (boardId) => {
     const b = tasks.filter(task => task.board_id == boardId)
     return b
   }, [boardId, tasks])
+
+  const groupedTasks = useMemo(() => {
+    console.log('useMemo for grouping :' + boardTasks + "   :" + tasks)
+    return boardTasks.reduce((acc, task) => {
+      const isSnoozed = task.snoozedUntil && isBefore(new Date(), parseISO(task.snoozedUntil));
+      const key = isSnoozed ? "snoozed" : task.status;
+      acc[key] = acc[key] || [];
+      acc[key].push(task);
+      return acc;
+    }, {});
+  }, [boardTasks, tasks]);
   
   
   //What it does: Runs a side effect to fetch tasks for the board only if there are no tasks for that board already.
@@ -31,7 +42,7 @@ export const useBoardTasks = (boardId) => {
       if (!hasTasksForBoard) {
         try {
           const remoteTasks = await fetchBoardTasks(boardId)
-          mergeTasksLocal(remoteTasks)
+          upsertTaskLocal(remoteTasks)
         } catch (err) {
           console.error('Failed to fetch tasks for board', err)
         }
@@ -39,17 +50,6 @@ export const useBoardTasks = (boardId) => {
     }
     load()
   }, [boardId])
-
-  const groupedTasks = useMemo(() => {
-    console.log('useMemo for grouping :' + boardTasks + "   :" + tasks)
-    return boardTasks.reduce((acc, task) => {
-      const isSnoozed = task.snoozedUntil && isBefore(new Date(), parseISO(task.snoozedUntil));
-      const key = isSnoozed ? "snoozed" : task.status;
-      acc[key] = acc[key] || [];
-      acc[key].push(task);
-      return acc;
-    }, {});
-  }, [boardTasks, tasks]);
 
   return { boardTasks, groupedTasks }
 }
