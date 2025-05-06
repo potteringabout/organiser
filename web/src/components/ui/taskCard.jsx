@@ -8,20 +8,16 @@ import {
 import StatusDropdown from "./statusDropdown";
 import { format, parseISO, isBefore } from "date-fns";
 import { useState } from "react";
-import useOrganiserStore from "@/organiser/store/organiserStore";
 import { MarkdownEditable } from "@/components/ui/markDownDisplay";
 import SnoozeButton from "@/components/ui/snooze";
 import { useTasks } from "@/organiser/store/useTasks";
 import { useTask } from "@/organiser/store/useTask";
 
 export default function TaskCard({ task }) {
-  const [expanded, setExpanded] = useState(false);
-
   const updateTask = useTasks((s) => s.updateTask);
+  const [expandedTask, setExpandedTask] = useState(false);
 
-  //const updateTask = useTask(task.id, expanded);
-
-  const {tasknotes, tasktasks} = useTask(task.id, expanded);
+  const { tasknotes, tasktasks, loadChildren } = useTask(task.id);
 
 
   const isSnoozed =
@@ -124,7 +120,7 @@ export default function TaskCard({ task }) {
               updateTask(task.id, { status: newStatus });
             }}
           />
-          {<SnoozeButton  
+          {<SnoozeButton
             initialDate={
               task.snoozed_until ? new Date(task.snoozed_until) : undefined
             }
@@ -133,16 +129,22 @@ export default function TaskCard({ task }) {
             }}
           />}
           <button
-            onClick={() => setExpanded(!expanded)}
+            onClick={() => {
+              if (expandedTask) {
+                loadChildren();
+              }
+              setExpandedTask(!expandedTask)
+            }
+            }
             className="text-gray-600 hover:text-gray-800 transition"
-            title={expanded ? "Collapse" : "Expand"}>
-            {expanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+            title={expandedTask ? "Collapse" : "Expand"}>
+            {expandedTask ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
           </button>
         </div>
       </div>
 
       {/* Details (conditionally rendered) */}
-      {expanded && (
+      {expandedTask && (
         <>
           {task.description && (
             <div className="text-sm p-2 rounded mt-2">
@@ -168,7 +170,7 @@ export default function TaskCard({ task }) {
                   value={u.text}
                   onSave={(newText) => {
                     console.log("Updating update:", u.id, newText);
-                    
+
                     //updateUpdate(u.id, newText);
                   }}
                 />
@@ -201,7 +203,7 @@ export default function TaskCard({ task }) {
             </div>
           )}
 
-          
+
           <div className="w-full">
             <MarkdownEditable
               updateId={`${task.id}-new`}

@@ -1,9 +1,30 @@
 import { create } from 'zustand'
 
+function upsertImmutable(array, newItem, key = 'id') {
+  const index = array.findIndex(item => item[key] === newItem[key])
+
+  if (index > -1) {
+    // Update item
+    return [
+      ...array.slice(0, index),
+      { ...array[index], ...newItem },
+      ...array.slice(index + 1),
+    ]
+  } else {
+    // Insert new item
+    return [...array, newItem]
+  }
+}
+
 export const useStore = create((set) => ({
   boards: [],
   tasks: [],
   notes: [],
+
+  upsertTaskLocal: (task) =>
+    set((state) => ({
+      tasks: upsertImmutable(state.tasks, task)
+    })),
 
   addBoardLocal: (board) => set(state => ({
     boards: [...state.boards, board]
