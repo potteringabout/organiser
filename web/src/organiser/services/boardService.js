@@ -13,5 +13,6 @@ export async function getBoard(boardId) {
 }
 
 export async function getBoards() {
+  console.log("getBoards");
   return apiRequest("/boards");
 }

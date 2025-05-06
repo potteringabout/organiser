@@ -8,6 +8,7 @@ export const useBoards = () => {
 
   const fetchBoards = async () => {
     try {
+      console.log("Fetching boards !!!!");
       const data = await getBoards()
       setBoards(() => ({ boards: data }))
     } catch (err) {

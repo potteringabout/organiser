@@ -1,16 +1,20 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Menu as MenuIcon, X as CloseIcon } from "lucide-react";
+import { LoaderCircle, Menu as MenuIcon, X as CloseIcon } from "lucide-react";
 import { useBoards } from "@/organiser/store/useBoards";
+
 
 
 
 function Menu() {
   const { boards, fetchBoards } = useBoards();
+  const [loaded, setLoaded] = useState(false);
+
 
   useEffect(() => {
     fetchBoards()
-  }, [])
+    setLoaded(true)
+  }, [loaded])
 
   const [isOpen, setIsOpen] = useState(true);
   
@@ -33,6 +37,11 @@ function Menu() {
 
       <div>
         <h4 className="font-bold mb-2">Boards</h4>
+        {boards.length === 0 ? (
+        <div className="flex items-center justify-center h-32">
+          <LoaderCircle className="animate-spin text-gray-500" size={24} />
+        </div>
+      ) : (
         <ul>
           {boards.map((item) => (
             <li key={item.id} className="mb-2">
@@ -42,6 +51,7 @@ function Menu() {
             </li>
           ))}
         </ul>
+      )}
       </div>
     </aside>
   );

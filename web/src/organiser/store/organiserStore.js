@@ -21,6 +21,7 @@ const useOrganiserStore = create((set, get) => ({
   boards: [],
   setBoard: (board) => set(() => ({ board: board })),
   loadBoards: async () => {
+    console.log("Loading boards !!!!");
     const boards = await client.getBoards();
     set({ boards: boards });
   },

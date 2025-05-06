@@ -8,6 +8,7 @@ export const useStore = create((set) => ({
   addBoardLocal: (board) => set(state => ({
     boards: [...state.boards, board]
   })),
+  
 
   updateBoardLocal: (updateBoard) =>
     set(state => ({
@@ -26,6 +27,7 @@ export const useStore = create((set) => ({
   addTaskLocal: (task, parentBoardId = null, parentTaskId = null) => {
     set(state => {
       const newTasks = [...state.tasks, task]
+      console.log("Adding task:", task);
 
       if (parentBoardId) {
         const boards = state.boards.map(board =>
@@ -53,12 +55,35 @@ export const useStore = create((set) => ({
     })
   },
 
-  updateTaskLocal: (updatedTask) =>
+  updateTaskLocal: (updatedTask) => {
+
+    console.log("Updating task:", updatedTask);
+      
     set(state => ({
       tasks: state.tasks.map(task =>
         task.id === updatedTask.id ? { ...task, ...updatedTask } : task
       )
-    })),
+    }))},
+
+  mergeTasksLocal: (newTasks) =>
+    set(state => {
+      const existingById = Object.fromEntries(state.tasks.map(task => [task.id, task]))
+      for (const task of newTasks) {
+        existingById[task.id] = task
+      }
+      console.log("Merged tasks:", existingById);
+      return { tasks: Object.values(existingById) }
+    }),
+
+    mergeNotesLocal: (newNotes) =>
+      set(state => {
+        const existingById = Object.fromEntries(state.notes.map(note => [note.id, note]))
+        for (const note of newNotes) {
+          existingById[note.id] = note
+        }
+        return { notes: Object.values(existingById) }
+      }),
+  
 
   deleteTaskLocal: (taskId) =>
     set(state => ({

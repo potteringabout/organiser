@@ -11,11 +11,18 @@ import { useState } from "react";
 import useOrganiserStore from "@/organiser/store/organiserStore";
 import { MarkdownEditable } from "@/components/ui/markDownDisplay";
 import SnoozeButton from "@/components/ui/snooze";
+import { useTasks } from "@/organiser/store/useTasks";
+import { useTask } from "@/organiser/store/useTask";
 
 export default function TaskCard({ task }) {
   const [expanded, setExpanded] = useState(false);
 
-  const updateTask = useOrganiserStore((s) => s.updateTask);
+  const updateTask = useTasks((s) => s.updateTask);
+
+  //const updateTask = useTask(task.id, expanded);
+
+  const {tasknotes, tasktasks} = useTask(task.id, expanded);
+
 
   const isSnoozed =
     task.snoozed_until && isBefore(new Date(), parseISO(task.snoozed_until));
@@ -48,7 +55,7 @@ export default function TaskCard({ task }) {
     });
   }*/
 
-  function addUpdate(x) {
+  /*function addUpdate(x) {
     console.log("Adding new update:", x);
     if (!x.trim()) return;
 
@@ -66,7 +73,7 @@ export default function TaskCard({ task }) {
     //newUpdate = ""; // Clear input
 
     setNewUpdate(""); // Clear input
-  }
+  }*/
 
   const statusColor =
     {
@@ -150,7 +157,7 @@ export default function TaskCard({ task }) {
               </div>
             </div>
           )}
-          {/*{task.updates.map((u) => (
+          {tasktasks.map((u) => (
             <div
               key={u.id}
               className="text-sm p-2 rounded mt-2 flex justify-between items-start gap-4">
@@ -160,6 +167,7 @@ export default function TaskCard({ task }) {
                   updateId={u.id}
                   value={u.text}
                   onSave={(newText) => {
+                    console.log("Updating update:", u.id, newText);
                     
                     //updateUpdate(u.id, newText);
                   }}
@@ -171,7 +179,7 @@ export default function TaskCard({ task }) {
                 {u.createdAt && <span>Created: {format(parseISO(u.createdAt), "dd MMM YYY")}</span>}
               </div>
             </div>
-          ))}*/}
+          ))}
 
           <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
             {task.waitingOn && (
@@ -197,10 +205,12 @@ export default function TaskCard({ task }) {
           <div className="w-full">
             <MarkdownEditable
               updateId={`${task.id}-new`}
-              value={newUpdate}
+              //value={newUpdate}
+              //value=
               onSave={(newText) => {
-                addUpdate(newText);
-                setNewUpdate("");
+                console.log("Adding new update:", newText);
+                //addUpdate(newText);
+                //setNewUpdate("");
               }}
             />
           </div>

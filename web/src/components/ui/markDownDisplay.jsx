@@ -1,24 +1,23 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/prop-types */
 import ReactMarkdown from "react-markdown";
 import ReactMde from "react-mde";
 import remarkGfm from "remark-gfm";
 import Showdown from "showdown";
 import "react-mde/lib/styles/css/react-mde-all.css";
 import { Pencil } from "lucide-react";
-import React, { useState, useEffect, useRef } from "react";
-import useOrganiserStore from "@/organiser/store/organiserStore";
+import { useState, useEffect, useRef } from "react";
+//import useOrganiserStore from "@/organiser/store/organiserStore";
 
-export function MarkdownEditable({ updateId, value, onSave, showToolbar = true, placeholder = "Click to add update...", className = "" }) {
-  const editingId = useOrganiserStore((s) => s.editingUpdateId);
-  const setEditingId = useOrganiserStore((s) => s.setEditingUpdateId);
-  const clearEditingId = useOrganiserStore((s) => s.clearEditingUpdateId);
-
+export function MarkdownEditable({ updateId, value, onSave, showToolbar = true, placeholder = "Click to add update..." }) {
+  
+  const [editingId, setEditingId] = useState(null);
+  const clearEditingId = () => setEditingId(null);
+  
   const isEditing = editingId === updateId;
+
   const [draft, setDraft] = useState(value ?? "");
   const editorRef = useRef(null);
-
-  /*useEffect(() => {
-    setDraft(value ?? "");
-  }, [value]);*/
 
   useEffect(() => {
     if (isEditing) {
