@@ -38,8 +38,14 @@ class Board(SQLModel, table=True):
     last_modified: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc))
 
-    tasks: List["Task"] = Relationship(back_populates="board")
-    notes: List["Note"] = Relationship(back_populates="board")
+    tasks: List["Task"] = Relationship(
+        back_populates="board", 
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
+    notes: List["Note"] = Relationship(
+        back_populates="board", 
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
 
 
 class Task(SQLModel, table=True):

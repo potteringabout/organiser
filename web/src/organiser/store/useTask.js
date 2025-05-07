@@ -15,7 +15,7 @@ export const useTask = (taskId) => {
     return b
   }, [notes, taskId])
 
-  const tasktasks = useMemo(() => {
+  const subtasks = useMemo(() => {
     const b = tasks.filter(task => task.parent_id == taskId)
     return b
   }, [tasks, taskId])
@@ -30,5 +30,5 @@ export const useTask = (taskId) => {
     }
   }
   
-  return { tasknotes, tasktasks, loadChildren }
+  return { tasknotes, subtasks, loadChildren }
 }

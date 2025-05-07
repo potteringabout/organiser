@@ -14,10 +14,11 @@ import { useTasks } from "@/organiser/store/useTasks";
 import { useTask } from "@/organiser/store/useTask";
 
 export default function TaskCard({ task }) {
-  const updateTask = useTasks((s) => s.updateTask);
+
+  const { updateTask } = useTasks();
   const [expandedTask, setExpandedTask] = useState(false);
 
-  const { tasknotes, tasktasks, loadChildren } = useTask(task.id);
+  const { tasknotes, subtasks, loadChildren } = useTask(task.id);
 
 
   const isSnoozed =
@@ -93,7 +94,7 @@ export default function TaskCard({ task }) {
               value={task.title}
               showToolbar={false}
               onSave={(newText) => {
-                updateTask(task.id, { title: newText });
+                updateTask({ id: task.id, title: newText });
               }}
             />
           </div>
@@ -117,7 +118,7 @@ export default function TaskCard({ task }) {
             currentStatus={task.status}
             onChange={(newStatus) => {
               console.log("New status:", newStatus);
-              updateTask(task.id, { status: newStatus });
+              updateTask({id: task.id, status: newStatus });
             }}
           />
           {<SnoozeButton
@@ -125,7 +126,7 @@ export default function TaskCard({ task }) {
               task.snoozed_until ? new Date(task.snoozed_until) : undefined
             }
             onSnooze={(date) => {
-              updateTask(task.id, { snoozed_until: date.toISOString() });
+              updateTask({id:task.id,snoozed_until: date.toISOString() });
             }}
           />}
           <button
@@ -153,13 +154,13 @@ export default function TaskCard({ task }) {
                   updateId={`{${task.id}description`}
                   value={task.description}
                   onSave={(newText) => {
-                    updateTask(task.id, { description: newText });
+                    updateTask({id: task.id, description: newText });
                   }}
                 />
               </div>
             </div>
           )}
-          {tasktasks.map((u) => (
+          {subtasks.map((u) => (
             <div
               key={u.id}
               className="text-sm p-2 rounded mt-2 flex justify-between items-start gap-4">

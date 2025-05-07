@@ -1,5 +1,5 @@
 import { useStore } from './useStore'
-import { createTask as createTaskRemote, deleteTask as deleteTaskRemote, fetchTask } from '../services/taskService'
+import { createTask as createTaskRemote, deleteTask as deleteTaskRemote, fetchTask, updateTask as updateTaskRemote } from '../services/taskService'
 
 export const useTasks = () => {
   const upsertTaskLocal = useStore(state => state.upsertTaskLocal)
@@ -41,9 +41,10 @@ export const useTasks = () => {
     }
   }
 
-  const updateTask = async (taskId, updates) => {
+  const updateTask = async (task) => {
     try {
-      await fetchTask(taskId, { method: 'PATCH', body: JSON.stringify(updates) })
+      upsertTaskLocal(task)
+      await updateTaskRemote(task)
     } catch (err) {
       console.error('Failed to update task', err)
     }

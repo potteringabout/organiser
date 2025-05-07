@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import Menu from "./Menu";
 import Main from "./Main";
 import { useEffect } from "react";
@@ -12,7 +13,7 @@ function Organiser() {
   
   useEffect(() => {
     setMenu(type);
-  }, [setMenu, type]);
+  }, [type]);
   
   return (
     <div className="h-screen flex">

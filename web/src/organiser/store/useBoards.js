@@ -1,9 +1,11 @@
 import { useStore } from './useStore'
-import { getBoards } from '../services/boardService'
+import { deleteBoard as deleteBoardRemote, getBoards } from '../services/boardService'
 
 export const useBoards = () => {
   const boards = useStore(state => state.boards)
   const addBoard = useStore(state => state.addBoard)
+  const deleteBoardLocal = useStore(state => state.deleteBoardLocal)
+  
   const setBoards = useStore.setState
 
   const fetchBoards = async () => {
@@ -16,7 +18,16 @@ export const useBoards = () => {
     }
   }
 
-  return { boards, addBoard, fetchBoards }
+  const deleteBoard = async (boardId) => {
+    try {
+      deleteBoardLocal(boardId)
+      await deleteBoardRemote(boardId)
+    } catch (err) {
+      console.error('Failed to delete board:', err)
+    }
+  }
+
+  return { boards, addBoard, fetchBoards, deleteBoard }
 }
 
 export const useBoardTasks = (boardId) => {

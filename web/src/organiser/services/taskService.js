@@ -12,6 +12,10 @@ export const fetchTask = async (taskId) => {
   return apiRequest(`/tasks/${taskId}`);
 }
 
+export const updateTask = async (task) => {
+  return apiRequest(`/tasks/${task.id}`, {method: "PUT", body: JSON.stringify(task)});
+}
+
 export const fetchBoardTasks = async (boardId) => {
   return apiRequest(`/boards/${boardId}/tasks`);
 }
