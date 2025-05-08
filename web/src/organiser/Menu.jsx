@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Trash, Menu as MenuIcon, LoaderCircle, X as CloseIcon } from "lucide-react";
 import { useBoards } from "@/organiser/store/useBoards";
+import { showAlert } from "@/components/ui/alert";
 
 
 function Menu() {
@@ -10,6 +11,7 @@ function Menu() {
   const [isOpen, setIsOpen] = useState(true);
 
   const handleCreateBoard = () => {
+    showAlert("Board created successfully!", "success");
     console.log("Creating board");
 
   }

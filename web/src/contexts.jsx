@@ -1,5 +1,4 @@
 import { createContext, useState, useContext } from "react";
-import FloatingAlert from "@/components/ui/alert";
 
 const DarkModeContext = createContext();
 

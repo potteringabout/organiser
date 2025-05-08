@@ -1,5 +1,6 @@
 import { useStore } from './useStore'
 import { deleteBoard as deleteBoardRemote, getBoards } from '../services/boardService'
+import { showAlert } from "@/components/ui/alert";
 
 export const useBoards = () => {
   const boards = useStore(state => state.boards)
@@ -20,6 +21,7 @@ export const useBoards = () => {
 
   const deleteBoard = async (boardId) => {
     try {
+      showAlert("Board deleted.", "warning");
       deleteBoardLocal(boardId)
       await deleteBoardRemote(boardId)
     } catch (err) {
