@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Plus, Trash, Menu as MenuIcon, LoaderCircle, X as CloseIcon } from "lucide-react";
 import { useBoards } from "@/organiser/store/useBoards";
 import { showAlert } from "@/components/ui/alert";
@@ -9,10 +9,13 @@ function Menu() {
   const { boards, fetchBoards, addBoard, deleteBoard } = useBoards();
   const [loaded, setLoaded] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
+  
+  const navigate = useNavigate();
 
   const handleCreateBoard = () => {
     showAlert("Board created successfully!", "success");
     console.log("Creating board");
+    navigate("/organiser/board/new");
 
   }
 

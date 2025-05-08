@@ -1,11 +1,16 @@
 import { useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Link, Navigate } from "react-router-dom";
 import "./App.css"; // Ensure your Tailwind imports are here
 import { useAuth, AuthProvider, LoginForm, LogoutButton } from "./Auth";
 import FloatingAlert from "@/components/ui/alert";
 import Organiser from "./organiser/Organiser";
 import Home from "./Home";
 import useOrganiserStore from "./organiser/store/organiserStore";
+
+import Board from "./organiser/Board";
+import NewTaskForm from "./organiser/NewTaskForm";
+import NewBoardForm from "./organiser/NewBoardForm";
+//import EditTaskForm from "./organiser/EditTaskForm";
 
 function TopBar() {
   const { darkMode, setDarkMode } = useOrganiserStore();
@@ -74,14 +79,13 @@ function App() {
                     path="/"
                     element={<Home />}
                   />
-                  <Route
-                    path="/organiser"
-                    element={<Organiser />}
-                  />
-                  <Route
-                    path="/organiser/:type/:id"
-                    element={<Organiser />}
-                  />
+                  <Route path="/organiser" element={<Organiser />}>
+                    <Route index element={<Board />} />
+                    <Route path="board/:boardId" element={<Board />} />
+                    <Route path="task/new" element={<NewTaskForm />} />
+                    <Route path="board/new" element={<NewBoardForm />} />
+                    {/* <Route path="task/:taskId/edit" element={<EditTaskForm />} />*/}
+                  </Route>
                 </Routes>
               </main>
             </div>

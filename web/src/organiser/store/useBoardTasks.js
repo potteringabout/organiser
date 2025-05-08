@@ -17,6 +17,8 @@ export const useBoardTasks = (boardId) => {
   }, [boardId, tasks])
 
   const groupedTasks = useMemo(() => {
+    //if (!boardId) return { groupedTasks: [] }; // or null
+    
     console.log('useMemo for grouping :' + boardTasks + "   :" + tasks)
     return boardTasks.reduce((acc, task) => {
       const isSnoozed = task.snoozedUntil && isBefore(new Date(), parseISO(task.snoozedUntil));
