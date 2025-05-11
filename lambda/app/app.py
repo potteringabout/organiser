@@ -8,7 +8,7 @@ import awsgi
 from datetime import datetime, timedelta, timezone
 from bedrock import Mistral, Meta
 from db import get_session, init_db, drop_db
-from models import Board, Task, Note, Entity, MeetingEntity, Meeting, TaskBlocker
+from models import Board, Task, Note, Entity, MeetingEntity, Meeting, TaskBlocker, EntityType
 from sqlmodel import select
 
 
@@ -483,7 +483,8 @@ def delete_entity(entity_id, user):
             return jsonify({"message": "Entity deleted", "id": entity_id})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
+
 @app.route("/api/entities", methods=["POST"])
 @log_io()
 @user_info
@@ -523,7 +524,8 @@ def add_entity(user, body):
             return jsonify({"message": "Entity created", "entity": entity.__dict__}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
+
 @app.route("/api/entities/<int:entity_id>", methods=["PUT"])
 @log_io()
 @user_info
