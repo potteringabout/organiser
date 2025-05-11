@@ -8,7 +8,7 @@ import awsgi
 from datetime import datetime, timedelta, timezone
 from bedrock import Mistral, Meta
 from db import get_session, init_db, drop_db
-from models import Board, Task, Note
+from models import Board, Task, Note, Entity, MeetingEntity, Meeting, TaskBlocker
 from sqlmodel import select
 
 
@@ -307,30 +307,6 @@ def update_task(task_id, user, body):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
-@app.route("/api/boards/<int:board_id>/tasks", methods=["GET"])
-@log_io()
-@user_info
-def list_tasks(board_id, user):
-    '''
-    List tasks for a board
-    '''
-    try:
-        with get_session() as session:
-            board = session.get(Board, board_id)
-
-            if not board:
-                return jsonify({"error": "Board not found"}), 404
-            if board.owner != user["user_id"]:
-                return jsonify({"error": "Unauthorized"}), 403
-
-            tasks = session.exec(select(Task).where(
-                Task.board_id == board_id)).all()
-            return jsonify([task.to_dict() for task in tasks])
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
 @app.route("/api/tasks/<int:task_id>", methods=["DELETE"])
 @log_io()
 @user_info
@@ -354,6 +330,28 @@ def delete_task(task_id, user):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/api/boards/<int:board_id>/tasks", methods=["GET"])
+@log_io()
+@user_info
+def list_tasks(board_id, user):
+    '''
+    List tasks for a board
+    '''
+    try:
+        with get_session() as session:
+            board = session.get(Board, board_id)
+
+            if not board:
+                return jsonify({"error": "Board not found"}), 404
+            if board.owner != user["user_id"]:
+                return jsonify({"error": "Unauthorized"}), 403
+
+            tasks = session.exec(select(Task).where(
+                Task.board_id == board_id)).all()
+            return jsonify([task.to_dict() for task in tasks])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 
 @app.route("/api/tasks/<int:task_id>", methods=["GET"])
 @log_io()
@@ -411,27 +409,32 @@ def get_diary_entries(user, when: str = "today"):
 
     try:
         with get_session() as session:
-            # Tasks created
-            # Tasks completed
+            # Resolve Entity for user_id (email or system ID)
+            entity = session.exec(select(Entity).where(
+                Entity.name == user_id)).first()
+            if not entity:
+                return jsonify({"error": "User entity not found"}), 404
+
+            # Completed tasks
             completed_tasks = session.exec(
                 select(Task).where(
-                    Task.assigned_to == user_id,
+                    Task.assigned_to == entity.id,
                     Task.status == Status.DONE,
                     Task.last_modified >= start,
                     Task.last_modified < end
                 )
             ).all()
 
-            # Tasks due today
+            # Due today
             due_tasks = session.exec(
                 select(Task).where(
-                    Task.assigned_to == user_id,
+                    Task.assigned_to == entity.id,
                     Task.due_date >= start,
                     Task.due_date < end
                 )
             ).all()
 
-            # Notes created/edited
+            # Notes created or modified
             notes = session.exec(
                 select(Note).where(
                     Note.user_id == user_id,
@@ -443,9 +446,9 @@ def get_diary_entries(user, when: str = "today"):
             # Meetings attended
             meetings = session.exec(
                 select(Meeting)
-                .join(MeetingAttendee)
+                .join(MeetingEntity)
                 .where(
-                    MeetingAttendee.user_id == user_id,
+                    MeetingEntity.entity_id == entity.id,
                     Meeting.datetime >= start,
                     Meeting.datetime < end
                 )
@@ -457,9 +460,137 @@ def get_diary_entries(user, when: str = "today"):
                 "notes": notes,
                 "meetings": meetings
             }
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+@app.route("/api/entities/<int:entity_id>", methods=["DELETE"])
+@log_io()
+@user_info
+def delete_entity(entity_id, user):
+    '''
+    Delete a person or team entity
+    '''
+    try:
+        with get_session() as session:
+            entity = session.get(Entity, entity_id)
+            if not entity:
+                return jsonify({"error": "Entity not found"}), 404
+
+            session.delete(entity)
+            session.commit()
+            return jsonify({"message": "Entity deleted", "id": entity_id})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route("/api/entities", methods=["POST"])
+@log_io()
+@user_info
+@parse_json
+def add_entity(user, body):
+    '''
+    Add a new person or team entity
+    '''
+    try:
+        name = body["name"]
+        type_ = body.get("type", "person").lower()
+        email = body.get("email")
+        description = body.get("description")
+
+        if type_ not in EntityType.__members__:
+            return jsonify({"error": "Invalid entity type"}), 400
+
+        entity_type = EntityType[type_.upper()]
+
+        with get_session() as session:
+            existing = session.exec(
+                select(Entity).where(Entity.name == name, Entity.type == entity_type)
+            ).first()
+            if existing:
+                return jsonify({"error": "Entity already exists"}), 409
+
+            entity = Entity(
+                name=name,
+                type=entity_type,
+                email=email,
+                description=description
+            )
+            session.add(entity)
+            session.commit()
+            session.refresh(entity)
+
+            return jsonify({"message": "Entity created", "entity": entity.__dict__}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route("/api/entities/<int:entity_id>", methods=["PUT"])
+@log_io()
+@user_info
+@parse_json
+def update_entity(entity_id, user, body):
+    '''
+    Update a person or team entity
+    '''
+    try:
+        with get_session() as session:
+            entity = session.get(Entity, entity_id)
+            if not entity:
+                return jsonify({"error": "Entity not found"}), 404
+
+            entity.name = body.get("name", entity.name)
+            entity.email = body.get("email", entity.email)
+            entity.description = body.get("description", entity.description)
+
+            # Only allow type changes if valid
+            type_ = body.get("type")
+            if type_:
+                type_ = type_.lower()
+                if type_ not in EntityType.__members__:
+                    return jsonify({"error": "Invalid entity type"}), 400
+                entity.type = EntityType[type_.upper()]
+
+            session.commit()
+            return jsonify({"message": "Entity updated", "entity": entity.__dict__})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/entities", methods=["GET"])
+@log_io()
+@user_info
+def list_entities(user):
+    '''
+    List people or teams (entities), with optional filters
+    '''
+    try:
+        entity_type = request.args.get("type")  # e.g., "person" or "team"
+        search = request.args.get("search", "").strip().lower()
+
+        with get_session() as session:
+            query = select(Entity)
+
+            if entity_type:
+                if entity_type.lower() not in EntityType.__members__:
+                    return jsonify({"error": "Invalid entity type filter"}), 400
+                query = query.where(Entity.type == EntityType[entity_type.upper()])
+
+            if search:
+                query = query.where(Entity.name.ilike(f"%{search}%"))
+
+            results = session.exec(query).all()
+
+            return jsonify([
+                {
+                    "id": e.id,
+                    "name": e.name,
+                    "type": e.type,
+                    "email": e.email,
+                    "description": e.description
+                } for e in results
+            ])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500  
 
 @app.after_request
 def add_header(response):

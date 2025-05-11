@@ -19,3 +19,4 @@ cd package
 zip -r ../lambda_package.zip .
 cd ..
 zip -g lambda_package.zip app.py models.py db.py __init__.py bedrock.py
+sudo rm -rf package/

@@ -5,6 +5,11 @@ from sqlalchemy import event
 from enum import Enum
 
 
+class EntityType(str, Enum):
+    PERSON = "person"
+    TEAM = "team"
+
+
 class Visibility(str, Enum):
     PRIVATE = "private"
     PUBLIC = "public"
@@ -70,6 +75,7 @@ class Task(SQLModel, table=True):
     board: Optional[Board] = Relationship(back_populates="tasks")
     notes: List["Note"] = Relationship(back_populates="task")
     meeting: Optional["Meeting"] = Relationship(back_populates="tasks")
+    blockers: List[TaskBlocker] = Relationship(back_populates="task")
 
     parent_task: Optional["Task"] = Relationship(
         back_populates="sub_tasks",
@@ -122,6 +128,14 @@ class Recurrence(str, Enum):
     CUSTOM = "custom"  # optional for advanced setups
 
 
+class MeetingEntity(SQLModel, table=True):
+    meeting_id: int = Field(foreign_key="meeting.id", primary_key=True)
+    entity_id: int = Field(foreign_key="entity.id", primary_key=True)
+
+    meeting: "Meeting" = Relationship(back_populates="attendees")
+    entity: "Entity" = Relationship()
+
+
 class Meeting(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     board_id: int = Field(foreign_key="board.id")
@@ -134,18 +148,27 @@ class Meeting(SQLModel, table=True):
         default_factory=lambda: datetime.now(timezone.utc))
     last_modified: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc))
-    
+
     board: Optional[Board] = Relationship()
-    attendees: List["MeetingAttendee"] = Relationship(back_populates="meeting")
+    attendees: List[MeetingEntity] = Relationship(back_populates="meeting")
     tasks: List[Task] = Relationship(back_populates="meeting")
     notes: List[Note] = Relationship(back_populates="meeting")
 
 
-class MeetingAttendee(SQLModel, table=True):
-    meeting_id: int = Field(foreign_key="meeting.id", primary_key=True)
-    user_id: str = Field(primary_key=True)
+class Entity(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
+    type: EntityType = Field(default=EntityType.PERSON)
+    email: Optional[str] = None  # useful for people
+    description: Optional[str] = None  # e.g. team role or notes
 
-    meeting: Meeting = Relationship(back_populates="attendees")
+
+class TaskBlocker(SQLModel, table=True):
+    task_id: int = Field(foreign_key="task.id", primary_key=True)
+    blocker_id: int = Field(foreign_key="entity.id", primary_key=True)
+
+    task: "Task" = Relationship(back_populates="blockers")
+    blocker: "Entity" = Relationship()
 
 
 @event.listens_for(Task, "before_update", propagate=True)
