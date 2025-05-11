@@ -499,11 +499,12 @@ def add_entity(user, body):
         email = body.get("email")
         description = body.get("description")
 
-        if type_ not in EntityType.__members__:
+        entity_type = None
+        try:
+            entity_type = EntityType[type_.upper()]
+        except KeyError:
             return jsonify({"error": "Invalid entity type"}), 400
-
-        entity_type = EntityType[type_.upper()]
-
+        
         with get_session() as session:
             existing = session.exec(
                 select(Entity).where(Entity.name == name, Entity.type == entity_type)
