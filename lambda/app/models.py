@@ -53,6 +53,14 @@ class Board(SQLModel, table=True):
     )
 
 
+class TaskBlocker(SQLModel, table=True):
+    task_id: int = Field(foreign_key="task.id", primary_key=True)
+    blocker_id: int = Field(foreign_key="entity.id", primary_key=True)
+
+    task: "Task" = Relationship(back_populates="blockers")
+    blocker: "Entity" = Relationship()
+
+
 class Task(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     board_id: int = Field(foreign_key="board.id")
@@ -161,14 +169,6 @@ class Entity(SQLModel, table=True):
     type: EntityType = Field(default=EntityType.PERSON)
     email: Optional[str] = None  # useful for people
     description: Optional[str] = None  # e.g. team role or notes
-
-
-class TaskBlocker(SQLModel, table=True):
-    task_id: int = Field(foreign_key="task.id", primary_key=True)
-    blocker_id: int = Field(foreign_key="entity.id", primary_key=True)
-
-    task: "Task" = Relationship(back_populates="blockers")
-    blocker: "Entity" = Relationship()
 
 
 @event.listens_for(Task, "before_update", propagate=True)
