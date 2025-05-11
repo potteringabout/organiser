@@ -3,6 +3,7 @@ from contextlib import contextmanager
 import os
 import boto3
 import json
+from sqlalchemy import text
 
 # 👇 Secret is fetched once per warm container
 db_secret = None
@@ -29,7 +30,13 @@ engine = create_engine(f"postgresql://{username}:{password}@{host}:{port}/{dbnam
 
 
 def drop_db():
-    SQLModel.metadata.drop_all(engine)
+    with engine.connect() as conn:
+        conn.execute(text("DROP SCHEMA public CASCADE;"))
+        conn.execute(text("CREATE SCHEMA public;"))
+        conn.commit()
+
+#def drop_db():
+#    SQLModel.metadata.drop_all(engine)
 
 
 def init_db():
