@@ -39,11 +39,11 @@ class Board(SQLModel, table=True):
         default_factory=lambda: datetime.now(timezone.utc))
 
     tasks: List["Task"] = Relationship(
-        back_populates="board", 
+        back_populates="board",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
     notes: List["Note"] = Relationship(
-        back_populates="board", 
+        back_populates="board",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
 
@@ -55,7 +55,7 @@ class Task(SQLModel, table=True):
 
     title: str
     description: Optional[str] = None
-    status: Status = Field(default=Visibility.PRIVATE)
+    status: Status = Field(default=Status.TODO)
     priority: Optional[Priority] = Field(default=None)
     due_date: Optional[datetime] = None
     assigned_to: Optional[str] = None
@@ -65,9 +65,11 @@ class Task(SQLModel, table=True):
     last_modified: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc))
     archived: bool = False
+    meeting_id: Optional[int] = Field(default=None, foreign_key="meeting.id")
 
     board: Optional[Board] = Relationship(back_populates="tasks")
     notes: List["Note"] = Relationship(back_populates="task")
+    meeting: Optional["Meeting"] = Relationship(back_populates="tasks")
 
     parent_task: Optional["Task"] = Relationship(
         back_populates="sub_tasks",
@@ -105,18 +107,56 @@ class Note(SQLModel, table=True):
         default_factory=lambda: datetime.now(timezone.utc))
     last_modified: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc))
+    meeting_id: Optional[int] = Field(default=None, foreign_key="meeting.id")
 
     task: Optional[Task] = Relationship(back_populates="notes")
     board: Optional[Board] = Relationship(back_populates="notes")
+    meeting: Optional["Meeting"] = Relationship(back_populates="notes")
+
+
+class Recurrence(str, Enum):
+    NONE = "none"
+    DAILY = "daily"
+    WEEKLY = "weekly"
+    MONTHLY = "monthly"
+    CUSTOM = "custom"  # optional for advanced setups
+
+
+class Meeting(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    board_id: int = Field(foreign_key="board.id")
+    title: str
+    description: Optional[str] = None
+    datetime: datetime
+    recurrence: Recurrence = Field(default=Recurrence.NONE)
+    created_by: str  # user ID/email
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc))
+    last_modified: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc))
+    
+    board: Optional[Board] = Relationship()
+    attendees: List["MeetingAttendee"] = Relationship(back_populates="meeting")
+    tasks: List[Task] = Relationship(back_populates="meeting")
+    notes: List[Note] = Relationship(back_populates="meeting")
+
+
+class MeetingAttendee(SQLModel, table=True):
+    meeting_id: int = Field(foreign_key="meeting.id", primary_key=True)
+    user_id: str = Field(primary_key=True)
+
+    meeting: Meeting = Relationship(back_populates="attendees")
 
 
 @event.listens_for(Task, "before_update", propagate=True)
 @event.listens_for(Note, "before_update", propagate=True)
+@event.listens_for(Meeting, "before_update", propagate=True)
 def receive_before_update(mapper, connection, target):
     target.last_modified = datetime.now(timezone.utc)
 
 
 @event.listens_for(Task, "before_insert", propagate=True)
 @event.listens_for(Note, "before_insert", propagate=True)
+@event.listens_for(Meeting, "before_insert", propagate=True)
 def receive_before_insert(mapper, connection, target):
     target.last_modified = datetime.now(timezone.utc)

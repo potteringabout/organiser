@@ -1,5 +1,5 @@
 import { useStore } from './useStore'
-import { deleteBoard as deleteBoardRemote, getBoards } from '../services/boardService'
+import { deleteBoard as deleteBoardRemote, getBoards, createBoard as createBoardRemote } from '../services/boardService'
 import { showAlert } from "@/components/ui/alert";
 
 export const useBoards = () => {
@@ -9,6 +9,17 @@ export const useBoards = () => {
   
   const setBoards = useStore.setState
 
+  const createBoard = async (board) => {
+    try {
+      const b = await createBoardRemote(board)
+      setBoards(() => ({ boards: [...boards, b] }))
+      showAlert("Board created.", "success");
+      
+    } catch (err) {
+      console.error('Failed to create board:', err)
+    }   
+  }
+    
   const fetchBoards = async () => {
     try {
       console.log("Fetching boards !!!!");
@@ -29,7 +40,7 @@ export const useBoards = () => {
     }
   }
 
-  return { boards, addBoard, fetchBoards, deleteBoard }
+  return { boards, addBoard, fetchBoards, deleteBoard, createBoard }
 }
 
 export const useBoardTasks = (boardId) => {

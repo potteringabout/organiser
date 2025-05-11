@@ -62,7 +62,7 @@ function Menu() {
             {boards.map((item) => (
               <li key={item.id} className="mb-2 flex items-center justify-between group">
                 <Link
-                  to={`/organiser/boards/${item.id}`}
+                  to={`/organiser/board/${item.id}`}
                   className="hover:underline truncate"
                 >
                   {item.title}

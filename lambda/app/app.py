@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 # import boto3
 import uuid
-from datetime import datetime, timezone
 from flask import Flask, jsonify, request
 from functools import wraps
 import functools
 import awsgi
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from bedrock import Mistral, Meta
 from db import get_session, init_db, drop_db
 from models import Board, Task, Note
@@ -392,6 +391,72 @@ def get_task(task_id, user):
                 "notes": [n.model_dump() for n in notes]
             })
 
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/diary/<when>", methods=["GET"])
+@log_io()
+@user_info
+def get_diary_entries(user, when: str = "today"):
+    user_id = user["user_id"]
+    now = datetime.now(timezone.utc)
+    if when == "yesterday":
+        start = (now - timedelta(days=1)).replace(hour=0,
+                                                  minute=0, second=0, microsecond=0)
+        end = start + timedelta(days=1)
+    else:  # today
+        start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        end = start + timedelta(days=1)
+
+    try:
+        with get_session() as session:
+            # Tasks created
+            # Tasks completed
+            completed_tasks = session.exec(
+                select(Task).where(
+                    Task.assigned_to == user_id,
+                    Task.status == Status.DONE,
+                    Task.last_modified >= start,
+                    Task.last_modified < end
+                )
+            ).all()
+
+            # Tasks due today
+            due_tasks = session.exec(
+                select(Task).where(
+                    Task.assigned_to == user_id,
+                    Task.due_date >= start,
+                    Task.due_date < end
+                )
+            ).all()
+
+            # Notes created/edited
+            notes = session.exec(
+                select(Note).where(
+                    Note.user_id == user_id,
+                    Note.last_modified >= start,
+                    Note.last_modified < end
+                )
+            ).all()
+
+            # Meetings attended
+            meetings = session.exec(
+                select(Meeting)
+                .join(MeetingAttendee)
+                .where(
+                    MeetingAttendee.user_id == user_id,
+                    Meeting.datetime >= start,
+                    Meeting.datetime < end
+                )
+            ).all()
+
+            return {
+                "completed_tasks": completed_tasks,
+                "due_tasks": due_tasks,
+                "notes": notes,
+                "meetings": meetings
+            }
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

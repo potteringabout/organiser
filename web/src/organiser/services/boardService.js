@@ -1,7 +1,7 @@
 import { apiRequest } from './baseService'
 
-export async function createBoard(name, description) {
-  return apiRequest("/boards", {method: "POST", body: JSON.stringify({name, description})});
+export async function createBoard(board) {
+  return apiRequest("/boards", {method: "POST", body: JSON.stringify(board)});
 }
 
 export async function deleteBoard(boardId) {
