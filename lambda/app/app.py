@@ -544,15 +544,7 @@ def update_entity(entity_id, user, body):
             entity.name = body.get("name", entity.name)
             entity.email = body.get("email", entity.email)
             entity.description = body.get("description", entity.description)
-
-            # Only allow type changes if valid
-            type_ = body.get("type")
-            if type_:
-                type_ = type_.lower()
-                if type_ not in EntityType.__members__:
-                    return jsonify({"error": "Invalid entity type"}), 400
-                entity.type = EntityType[type_.upper()]
-
+            
             session.commit()
             return jsonify({"message": "Entity updated", "entity": entity.model_dump()})
     except Exception as e:
