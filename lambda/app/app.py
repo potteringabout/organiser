@@ -275,6 +275,7 @@ def add_task(user, body):
                 "status", "todo"), board_id=board_id)
             session.add(task)
             session.commit()
+            session.refresh(task)
 
             return jsonify({"message": "Task created", "task": task.model_dump()}), 201
     except Exception as e:
@@ -302,6 +303,7 @@ def update_task(task_id, user, body):
             task.title = body.get("title", task.title)
             task.status = body.get("status", task.status)
             session.commit()
+            session.refresh(task)
 
             return jsonify({"message": "Task updated", "task": task.model_dump()})
     except Exception as e:
@@ -546,6 +548,7 @@ def update_entity(entity_id, user, body):
             entity.description = body.get("description", entity.description)
             
             session.commit()
+            session.refresh(entity)
             return jsonify({"message": "Entity updated", "entity": entity.model_dump()})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
