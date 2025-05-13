@@ -188,12 +188,6 @@ export default function TaskCard({ task }) {
                 <div className="text-xs text-gray-500 whitespace-nowrap space-y-1">
                   {sub.status && <div>Status: {sub.status}</div>}
                   {sub.assigned_to && <div>Assigned to: {sub.assigned_to}</div>}
-                  {sub.created_at && (
-                    <div>
-                      Created:{" "}
-                      {format(parseISO(sub.created_at), "dd MMM yyyy")}
-                    </div>
-                  )}
                 </div>
               </div>
             ))}

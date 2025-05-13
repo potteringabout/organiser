@@ -8,6 +8,13 @@ function Board() {
   const { boardId } = useParams();
   const { groupedTasks } = useBoardTasks(boardId);
 
+  const statuses = {
+    todo: "To Do",
+    in_progress: "In Progress",
+    done: "Done",
+    blocked: "Blocked",
+  }
+
   if (!boardId) {
     return <div>Select or create a board</div>;
   }
@@ -20,7 +27,7 @@ function Board() {
       {Object.entries(groupedTasks).map(([status, tasks]) => (
         <div key={status}>
           <h2 className="flex items-center gap-2">
-            {getStatusIcon(status)}{status.charAt(0).toUpperCase() + status.slice(1)}
+            {getStatusIcon(status)} {statuses[status]}
           </h2>
           {tasks.map((task) => (
             <TaskCard key={task.id} task={task} />
