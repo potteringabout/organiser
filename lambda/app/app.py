@@ -259,7 +259,7 @@ def delete_board(board_id, user):
 @parse_json
 def add_task(user, body):
     '''
-    Add a task to a board
+    Add a task to a board, optionally as a sub-task
     '''
     try:
         with get_session() as session:
@@ -271,13 +271,27 @@ def add_task(user, body):
             if board.owner != user["user_id"]:
                 return jsonify({"error": "Unauthorized"}), 403
 
-            task = Task(title=body["title"], status=body.get(
-                "status", "todo"), board_id=board_id)
+            # Check for optional parent task
+            parent_id = body.get("parent_id")
+            if parent_id:
+                parent_task = session.get(Task, parent_id)
+                if not parent_task:
+                    return jsonify({"error": "Parent task not found"}), 404
+                if parent_task.board_id != board_id:
+                    return jsonify({"error": "Parent task must be on the same board"}), 400
+
+            task = Task(
+                title=body["title"],
+                status=body.get("status", "todo"),
+                board_id=board_id,
+                parent_id=parent_id  # This may be None
+            )
             session.add(task)
             session.commit()
             session.refresh(task)
 
             return jsonify({"message": "Task created", "task": task.model_dump()}), 201
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -395,6 +409,114 @@ def get_task(task_id, user):
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/notes", methods=["POST"])
+@log_io()
+@user_info
+@parse_json
+def add_note(user, body):
+    '''
+    Add a note to a board or task
+    '''
+    try:
+        with get_session() as session:
+            board_id = body["board_id"]
+            board = session.get(Board, board_id)
+
+            if not board:
+                return jsonify({"error": "Board not found"}), 404
+            if board.owner != user["user_id"]:
+                return jsonify({"error": "Unauthorized"}), 403
+
+            task_id = body.get("task_id")
+            if task_id:
+                task = session.get(Task, task_id)
+                if not task or task.board_id != board_id:
+                    return jsonify({"error": "Invalid or mismatched task_id"}), 400
+
+            note = Note(
+                board_id=board_id,
+                task_id=task_id,
+                content=body["content"]
+            )
+            session.add(note)
+            session.commit()
+            session.refresh(note)
+
+            return jsonify({"message": "Note created", "note": note.model_dump()}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route("/api/notes/<int:note_id>", methods=["PUT"])
+@log_io()
+@user_info
+@parse_json
+def update_note(note_id, user, body):
+    '''
+    Update a note
+    '''
+    try:
+        with get_session() as session:
+            note = session.get(Note, note_id)
+            if not note:
+                return jsonify({"error": "Note not found"}), 404
+
+            board = session.get(Board, note.board_id)
+            if board.owner != user["user_id"]:
+                return jsonify({"error": "Unauthorized"}), 403
+
+            note.content = body.get("content", note.content)
+            session.commit()
+            session.refresh(note)
+
+            return jsonify({"message": "Note updated", "note": note.model_dump()})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/notes/<int:note_id>", methods=["DELETE"])
+@log_io()
+@user_info
+def delete_note(note_id, user):
+    '''
+    Delete a note
+    '''
+    try:
+        with get_session() as session:
+            note = session.get(Note, note_id)
+            if not note:
+                return jsonify({"error": "Note not found"}), 404
+
+            board = session.get(Board, note.board_id)
+            if board.owner != user["user_id"]:
+                return jsonify({"error": "Unauthorized"}), 403
+
+            session.delete(note)
+            session.commit()
+            return jsonify({"message": "Note deleted", "id": note_id})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/boards/<int:board_id>/notes", methods=["GET"])
+@log_io()
+@user_info
+def list_notes(board_id, user):
+    '''
+    List notes for a board
+    '''
+    try:
+        with get_session() as session:
+            board = session.get(Board, board_id)
+            if not board:
+                return jsonify({"error": "Board not found"}), 404
+            if board.owner != user["user_id"]:
+                return jsonify({"error": "Unauthorized"}), 403
+
+            notes = session.exec(select(Note).where(Note.board_id == board_id)).all()
+            return jsonify([note.to_dict() for note in notes])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+    
 @app.route("/api/diary/<when>", methods=["GET"])
 @log_io()
 @user_info
