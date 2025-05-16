@@ -29,7 +29,8 @@ export const useStore = create((set) => ({
         (acc, note) => upsertImmutable(acc, note),
         state.notes
       )
-
+      console.log("Hello")
+      console.log(updatedNotes)
       return { notes: updatedNotes }
     }),
 

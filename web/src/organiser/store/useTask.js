@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useStore } from './useStore'
-import { fetchTask } from '../services/taskService'
+import { createTask, fetchTask } from '../services/taskService'
 import { useMemo } from 'react'
 
 export const useTask = (taskId) => {
@@ -29,6 +29,18 @@ export const useTask = (taskId) => {
       console.error('Failed to fetch tasks for board', err)
     }
   }
+
+  const upsertNote = async (note) => {
+    console.log("upsertNote", note)
+    const notesw = upsertNoteLocal(note)
+    console.log("tasknotes", notesw)
+  }
+
+  const upsertTask = async (task) => {
+    const t = await createTask(task)
+    const x = upsertTaskLocal(t.task)
+    console.log("tasks ...", x)
+  }
   
-  return { tasknotes, subtasks, loadChildren }
+  return { tasknotes, subtasks, loadChildren, upsertNote, upsertTask }
 }

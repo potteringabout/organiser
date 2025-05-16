@@ -12,7 +12,8 @@ export const useBoardTasks = (boardId) => {
   // Initialize and memoize boardTasks
   const boardTasks = useMemo(() => {
     console.log('useMemo for boardTasks :' + boardId)
-    const b = tasks.filter(task => task.board_id == boardId)
+    // Return parent tasks, not sub tasks
+    const b = tasks.filter(task => task.board_id == boardId && task.parent_id == null)
     return b
   }, [boardId, tasks])
 
@@ -40,7 +41,7 @@ export const useBoardTasks = (boardId) => {
   useEffect(() => {
     console.log('useEffect')
     const load = async () => {
-      const hasTasksForBoard = tasks.some(task => task.board_id == boardId );
+      const hasTasksForBoard = tasks.some(task => task.board_id == boardId  );
       if (!hasTasksForBoard) {
         try {
           const remoteTasks = await fetchBoardTasks(boardId)
