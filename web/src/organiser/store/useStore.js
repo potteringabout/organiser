@@ -75,6 +75,10 @@ export const useStore = create((set) => ({
       // Optional: also remove from parentTask.childTaskIds if needed
     })),
 
+  deleteNoteLocal: (noteId) =>
+    set(state => ({
+      notes: state.notes.filter(note => note.id !== noteId)
+    })),
 
   setData: (data) => set(() => data)
 }))

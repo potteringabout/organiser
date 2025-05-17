@@ -13,15 +13,17 @@ import { format, parseISO, isBefore } from "date-fns";
 import { useState } from "react";
 import { MarkdownEditable } from "@/components/ui/markDownDisplay";
 import SnoozeButton from "@/components/ui/snooze";
+import DropdownMenu from "@/components/ui/ellipseDropDown";
 import { useTasks } from "@/organiser/store/useTasks";
 import { useTask } from "@/organiser/store/useTask";
+import { useNotes } from "@/organiser/store/useNotes";
 
 export default function TaskCard({ task, depth = 0 }) {
-  const { updateTask } = useTasks();
+  const { updateTask, deleteTask } = useTasks();
+  const { deleteNote } = useNotes();
   const [expandedTask, setExpandedTask] = useState(false);
   const { subtasks, tasknotes, loadChildren, upsertNote, upsertTask } = useTask(task.id);
 
-  const [inputMode, setInputMode] = useState("note"); // "note" or "subtask"
   const [sharedInputText, setSharedInputText] = useState("");
 
   const isSnoozed =
@@ -55,7 +57,18 @@ export default function TaskCard({ task, depth = 0 }) {
           </div>
         </div>
 
+
+
         <div className="flex items-center gap-2 shrink-0">
+          <DropdownMenu onDelete={() => {
+            // Optional: confirm first
+            if (window.confirm("Are you sure you want to delete this task?")) {
+              deleteTask(task.id); // Add this hook if not already available
+              //deleteTask(task.id); // Add this hook if not already available
+              console.log("Deleted task", task.id);
+            }
+          }} />
+
           {task.snoozed_until && (
             <span className="flex items-center gap-1 text-xs text-blue-600">
               <AlarmClock size={12} /> Snoozed until{" "}
@@ -97,84 +110,85 @@ export default function TaskCard({ task, depth = 0 }) {
       {/* Expanded Content */}
       {expandedTask && (
         <>
-          {task.description && (
-            <div className="text-sm p-2 rounded mt-2">
-              <div className="prose prose-sm max-w-none">
-                <MarkdownEditable
-                  updateId={`${task.id}-description`}
-                  value={task.description}
-                  onSave={(newText) =>
-                    updateTask({ id: task.id, description: newText })
-                  }
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Input Mode Toggle Buttons */}
-          <div className="flex gap-2 mt-4 mb-1">
-            <button
-              onClick={() => setInputMode("note")}
-              className={`p-2 rounded-full border ${inputMode === "note"
-                  ? "bg-blue-500 text-white border-blue-500"
-                  : "text-gray-500 border-gray-300 hover:bg-gray-100"
-                }`}
-              title="Add a note"
-            >
-              <MessageSquare size={16} />
-            </button>
-            <button
-              onClick={() => setInputMode("subtask")}
-              className={`p-2 rounded-full border ${inputMode === "subtask"
-                  ? "bg-blue-500 text-white border-blue-500"
-                  : "text-gray-500 border-gray-300 hover:bg-gray-100"
-                }`}
-              title="Add a sub-task"
-            >
-              <ListTodo size={16} />
-            </button>
-          </div>
-
           {/* Shared Input */}
           <MarkdownEditable
-            updateId={`${task.id}-shared-input`}
+            updateId="new-task-input"
             value={sharedInputText}
-            onSave={(val) => {
-              const trimmed = val.trim();
-              if (!trimmed) return;
+            onSave={() => { }} // fallback no-op
+            alternateSaves={[
+              {
+                icon: <div className="p-2 rounded-full border bg-blue-500 text-white border-blue-500 hover:bg-blue-700"><MessageSquare size={16} /></div>,
+                label: "Save as Note",
+                onClick: (text) => {
+                  const trimmed = text.trim();
+                  if (!trimmed) return;
 
-              if (inputMode === "note") {
-                upsertNote({
-                  task_id: task.id,
-                  board_id: task.board_id,
-                  content: trimmed,
-                });
-              } else {
-                upsertTask({
-                  board_id: task.board_id,
-                  parent_id: task.id,
-                  title: trimmed,
-                  status: "todo",
-                });
-              }
+                  upsertNote({
+                    task_id: task.id,
+                    board_id: task.board_id,
+                    content: trimmed,
+                  });
 
-              setSharedInputText("");
-            }}
-            onChange={setSharedInputText}
-            placeholder={
-              inputMode === "note"
-                ? "Add a comment..."
-                : "Add a sub-task..."
-            }
+                }
+              },
+              {
+                icon: <div className="p-2 rounded-full border bg-blue-500 text-white border-blue-500 hover:bg-blue-700"><ListTodo size={16} /></div>,
+                label: "Save as Task",
+                onClick: (text) => {
+                  const trimmed = text.trim();
+                  if (!trimmed) return;
+
+                  upsertTask({
+                    board_id: task.board_id,
+                    parent_id: task.id,
+                    title: trimmed,
+                    status: "todo",
+                  });
+
+                }
+              },
+            ]}
+            placeholder="Add a comment or sub-task..."
           />
 
-          {/* Subtasks */}
-          {subtasks?.length > 0 &&
-            subtasks.map((sub) => (
-              <div key={sub.id} className="ml-4 pl-2 border-l border-gray-300 mt-2">
-                <TaskCard task={sub} depth={depth + 1} />
+          {/* Updates Summary */}
+          {tasknotes?.length > 0 &&
+            tasknotes.map((note) => (
+               <div key={note.id} className="mt-3 text-xs italic flex justify-between items-start gap-2">
+
+                <MarkdownEditable
+                  updateId={`${note.id}-note`}
+                  value={note.content}
+                  onSave={(newText) =>
+                    upsertNote({ id: note.id, content: newText })
+                  }
+                />
+
+                <DropdownMenu
+                  onDelete={() => {
+                    if (window.confirm("Delete this note?")) {
+                      deleteNote(note.id); 
+                    }
+                  }}
+                />
+
               </div>
             ))}
+
+
+
+
+          {/* Subtasks */}
+          {subtasks?.length > 0 && (
+            <div className="mt-4">
+              <h4 className="text-sm font-semibold text-gray-600 mb-2">Subtasks</h4>
+              {subtasks.map((sub) => (
+                <div key={sub.id} className="ml-4 pl-2 border-l border-gray-300 mt-2">
+                  <TaskCard task={sub} depth={depth + 1} />
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Meta Info */}
           <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
@@ -185,15 +199,10 @@ export default function TaskCard({ task, depth = 0 }) {
             )}
           </div>
 
-          {/* Updates Summary */}
-          {tasknotes?.length > 0 && 
-            tasknotes.map((note) => (
-            <div key={note.id} className="mt-3 text-xs italic">
-              {note.content}
-            </div>
-          ))}
         </>
       )}
+
+
     </div>
   );
 }

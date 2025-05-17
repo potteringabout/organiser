@@ -8,11 +8,11 @@ import "react-mde/lib/styles/css/react-mde-all.css";
 import { Pencil } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
-export function MarkdownEditable({ updateId, value, onSave, showToolbar = true, placeholder = "Click to add update..." }) {
-  
+export function MarkdownEditable({ updateId, value, onSave, showToolbar = true, placeholder = "Click to add update...", alternateSaves }) {
+
   const [editingId, setEditingId] = useState(null);
   const clearEditingId = () => setEditingId(null);
-  
+
   const isEditing = editingId === updateId;
 
   const [draft, setDraft] = useState(value ?? "");
@@ -58,16 +58,34 @@ export function MarkdownEditable({ updateId, value, onSave, showToolbar = true, 
           <button onClick={clearEditingId} className="text-sm px-3 py-1 rounded text-gray-500 hover:underline">
             Cancel
           </button>
-          <button
-            onClick={() => {
-              onSave(draft.trim());
-              clearEditingId();
-            }}
-            disabled={!draft.trim()}
-            className="bg-blue-600 text-white text-sm px-3 py-1 rounded hover:bg-blue-700 disabled:opacity-50"
-          >
-            Save
-          </button>
+
+          {alternateSaves?.map(({ icon, onClick, title }, idx) => (
+            <button
+              key={idx}
+              onClick={() => {
+                onClick(draft.trim());
+                clearEditingId();
+              }}
+              disabled={!draft.trim()}
+              className="p-2 rounded-full border text-gray-500 border-gray-300 hover:bg-gray-100 disabled:opacity-50"
+              title={title}
+            >
+              {icon}
+            </button>
+          ))}
+
+          {!alternateSaves && (
+            <button
+              onClick={() => {
+                onSave(draft.trim());
+                clearEditingId();
+              }}
+              disabled={!draft.trim()}
+              className="bg-blue-600 text-white text-sm px-3 py-1 rounded hover:bg-blue-700 disabled:opacity-50"
+            >
+              Save
+            </button>
+          )}
         </div>
       </div>
     );

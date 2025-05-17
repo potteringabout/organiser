@@ -1,17 +1,20 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useStore } from './useStore'
-import { createTask, fetchTask } from '../services/taskService'
+import { createTask, fetchTask, deleteTask as deleteTaskRemote } from '../services/taskService'
+import { upsertNote as upsertNoteRemote } from '../services/noteService'
 import { useMemo } from 'react'
 
 export const useTask = (taskId) => {
   const upsertNoteLocal = useStore(state => state.upsertNoteLocal)
   const upsertTaskLocal = useStore(state => state.upsertTaskLocal)
+  const deleteTaskLocal = useStore(state => state.deleteTaskLocal)
+  
   const tasks = useStore(state => state.tasks)
   const notes = useStore(state => state.notes)
 
   // Initialize and memoize boardTasks
   const tasknotes = useMemo(() => {
-    const b = notes.filter(note => note.parent_id == taskId)
+    const b = notes.filter(note => note.task_id == taskId)
     return b
   }, [notes, taskId])
 
@@ -31,9 +34,20 @@ export const useTask = (taskId) => {
   }
 
   const upsertNote = async (note) => {
-    console.log("upsertNote", note)
-    const notesw = upsertNoteLocal(note)
-    console.log("tasknotes", notesw)
+    if (note.id) {
+      const x = upsertNoteLocal(note)
+      console.log("notes ...", x)
+      const n = await upsertNoteRemote(note)
+      console.log("upsertNote", n)
+    }
+    else {
+      // If the note is new, we need to create it first to get an id.
+      const n = await upsertNoteRemote(note)
+      console.log("upsertNote", n)
+      const x = upsertNoteLocal(n.note)
+      console.log("notes ...", x)
+    }
+
   }
 
   const upsertTask = async (task) => {
@@ -41,6 +55,11 @@ export const useTask = (taskId) => {
     const x = upsertTaskLocal(t.task)
     console.log("tasks ...", x)
   }
-  
-  return { tasknotes, subtasks, loadChildren, upsertNote, upsertTask }
+
+  const deleteTask = async (taskId) => {
+    await deleteTaskRemote(taskId)
+    deleteTaskLocal(taskId)
+  }
+
+  return { tasknotes, subtasks, loadChildren, upsertNote, upsertTask, deleteTask }
 }
