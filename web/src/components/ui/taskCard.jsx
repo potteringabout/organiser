@@ -6,8 +6,10 @@ import {
   ChevronDown,
   ChevronRight,
   ListTodo,
-  MessageSquare
+  MessageSquare,
+  ExternalLink
 } from "lucide-react";
+import { useLocation, Link } from "react-router-dom";
 import StatusDropdown from "./statusDropdown";
 import { format, parseISO, isBefore } from "date-fns";
 import { useState } from "react";
@@ -23,6 +25,9 @@ export default function TaskCard({ task, depth = 0 }) {
   const { deleteNote } = useNotes();
   const [expandedTask, setExpandedTask] = useState(false);
   const { subtasks, tasknotes, loadChildren, upsertNote, upsertTask } = useTask(task.id);
+
+  const location = useLocation();
+  const isOnTaskPage = location.pathname === `/organiser/task/${task.id}`;
 
   const [sharedInputText, setSharedInputText] = useState("");
 
@@ -42,7 +47,8 @@ export default function TaskCard({ task, depth = 0 }) {
 
   return (
     <div
-      className={`rounded-2xl shadow p-2 mb-2 border hover:shadow-md transition ${statusColor}`}
+      className={`rounded-2xl shadow ${expandedTask ? "p-4" : "p-2"
+        } mb-2 border hover:shadow-md transition ${statusColor}`}
     >
       {/* Header Row */}
       <div className="flex justify-between items-center gap-2">
@@ -104,57 +110,69 @@ export default function TaskCard({ task, depth = 0 }) {
           >
             {expandedTask ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
           </button>
-        </div>
-      </div>
 
+          {/* Open in Page */}
+          {!isOnTaskPage && (
+            <Link
+              to={`/organiser/task/${task.id}`}
+              title="Open task page"
+              className="text-gray-600 hover:text-gray-800 transition"
+            >
+              <ExternalLink size={20} />
+            </Link>
+          )}
+        </div>
+
+      </div>
+      {/* Shared Input */}
+      <MarkdownEditable
+        updateId="new-task-input"
+        value={sharedInputText}
+        onSave={() => { }} // fallback no-op
+        alternateSaves={[
+          {
+            icon: <div className="p-2 rounded-full border bg-blue-500 text-white border-blue-500 hover:bg-blue-700"><MessageSquare size={16} /></div>,
+            label: "Save as Note",
+            onClick: (text) => {
+              const trimmed = text.trim();
+              if (!trimmed) return;
+
+              upsertNote({
+                task_id: task.id,
+                board_id: task.board_id,
+                content: trimmed,
+              });
+
+            }
+          },
+          {
+            icon: <div className="p-2 rounded-full border bg-blue-500 text-white border-blue-500 hover:bg-blue-700"><ListTodo size={16} /></div>,
+            label: "Save as Task",
+            onClick: (text) => {
+              const trimmed = text.trim();
+              if (!trimmed) return;
+
+              upsertTask({
+                board_id: task.board_id,
+                parent_id: task.id,
+                title: trimmed,
+                status: "todo",
+              });
+
+            }
+          },
+        ]}
+        placeholder="Add a comment or sub-task..."
+      />
       {/* Expanded Content */}
       {expandedTask && (
         <>
-          {/* Shared Input */}
-          <MarkdownEditable
-            updateId="new-task-input"
-            value={sharedInputText}
-            onSave={() => { }} // fallback no-op
-            alternateSaves={[
-              {
-                icon: <div className="p-2 rounded-full border bg-blue-500 text-white border-blue-500 hover:bg-blue-700"><MessageSquare size={16} /></div>,
-                label: "Save as Note",
-                onClick: (text) => {
-                  const trimmed = text.trim();
-                  if (!trimmed) return;
 
-                  upsertNote({
-                    task_id: task.id,
-                    board_id: task.board_id,
-                    content: trimmed,
-                  });
-
-                }
-              },
-              {
-                icon: <div className="p-2 rounded-full border bg-blue-500 text-white border-blue-500 hover:bg-blue-700"><ListTodo size={16} /></div>,
-                label: "Save as Task",
-                onClick: (text) => {
-                  const trimmed = text.trim();
-                  if (!trimmed) return;
-
-                  upsertTask({
-                    board_id: task.board_id,
-                    parent_id: task.id,
-                    title: trimmed,
-                    status: "todo",
-                  });
-
-                }
-              },
-            ]}
-            placeholder="Add a comment or sub-task..."
-          />
 
           {/* Updates Summary */}
           {tasknotes?.length > 0 &&
             tasknotes.map((note) => (
-               <div key={note.id} className="mt-3 text-xs italic flex justify-between items-start gap-2">
+              <div key={note.id} className="mt-3 text-xs italic flex justify-between items-start gap-2">
 
                 <MarkdownEditable
                   updateId={`${note.id}-note`}
@@ -167,7 +185,7 @@ export default function TaskCard({ task, depth = 0 }) {
                 <DropdownMenu
                   onDelete={() => {
                     if (window.confirm("Delete this note?")) {
-                      deleteNote(note.id); 
+                      deleteNote(note.id);
                     }
                   }}
                 />
@@ -180,10 +198,10 @@ export default function TaskCard({ task, depth = 0 }) {
 
           {/* Subtasks */}
           {subtasks?.length > 0 && (
-            <div className="mt-4">
+            <div className="mt-2">
               <h4 className="text-sm font-semibold text-gray-600 mb-2">Subtasks</h4>
               {subtasks.map((sub) => (
-                <div key={sub.id} className="ml-4 pl-2 border-l border-gray-300 mt-2">
+                <div key={sub.id} className="ml-4 pl-2 border-gray-300 mt-2">
                   <TaskCard task={sub} depth={depth + 1} />
                 </div>
               ))}

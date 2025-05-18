@@ -10,9 +10,9 @@ output "cloudfront_url" {
   value = "https://${var.project}-${var.environment}.${var.zone}"
 }
 
-output "dynamodb_table_name" {
+/*output "dynamodb_table_name" {
   value = aws_dynamodb_table.organiser.name
-}
+}*/
 
 output "s3_bucket_name" {
   value = aws_s3_bucket.bucket.bucket
@@ -28,4 +28,13 @@ output "cognito_user_pool_client_id" {
 
 output "cognito_user_pool_domain" {
   value = aws_cognito_user_pool_domain.user_pool_domain.domain
+}
+
+output "rds_dns_name" {
+  value = aws_db_instance.rds.address
+}
+
+output "ec2_instance_id" {
+  value       = var.create_ec2_instance ? aws_instance.linux[0].id : null
+  description = "ID of the EC2 instance if created"
 }

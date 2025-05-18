@@ -12,6 +12,7 @@ import NewTaskForm from "./organiser/NewTaskForm";
 import NewBoardForm from "./organiser/NewBoardForm";
 import NewNoteForm from "./organiser/NewNoteForm";
 import NewMeetingForm from "./organiser/NewMeetingForm";
+import Task from "./organiser/Task";
 //import EditTaskForm from "./organiser/EditTaskForm";
 
 function TopBar() {
@@ -84,10 +85,11 @@ function App() {
                   <Route path="/organiser" element={<Organiser />}>
                     <Route index element={<Board />} />
                     <Route path="board/:boardId" element={<Board />} />
-                    <Route path="task/new" element={<NewTaskForm />} />
+                    <Route path="board/:boardId/task/new" element={<NewTaskForm />} />
                     <Route path="meeting/new" element={<NewMeetingForm />} />
                     <Route path="note/new" element={<NewNoteForm />} />
                     <Route path="board/new" element={<NewBoardForm />} />
+                    <Route path="task/:taskId" element={<Task />} />
                     {/* <Route path="task/:taskId/edit" element={<EditTaskForm />} />*/}
                   </Route>
                 </Routes>

@@ -27,3 +27,14 @@ data "aws_subnets" "data_subnets" {
     values = ["${var.owner}-${var.account}-data-*"]
   }
 }
+
+data "aws_subnets" "pub_subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.vpc.id]
+  }
+  filter {
+    name   = "tag:Name"
+    values = ["${var.owner}-${var.account}-pub-*"]
+  }
+}

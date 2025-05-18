@@ -92,7 +92,7 @@ resource "aws_security_group" "rds" {
     to_port         = 5432
     protocol        = "tcp"
     description     = "Allow inbound PostgreSQL access"
-    security_groups = [aws_security_group.lambda.id]
+    security_groups = [aws_security_group.lambda.id, aws_security_group.ec2.id]
   }
 
   egress {

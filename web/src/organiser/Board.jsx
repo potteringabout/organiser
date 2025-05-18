@@ -2,6 +2,9 @@ import { useBoardTasks } from "./store/useBoardTasks";
 import TaskCard from "@/components/ui/taskCard";
 import { CheckCircle, Hourglass, Circle, Ban } from "lucide-react";
 import { useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { ExternalLink } from "lucide-react";
+
 
 // eslint-disable-next-line react/prop-types
 function Board() {
@@ -18,12 +21,19 @@ function Board() {
   if (!boardId) {
     return <div>Select or create a board</div>;
   }
-  
+
   //if (loading) return <div>Loading...</div>;
   //if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div className="space-y-6">
+      <Link
+        to={`/organiser/board/${boardId}/task/new`}
+        title="New Task"
+        className="text-gray-600 hover:text-gray-800 transition"
+      >
+        <ExternalLink size={20} />
+      </Link>
       {Object.entries(groupedTasks).map(([status, tasks]) => (
         <div key={status}>
           <h2 className="flex items-center gap-2">

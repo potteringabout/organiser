@@ -80,3 +80,9 @@ variable "project_full" {
 variable "zone" {
   type = string
 }
+
+variable "create_ec2_instance" {
+  description = "Flag to create the EC2 instance"
+  type        = bool
+  default     = false
+}

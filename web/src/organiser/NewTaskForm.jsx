@@ -1,16 +1,22 @@
-import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { useState } from "react"
+import { useParams, useNavigate } from "react-router-dom"
+import { useTasks } from "@/organiser/store/useTasks"
+import { Plus } from "lucide-react"
 
-export default function NewTaskForm({ onCreate }) {
-  const [title, setTitle] = useState('')
-  const [dueDate, setDueDate] = useState('')
+export default function NewTaskForm() {
+  const { boardId } = useParams();
+  const [title, setTitle] = useState("")
+  const [dueDate, setDueDate] = useState("")
+  const { createTask } = useTasks()
+  const navigate = useNavigate()
 
   const handleSubmit = (e) => {
     e.preventDefault()
     if (title.trim()) {
-      onCreate({ title, due_date: dueDate || null })
-      setTitle('')
-      setDueDate('')
+      createTask({ title, due_date: dueDate || null, board_id: boardId })
+      setTitle("")
+      setDueDate("")
+      navigate(-1) // or navigate("/organiser/board/[boardId]") if needed
     }
   }
 
