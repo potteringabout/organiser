@@ -98,3 +98,4 @@ jobs:
           TF_VERSION: ${{ vars.TF_VERSION }}
           IDENTITY_ROLE: ${{ secrets.IDENTITY_ROLE }}
           WORKING_DIRECTORY: "./infra"
+          EXTRA_ARGS: "-var=\"create_ec2_instance=${{ inputs.DEPLOY_EC2 }}\""
