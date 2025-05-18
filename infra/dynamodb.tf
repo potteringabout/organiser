@@ -1,4 +1,4 @@
-resource "aws_dynamodb_table" "organiser" {
+/*resource "aws_dynamodb_table" "organiser" {
   name         = "Organiser"
   billing_mode = "PAY_PER_REQUEST" # On-demand billing
   hash_key     = "EntityType"
@@ -28,7 +28,7 @@ resource "aws_dynamodb_table" "organiser" {
     name = "Data"
     type = "S" # String
   }*/
-
+  /*
   global_secondary_index {
     name            = "OwnerIndex"
     hash_key        = "Owner"
@@ -53,4 +53,4 @@ resource "aws_dynamodb_table" "organiser" {
     Environment = "Development"
     Team        = "Platform"
   }
-}
+}*/
