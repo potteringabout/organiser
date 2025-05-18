@@ -30,6 +30,9 @@ inputs:
   WORKING_DIRECTORY:
     description: Working directory
     required: true
+  EXTRA_ARGS:
+    description: Extra arguments
+    required: false
 
 outputs:
   PLAN_RESULT:
@@ -88,7 +91,7 @@ runs:
       id: plan
       run: |
         cd ${{ inputs.WORKING_DIRECTORY }}   
-        terraform plan -var-file="./variables/input.tfvars.json" -var "deployment_repo=${{ github.repositoryUrl }}" -detailed-exitcode -no-color
+        terraform plan ${{ inputs.EXTRA_ARGS }} -var-file="./variables/input.tfvars.json" -var "deployment_repo=${{ github.repositoryUrl }}" -detailed-exitcode -no-color
       shell: bash
       continue-on-error: true
 

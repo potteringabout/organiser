@@ -29,6 +29,9 @@ inputs:
   WORKING_DIRECTORY:
     description: Working directory
     required: true
+  EXTRA_ARGS:
+    description: Extra arguments
+    required: false
 
 
 runs:
@@ -83,5 +86,5 @@ runs:
       id: apply
       run: |
         cd ${{ inputs.WORKING_DIRECTORY }}
-        terraform apply -var-file="./variables/input.tfvars.json" -var "deployment_repo=${{ github.repositoryUrl }}" -auto-approve
+        terraform apply ${{ inputs.EXTRA_ARGS }} -var-file="./variables/input.tfvars.json" -var "deployment_repo=${{ github.repositoryUrl }}" -auto-approve
       shell: bash
