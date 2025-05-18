@@ -38,3 +38,9 @@ output "ec2_instance_id" {
   value       = var.create_ec2_instance ? aws_instance.linux[0].id : null
   description = "ID of the EC2 instance if created"
 }
+
+
+output "rds_connect_command" {
+  value = var.create_ec2_instance ? "To connect to the RDS instance, run the following command in your terminal:\n\n aws ssm start-session --target ${aws_instance.linux[0].id} --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters '{\"host\":[\"${aws_db_instance.rds.address}\"],\"portNumber\":[\"5432\"],\"localPortNumber\":[\"5432\"]}'\n\nUsername: dbadmin\nDatabase: organiser\nPassword: See secrets manager ( ${var.project}-${var.environment}-postgres-creds)" : null
+  description = "The command to connect to the RDS instance"
+}

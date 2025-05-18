@@ -109,3 +109,11 @@ where `Data` is a JSON object with the following structure: it would be a list o
 [{"owner": "Tony Potter", "id": "Task-123"}, {"owner": "Tony Potter", "id": "Task-456"}]
 ```
 
+
+## SSH into the RDS instance
+
+
+
+```
+aws ssm start-session --target i-0e302efe73972e3a0 --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters '{"host":["organiser-dev01-postgres.cmwcmuejjant.eu-west-2.rds.amazonaws.com"],"portNumber":["5432"],"localPortNumber":["5432"]}'
+```
