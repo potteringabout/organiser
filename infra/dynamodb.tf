@@ -28,7 +28,7 @@
     name = "Data"
     type = "S" # String
   }*/
-  /*
+/*
   global_secondary_index {
     name            = "OwnerIndex"
     hash_key        = "Owner"
