@@ -7,13 +7,13 @@ export default function NewTaskForm() {
   const { boardId } = useParams();
   const [title, setTitle] = useState("")
   const [dueDate, setDueDate] = useState("")
-  const { createTask } = useTasks()
+  const { upsertTask } = useTasks()
   const navigate = useNavigate()
 
   const handleSubmit = (e) => {
     e.preventDefault()
     if (title.trim()) {
-      createTask({ title, due_date: dueDate || null, board_id: boardId })
+      upsertTask({ title, due_date: dueDate || null, board_id: boardId })
       setTitle("")
       setDueDate("")
       navigate(-1) // or navigate("/organiser/board/[boardId]") if needed

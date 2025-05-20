@@ -17,15 +17,13 @@ import { MarkdownEditable } from "@/components/ui/markDownDisplay";
 import SnoozeButton from "@/components/ui/snooze";
 import DropdownMenu from "@/components/ui/ellipseDropDown";
 import { useTasks } from "@/organiser/store/useTasks";
-import { useTask } from "@/organiser/store/useTask";
 import { useNotes } from "@/organiser/store/useNotes";
 
 export default function TaskCard({ task, depth = 0 }) {
-  const { updateTask, deleteTask } = useTasks();
+  const { deleteTask, upsertTask, upsertNote, getTask, getSubtasks, getTaskNotes } = useTasks();
   const { deleteNote } = useNotes();
   const [expandedTask, setExpandedTask] = useState(false);
-  const { subtasks, tasknotes, loadChildren, upsertNote, upsertTask } = useTask(task.id);
-
+  
   const location = useLocation();
   const isOnTaskPage = location.pathname === `/organiser/task/${task.id}`;
 
@@ -58,7 +56,7 @@ export default function TaskCard({ task, depth = 0 }) {
               updateId={task.id}
               value={task.title}
               showToolbar={false}
-              onSave={(newText) => updateTask({ id: task.id, title: newText })}
+              onSave={(newText) => upsertTask({ id: task.id, title: newText })}
             />
           </div>
         </div>
@@ -90,19 +88,19 @@ export default function TaskCard({ task, depth = 0 }) {
 
           <StatusDropdown
             currentStatus={task.status}
-            onChange={(newStatus) => updateTask({ id: task.id, status: newStatus })}
+            onChange={(newStatus) => upsertTask({ id: task.id, status: newStatus })}
           />
 
           <SnoozeButton
             initialDate={task.snoozed_until ? new Date(task.snoozed_until) : undefined}
             onSnooze={(date) =>
-              updateTask({ id: task.id, snoozed_until: date.toISOString() })
+              upsertTask({ id: task.id, snoozed_until: date.toISOString() })
             }
           />
 
           <button
             onClick={() => {
-              if (!expandedTask) loadChildren();
+              if (!expandedTask) getTask(task.id);
               setExpandedTask((prev) => !prev);
             }}
             className="text-gray-600 hover:text-gray-800 transition"
@@ -170,8 +168,8 @@ export default function TaskCard({ task, depth = 0 }) {
 
 
           {/* Updates Summary */}
-          {tasknotes?.length > 0 &&
-            tasknotes.map((note) => (
+          {getTaskNotes(task.id)?.length > 0 &&
+            getTaskNotes(task.id).map((note) => (
               <div key={note.id} className="mt-3 text-xs italic flex justify-between items-start gap-2">
 
                 <MarkdownEditable
@@ -197,10 +195,10 @@ export default function TaskCard({ task, depth = 0 }) {
 
 
           {/* Subtasks */}
-          {subtasks?.length > 0 && (
+          {getSubtasks(task.id)?.length > 0 && (
             <div className="mt-2">
               <h4 className="text-sm font-semibold text-gray-600 mb-2">Subtasks</h4>
-              {subtasks.map((sub) => (
+              {getSubtasks(task.id).map((sub) => (
                 <div key={sub.id} className="ml-4 pl-2 border-gray-300 mt-2">
                   <TaskCard task={sub} depth={depth + 1} />
                 </div>
