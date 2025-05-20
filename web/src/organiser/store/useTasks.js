@@ -7,21 +7,10 @@ export const useTasks = () => {
   const upsertNoteLocal = useStore(state => state.upsertNoteLocal)
   const deleteTaskLocal = useStore(state => state.deleteTaskLocal)
   const tasks = useStore(state => state.tasks)
-  const notes = useStore(state => state.notes)
-
+  
   const upsertTask = async (task) => {
     const t = await upsertTaskRemote(task)
     return upsertTaskLocal(t.task)
-  }
-
-  const upsertNote = async (note) => {
-    if (note.id) {
-      upsertNoteLocal(note)
-      await upsertNoteRemote(note)
-    } else {
-      const result = await upsertNoteRemote(note)
-      return upsertNoteLocal(result.note)
-    }
   }
 
   const deleteTask = async (taskId) => {
@@ -46,15 +35,12 @@ export const useTasks = () => {
 
   // 📦 Derived state helpers
   const getSubtasks = (parentId) => tasks.filter(t => t.parent_id === parentId)
-  const getTaskNotes = (taskId) => notes.filter(n => n.task_id === taskId)
-
+  
   return {
     tasks,
     upsertTask,
     deleteTask,
     getTask,
-    upsertNote,
-    getSubtasks,
-    getTaskNotes,
+    getSubtasks
   }
 }

@@ -20,8 +20,8 @@ import { useTasks } from "@/organiser/store/useTasks";
 import { useNotes } from "@/organiser/store/useNotes";
 
 export default function TaskCard({ task, depth = 0 }) {
-  const { deleteTask, upsertTask, upsertNote, getTask, getSubtasks, getTaskNotes } = useTasks();
-  const { deleteNote } = useNotes();
+  const { deleteTask, upsertTask, getTask, getSubtasks } = useTasks();
+  const { deleteNote, upsertNote, getNotesForTask, getNotesForBoard } = useNotes();
   const [expandedTask, setExpandedTask] = useState(false);
   
   const location = useLocation();
@@ -168,8 +168,8 @@ export default function TaskCard({ task, depth = 0 }) {
 
 
           {/* Updates Summary */}
-          {getTaskNotes(task.id)?.length > 0 &&
-            getTaskNotes(task.id).map((note) => (
+          {getNotesForTask(task.id)?.length > 0 &&
+            getNotesForTask(task.id).map((note) => (
               <div key={note.id} className="mt-3 text-xs italic flex justify-between items-start gap-2">
 
                 <MarkdownEditable
