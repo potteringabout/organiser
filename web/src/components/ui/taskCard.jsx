@@ -44,8 +44,7 @@ export default function TaskCard({ task, depth = 0 }) {
 
   return (
     <div
-      className={`rounded-2xl shadow ${expandedTask ? "p-4" : "p-2"
-        } mb-2 border hover:shadow-md transition ${statusColor}`}
+      className={`rounded-2xl shadow p-2 mb-2 border hover:shadow-md transition ${statusColor}`}
     >
       {/* Header Row */}
       <div className="flex justify-between items-center gap-2">
@@ -175,7 +174,7 @@ export default function TaskCard({ task, depth = 0 }) {
 
 
           {/* Updates Summary */}
-          {getNotesForTask(task.id)?.length > 0 &&
+          {getNotesForTask(task.id)?.length > 0 ? (
             getNotesForTask(task.id).map((note) => (
               <div key={note.id} className="mt-3 text-xs italic flex justify-between items-start gap-2">
 
@@ -196,7 +195,13 @@ export default function TaskCard({ task, depth = 0 }) {
                 />
 
               </div>
-            ))}
+            )))
+            : (
+            <div className="text-xs italic text-gray-400 mt-2">
+                No comments or updates yet.
+            </div>
+            )
+            }
 
 
 
