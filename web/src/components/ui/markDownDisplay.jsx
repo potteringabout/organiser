@@ -55,7 +55,7 @@ export function MarkdownEditable({ updateId, value, onSave, showToolbar = true, 
       <div ref={editorRef}>
         <MarkdownEditor value={draft} onChange={setDraft} showToolbar={showToolbar} />
         <div className="flex justify-end gap-2 mt-2">
-          <button onClick={clearEditingId} className="text-sm px-3 py-1 rounded text-gray-500 hover:underline">
+          <button onClick={clearEditingId} className="text-sm px-3 py-1 rounded bg-red-400 text-gray-800 dark:text-white  hover:underline">
             Cancel
           </button>
 
@@ -94,7 +94,7 @@ export function MarkdownEditable({ updateId, value, onSave, showToolbar = true, 
   return (
     <div onClick={() => setEditingId(updateId)} className="cursor-pointer group">
       {value?.trim() ? (
-        <MarkdownDisplay className="text-gray-800 group-hover:opacity-90">{value}</MarkdownDisplay>
+        <MarkdownDisplay className="text-white group-hover:opacity-90">{value}</MarkdownDisplay>
       ) : (
         <div className="text-sm italic text-gray-400 flex items-center gap-1">
           <Pencil size={14} />
@@ -139,17 +139,17 @@ export function MarkdownDisplay({ children, className = "" }) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          h1: ({ children }) => <h1 className="text-lg font-bold mt-2 mb-1">{children}</h1>,
-          h2: ({ children }) => <h2 className="text-base font-semibold mt-2 mb-1">{children}</h2>,
-          h3: ({ children }) => <h3 className="text-sm font-medium mt-1 mb-1">{children}</h3>,
-          p: ({ children }) => <p className="text-sm text-gray-800 mb-1">{children}</p>,
-          ul: ({ children }) => <ul className="list-disc list-inside text-sm mb-1">{children}</ul>,
-          ol: ({ children }) => <ol className="list-decimal list-inside text-sm mb-1">{children}</ol>,
+          h1: ({ children }) => <h1 className="text-lg text-gray-800 dark:text-gray-200 font-bold mt-2 mb-1">{children}</h1>,
+          h2: ({ children }) => <h2 className="text-base text-gray-800 dark:text-gray-200 font-semibold mt-2 mb-1">{children}</h2>,
+          h3: ({ children }) => <h3 className="text-sm text-gray-800 dark:text-gray-200 font-medium mt-1 mb-1">{children}</h3>,
+          p: ({ children }) => <p className="text-sm text-gray-800 dark:text-gray-200 mb-1">{children}</p>,
+          ul: ({ children }) => <ul className="list-disc text-gray-800 dark:text-gray-200 list-inside text-sm mb-1">{children}</ul>,
+          ol: ({ children }) => <ol className="list-decimal text-gray-800 dark:text-gray-200 list-inside text-sm mb-1">{children}</ol>,
           code: ({ children }) => (
-            <code className="bg-gray-100 px-1 py-0.5 rounded text-xs font-mono">{children}</code>
+            <code className="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 px-1 py-0.5 rounded text-xs font-mono">{children}</code>
           ),
           blockquote: ({ children }) => (
-            <blockquote className="border-l-4 border-gray-300 pl-3 italic text-sm text-gray-600 mb-1">
+            <blockquote className="border-l-4 border-gray-300 pl-3 italic text-sm text-gray-800 dark:text-gray-200 mb-1">
               {children}
             </blockquote>
           )

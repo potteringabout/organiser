@@ -2,10 +2,8 @@ import { useBoardTasks } from "./store/useBoardTasks";
 import TaskCard from "@/components/ui/taskCard";
 import { CheckCircle, Hourglass, Circle, Ban } from "lucide-react";
 import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
-import { ExternalLink } from "lucide-react";
 import { MarkdownEditable } from "@/components/ui/markDownDisplay";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTasks } from "@/organiser/store/useTasks";
 import { useNotes } from "@/organiser/store/useNotes";
 import {
@@ -19,8 +17,10 @@ function Board() {
   const { groupedTasks } = useBoardTasks(boardId);
   const [sharedInputText, setSharedInputText] = useState("");
   const { upsertTask } = useTasks();
-  const { upsertNote } = useNotes();
+  const { upsertNote, getNotesWithNoParentForBoard } = useNotes();
 
+  console.log("Notes for board", boardId, getNotesWithNoParentForBoard(boardId));
+  const statusOrder = ["todo", "in_progress", "done", "blocked"];
   const statuses = {
     todo: "To Do",
     in_progress: "In Progress",
@@ -74,19 +74,33 @@ function Board() {
             }
           },
         ]}
-        placeholder="Add a comment or sub-task..."
+        placeholder="Add a comment or task..."
       />
       </div>
-      {Object.entries(groupedTasks).map(([status, tasks]) => (
-        <div key={status}>
-          <h2 className="flex items-center gap-2">
-            {getStatusIcon(status)} {statuses[status]}
-          </h2>
-          {tasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
-          ))}
+      {getNotesWithNoParentForBoard(boardId).map((note) => (
+        <div key={note.id} className="mt-3 flex justify-between items-start gap-2 text-gray-400">
+          <MarkdownEditable
+            updateId={`${note.id}`}
+            value={note.content}
+            onSave={(newText) =>
+              upsertNote({ id: note.id, content: newText })
+            }
+          />
         </div>
+        ))}
+      {statusOrder.map((status) => {
+  const tasks = groupedTasks[status] || [];
+  return (
+    <div key={status}>
+      <h2 className="flex items-center gap-2">
+        {getStatusIcon(status)} {statuses[status]}
+      </h2>
+      {tasks.map((task) => (
+        <TaskCard key={task.id} task={task} />
       ))}
+    </div>
+  );
+})}
     </div>
   );
 }

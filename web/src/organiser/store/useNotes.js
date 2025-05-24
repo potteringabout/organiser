@@ -12,10 +12,12 @@ export const useNotes = () => {
   const upsertNote = async (note) => {
     if (note.id) {
       upsertNoteLocal(note)
-      await upsertNoteRemote(note)
+      const result = await upsertNoteRemote(note)
+      console.log("Upserted note x", result.note)
     } else {
       const result = await upsertNoteRemote(note)
       upsertNoteLocal(result.note)
+      console.log("Upserted note", result.note)
     }
   }
 
@@ -28,14 +30,16 @@ export const useNotes = () => {
     }
   }
 
-  const getNotesForTask = (taskId) => notes.filter(n => n.task_id === taskId)
-  const getNotesForBoard = (boardId) => notes.filter(n => n.board_id === boardId)
+  const getNotesForTask = (taskId) => notes.filter(n => n.task_id === Number(taskId))
+  const getNotesForBoard = (boardId) => notes.filter(n => n.board_id === Number(boardId))
+  const getNotesWithNoParentForBoard = (boardId) => notes.filter(n => n.board_id === Number(boardId) && !n.task_id)
 
   return {
     notes,
     upsertNote,
     deleteNote,
     getNotesForTask,
-    getNotesForBoard
+    getNotesForBoard,
+    getNotesWithNoParentForBoard
   }
 }
