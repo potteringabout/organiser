@@ -284,7 +284,8 @@ def add_task(user, body):
                 title=body["title"],
                 status=body.get("status", "todo"),
                 board_id=board_id,
-                parent_id=parent_id  # This may be None
+                parent_id=parent_id,  # This may be None
+                owner=user["user_id"]
             )
             session.add(task)
             session.commit()
@@ -310,8 +311,7 @@ def update_task(task_id, user, body):
 
             if not task:
                 return jsonify({"error": "Task not found"}), 404
-            board = session.get(Board, task.board_id)
-            if board.owner != user["user_id"]:
+            if task.owner != user["user_id"]:
                 return jsonify({"error": "Unauthorized"}), 403
 
             task.title = body.get("title", task.title)
@@ -336,8 +336,7 @@ def delete_task(task_id, user):
 
             if not task:
                 return jsonify({"error": "Task not found"}), 404
-            board = session.get(Board, task.board_id)
-            if board.owner != user["user_id"]:
+            if task.owner != user["user_id"]:
                 return jsonify({"error": "Unauthorized"}), 403
 
             session.delete(task)
@@ -383,8 +382,7 @@ def get_task(task_id, user):
             if not task:
                 return jsonify({"error": "Task not found"}), 404
 
-            board = session.get(Board, task.board_id)
-            if board.owner != user["user_id"]:
+            if task.owner != user["user_id"]:
                 return jsonify({"error": "Unauthorized"}), 403
 
             subtasks = session.exec(
@@ -432,11 +430,15 @@ def add_note(user, body):
                 task = session.get(Task, task_id)
                 if not task or task.board_id != board_id:
                     return jsonify({"error": "Invalid or mismatched task_id"}), 400
+                if task.owner != user["user_id"]:
+                    return jsonify({"error": "Unauthorized"}), 403
+
 
             note = Note(
                 board_id=board_id,
                 task_id=task_id,
-                content=body["content"]
+                content=body["content"],
+                owner=user["user_id"]
             )
             session.add(note)
             session.commit()
@@ -459,7 +461,9 @@ def update_note(note_id, user, body):
             note = session.get(Note, note_id)
             if not note:
                 return jsonify({"error": "Note not found"}), 404
-
+            if note.owner != user["user_id"]:
+                return jsonify({"error": "Unauthorized"}), 403
+            
             board = session.get(Board, note.board_id)
             if board.owner != user["user_id"]:
                 return jsonify({"error": "Unauthorized"}), 403
@@ -486,8 +490,7 @@ def delete_note(note_id, user):
             if not note:
                 return jsonify({"error": "Note not found"}), 404
 
-            board = session.get(Board, note.board_id)
-            if board.owner != user["user_id"]:
+            if note.owner != user["user_id"]:
                 return jsonify({"error": "Unauthorized"}), 403
 
             session.delete(note)
@@ -601,6 +604,8 @@ def delete_entity(entity_id, user):
             entity = session.get(Entity, entity_id)
             if not entity:
                 return jsonify({"error": "Entity not found"}), 404
+            if entity.owner != user["user_id"]:
+                return jsonify({"error": "Unauthorized"}), 403
 
             session.delete(entity)
             session.commit()
@@ -622,6 +627,7 @@ def add_entity(user, body):
         type_ = body.get("type", "person").lower()
         email = body.get("email")
         description = body.get("description")
+        owner = user["user_id"]
 
         entity_type = None
         try:
@@ -640,7 +646,8 @@ def add_entity(user, body):
                 name=name,
                 type=entity_type,
                 email=email,
-                description=description
+                description=description,
+                owner=owner
             )
             session.add(entity)
             session.commit()
@@ -664,6 +671,8 @@ def update_entity(entity_id, user, body):
             entity = session.get(Entity, entity_id)
             if not entity:
                 return jsonify({"error": "Entity not found"}), 404
+            if entity.owner != user["user_id"]:
+                return jsonify({"error": "Unauthorized"}), 403
 
             entity.name = body.get("name", entity.name)
             entity.email = body.get("email", entity.email)
@@ -711,6 +720,7 @@ def list_entities(user):
             ])
     except Exception as e:
         return jsonify({"error": str(e)}), 500  
+
 
 @app.after_request
 def add_header(response):
