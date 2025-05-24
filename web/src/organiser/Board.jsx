@@ -4,12 +4,22 @@ import { CheckCircle, Hourglass, Circle, Ban } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { ExternalLink } from "lucide-react";
+import { MarkdownEditable } from "@/components/ui/markDownDisplay";
+import { useState } from "react";
+import { useTasks } from "@/organiser/store/useTasks";
+import { useNotes } from "@/organiser/store/useNotes";
+import {
+  ListTodo,
+  MessageSquare} from "lucide-react";
 
 
 // eslint-disable-next-line react/prop-types
 function Board() {
   const { boardId } = useParams();
   const { groupedTasks } = useBoardTasks(boardId);
+  const [sharedInputText, setSharedInputText] = useState("");
+  const { upsertTask } = useTasks();
+  const { upsertNote } = useNotes();
 
   const statuses = {
     todo: "To Do",
@@ -27,13 +37,46 @@ function Board() {
 
   return (
     <div className="space-y-6">
-      <Link
-        to={`/organiser/board/${boardId}/task/new`}
-        title="New Task"
-        className="text-gray-600 hover:text-gray-800 transition"
-      >
-        <ExternalLink size={20} />
-      </Link>
+      {/* Shared Input */}
+      <div className="text-gray-800">
+      <MarkdownEditable
+        updateId="new-task-input"
+        value={sharedInputText}
+        onSave={() => { }} // fallback no-op
+        alternateSaves={[
+          {
+            icon: <div className="p-2 rounded-full border bg-blue-500 text-white border-blue-500 hover:bg-blue-700"><MessageSquare size={16} /></div>,
+            label: "Save as Note",
+            onClick: (text) => {
+              const trimmed = text.trim();
+              if (!trimmed) return;
+
+              upsertNote({
+                board_id: boardId,
+                content: trimmed,
+              });
+
+            }
+          },
+          {
+            icon: <div className="p-2 rounded-full border bg-blue-500 text-white border-blue-500 hover:bg-blue-700"><ListTodo size={16} /></div>,
+            label: "Save as Task",
+            onClick: (text) => {
+              const trimmed = text.trim();
+              if (!trimmed) return;
+
+              upsertTask({
+                board_id: boardId,
+                title: trimmed,
+                status: "todo",
+              });
+
+            }
+          },
+        ]}
+        placeholder="Add a comment or sub-task..."
+      />
+      </div>
       {Object.entries(groupedTasks).map(([status, tasks]) => (
         <div key={status}>
           <h2 className="flex items-center gap-2">

@@ -19,7 +19,7 @@ class Visibility(str, Enum):
 class Status(str, Enum):
     TODO = "todo"
     IN_PROGRESS = "in_progress"
-    DONE = "done"  # or completed
+    DONE = "done"
     CANCELLED = "cancelled"
     IGNORED = "ignored"
     BLOCKED = "blocked"
@@ -38,19 +38,11 @@ class Board(SQLModel, table=True):
     description: Optional[str] = None
     owner: str
     visibility: Visibility = Field(default=Visibility.PRIVATE)
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc))
-    last_modified: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    last_modified: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-    tasks: List["Task"] = Relationship(
-        back_populates="board",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
-    )
-    notes: List["Note"] = Relationship(
-        back_populates="board",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
-    )
+    tasks: List["Task"] = Relationship(back_populates="board", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
+    notes: List["Note"] = Relationship(back_populates="board", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
 
 
 class TaskBlocker(SQLModel, table=True):
@@ -73,25 +65,19 @@ class Task(SQLModel, table=True):
     due_date: Optional[datetime] = None
     assigned_to: Optional[str] = None
     snoozed_until: Optional[datetime] = None
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc))
-    last_modified: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    last_modified: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     archived: bool = False
     meeting_id: Optional[int] = Field(default=None, foreign_key="meeting.id")
+    owner: str
 
     board: Optional[Board] = Relationship(back_populates="tasks")
     notes: List["Note"] = Relationship(back_populates="task")
     meeting: Optional["Meeting"] = Relationship(back_populates="tasks")
     blockers: List[TaskBlocker] = Relationship(back_populates="task")
 
-    parent_task: Optional["Task"] = Relationship(
-        back_populates="sub_tasks",
-        sa_relationship_kwargs={"remote_side": "Task.id"}
-    )
-    sub_tasks: List["Task"] = Relationship(
-        back_populates="parent_task"
-    )
+    parent_task: Optional["Task"] = Relationship(back_populates="sub_tasks", sa_relationship_kwargs={"remote_side": "Task.id"})
+    sub_tasks: List["Task"] = Relationship(back_populates="parent_task")
 
     def to_dict(self):
         return {
@@ -117,11 +103,10 @@ class Note(SQLModel, table=True):
     task_id: Optional[int] = Field(default=None, foreign_key="task.id")
     board_id: Optional[int] = Field(default=None, foreign_key="board.id")
     user_id: Optional[str] = None
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc))
-    last_modified: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    last_modified: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     meeting_id: Optional[int] = Field(default=None, foreign_key="meeting.id")
+    owner: str
 
     task: Optional[Task] = Relationship(back_populates="notes")
     board: Optional[Board] = Relationship(back_populates="notes")
@@ -133,7 +118,7 @@ class Recurrence(str, Enum):
     DAILY = "daily"
     WEEKLY = "weekly"
     MONTHLY = "monthly"
-    CUSTOM = "custom"  # optional for advanced setups
+    CUSTOM = "custom"
 
 
 class MeetingEntity(SQLModel, table=True):
@@ -151,11 +136,10 @@ class Meeting(SQLModel, table=True):
     description: Optional[str] = None
     datetime: datetime
     recurrence: Recurrence = Field(default=Recurrence.NONE)
-    created_by: str  # user ID/email
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc))
-    last_modified: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc))
+    created_by: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    last_modified: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    owner: str
 
     board: Optional[Board] = Relationship()
     attendees: List[MeetingEntity] = Relationship(back_populates="meeting")
@@ -167,8 +151,9 @@ class Entity(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     type: EntityType = Field(default=EntityType.PERSON)
-    email: Optional[str] = None  # useful for people
-    description: Optional[str] = None  # e.g. team role or notes
+    email: Optional[str] = None
+    description: Optional[str] = None
+    owner: str
 
 
 @event.listens_for(Task, "before_update", propagate=True)
