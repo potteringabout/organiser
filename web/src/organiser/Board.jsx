@@ -17,7 +17,7 @@ function Board() {
   const { groupedTasks } = useBoardTasks(boardId);
   const [sharedInputText, setSharedInputText] = useState("");
   const { upsertTask } = useTasks();
-  const { upsertNote, getNotesWithNoParentForBoard } = useNotes();
+  const { upsertNote, getNotesWithNoParentForBoard } = useNotes(boardId);
 
   console.log("Notes for board", boardId, getNotesWithNoParentForBoard(boardId));
   const statusOrder = ["todo", "in_progress", "done", "blocked"];

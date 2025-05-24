@@ -1,13 +1,32 @@
 import { useStore } from './useStore'
+import { useEffect } from 'react'
 import {
   upsertNote as upsertNoteRemote,
-  deleteNote as deleteNoteRemote
+  deleteNote as deleteNoteRemote,
+  fetchBoardNotes
 } from '../services/noteService'
 
-export const useNotes = () => {
+export const useNotes = (boardId = null) => {
   const upsertNoteLocal = useStore(state => state.upsertNoteLocal)
   const deleteNoteLocal = useStore(state => state.deleteNoteLocal)
   const notes = useStore(state => state.notes)
+
+  useEffect(() => {
+      console.log('useEffect')
+      const load = async () => {
+        const hasNotesForBoard = notes.some(note => note.board_id == boardId  );
+        if (!hasNotesForBoard) {
+          try {
+            const remoteNotes = await fetchBoardNotes(boardId)
+            upsertNoteLocal(remoteNotes)
+          } catch (err) {
+            console.error('Failed to fetch notes for board', err)
+          }
+        }
+      }
+      load()
+    }, [boardId])
+  
 
   const upsertNote = async (note) => {
     if (note.id) {

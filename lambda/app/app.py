@@ -363,7 +363,7 @@ def list_tasks(board_id, user):
 
             tasks = session.exec(select(Task).where(
                 Task.board_id == board_id)).all()
-            return jsonify([task.to_dict() for task in tasks])
+            return jsonify([task.model_dump() for task in tasks])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
@@ -515,7 +515,7 @@ def list_notes(board_id, user):
                 return jsonify({"error": "Unauthorized"}), 403
 
             notes = session.exec(select(Note).where(Note.board_id == board_id)).all()
-            return jsonify([note.to_dict() for note in notes])
+            return jsonify([note.model_dump() for note in notes])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
