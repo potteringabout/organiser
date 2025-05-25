@@ -6,10 +6,10 @@ import { showAlert } from "@/components/ui/alert";
 
 
 function Menu() {
-  const { boards, fetchBoards, addBoard, deleteBoard } = useBoards();
+  const { boards, fetchBoards, deleteBoard } = useBoards();
   const [loaded, setLoaded] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
-  
+
   const navigate = useNavigate();
 
   const handleCreateBoard = () => {
@@ -24,7 +24,7 @@ function Menu() {
     fetchBoards()
     setLoaded(true)
   }, [loaded])
-  
+
   if (!isOpen) {
     return (
       <div className="w-8 pt-2 flex-shrink-0">
@@ -36,23 +36,23 @@ function Menu() {
   }
 
   return (
-    <aside className="h-screen w-64 p-4 transition-colors shadow-xl relative bg-white dark:bg-gray-800">
+    <aside className="h-screen w-64 p-4 pr-8 transition-colors shadow-xl relative bg-white dark:bg-gray-800">
       {/* Collapse button */}
-      <button className="absolute top-2 right-2 p-1" onClick={() => setIsOpen(false)}>
+      <button className="absolute top-2 right-2 p-1 z-10" onClick={() => setIsOpen(false)}>
         <CloseIcon size={16} />
       </button>
-  
-      <div>
+
+      <div className="mt-6"> {/* Adds top margin so content doesn't clash with CloseIcon */}
         <div className="flex items-center justify-between mb-2">
           <h4 className="font-bold">Boards</h4>
           <button
             className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-            onClick={handleCreateBoard} // define this function
+            onClick={handleCreateBoard}
           >
             <Plus size={16} />
           </button>
         </div>
-  
+
         {boards.length === 0 ? (
           <div className="flex items-center justify-center h-32">
             <LoaderCircle className="animate-spin text-gray-500" size={24} />
@@ -69,7 +69,7 @@ function Menu() {
                 </Link>
                 <button
                   className="p-1 ml-2 opacity-0 group-hover:opacity-100 hover:text-red-600 transition-opacity"
-                  onClick={() => deleteBoard(item.id)} // define this function
+                  onClick={() => deleteBoard(item.id)}
                 >
                   <Trash size={16} />
                 </button>

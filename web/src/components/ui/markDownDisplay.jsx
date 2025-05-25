@@ -5,7 +5,7 @@ import ReactMde from "react-mde";
 import remarkGfm from "remark-gfm";
 import Showdown from "showdown";
 import "react-mde/lib/styles/css/react-mde-all.css";
-import { Pencil } from "lucide-react";
+import { Pencil, X, CheckCircle } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
 export function MarkdownEditable({ updateId, value, onSave, showToolbar = true, placeholder = "Click to add update...", alternateSaves }) {
@@ -55,8 +55,12 @@ export function MarkdownEditable({ updateId, value, onSave, showToolbar = true, 
       <div ref={editorRef}>
         <MarkdownEditor value={draft} onChange={setDraft} showToolbar={showToolbar} />
         <div className="flex justify-end gap-2 mt-2">
-          <button onClick={clearEditingId} className="text-sm px-3 py-1 rounded bg-red-400 text-gray-800 dark:text-white  hover:underline">
-            Cancel
+          <button
+            onClick={clearEditingId}
+            className="p-2 rounded-full border text-red-500 border-red-300 hover:bg-red-100"
+            title="Cancel"
+          >
+            <X size={16} />
           </button>
 
           {alternateSaves?.map(({ icon, onClick, title }, idx) => (
@@ -81,9 +85,10 @@ export function MarkdownEditable({ updateId, value, onSave, showToolbar = true, 
                 clearEditingId();
               }}
               disabled={!draft.trim()}
-              className="bg-blue-600 text-white text-sm px-3 py-1 rounded hover:bg-blue-700 disabled:opacity-50"
+              className="p-2 rounded-full border text-blue-500 border-blue-300 hover:bg-blue-100 disabled:opacity-50"
+              title="Save"
             >
-              Save
+              <CheckCircle size={16} />
             </button>
           )}
         </div>
@@ -139,9 +144,9 @@ export function MarkdownDisplay({ children, className = "" }) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          h1: ({ children }) => <h1 className="text-lg text-gray-800 dark:text-gray-200 font-bold mt-2 mb-1">{children}</h1>,
-          h2: ({ children }) => <h2 className="text-base text-gray-800 dark:text-gray-200 font-semibold mt-2 mb-1">{children}</h2>,
-          h3: ({ children }) => <h3 className="text-sm text-gray-800 dark:text-gray-200 font-medium mt-1 mb-1">{children}</h3>,
+          h1: ({ children }) => <h1 className="text-lg text-gray-800 dark:text-gray-200 font-bold mb-1">{children}</h1>,
+          h2: ({ children }) => <h2 className="text-base text-gray-800 dark:text-gray-200 font-semibold mb-1">{children}</h2>,
+          h3: ({ children }) => <h3 className="text-sm text-gray-800 dark:text-gray-200 font-medium mb-1">{children}</h3>,
           p: ({ children }) => <p className="text-sm text-gray-800 dark:text-gray-200 mb-1">{children}</p>,
           ul: ({ children }) => <ul className="list-disc text-gray-800 dark:text-gray-200 list-inside text-sm mb-1">{children}</ul>,
           ol: ({ children }) => <ol className="list-decimal text-gray-800 dark:text-gray-200 list-inside text-sm mb-1">{children}</ol>,
