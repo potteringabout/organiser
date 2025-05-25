@@ -19,6 +19,7 @@ export const useNotes = (boardId = null) => {
           try {
             const remoteNotes = await fetchBoardNotes(boardId)
             upsertNoteLocal(remoteNotes)
+            console.log('Loaded notes for board', remoteNotes)
           } catch (err) {
             console.error('Failed to fetch notes for board', err)
           }
