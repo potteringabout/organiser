@@ -5,10 +5,8 @@ import { MoreVertical } from "lucide-react";
 export default function DropdownMenu({ items }) {
   return (
     <Menu as="div" className="relative inline-block text-left">
-      <Menu.Button asChild>
-        <button className="p-1 hover:bg-gray-100 rounded">
+      <Menu.Button className="p-1 hover:bg-gray-100 rounded">
           <MoreVertical size={18} className="text-gray-500" />
-        </button>
       </Menu.Button>
 
       <Menu.Items
