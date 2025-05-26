@@ -563,8 +563,10 @@ def update_meeting(meeting_id, user, body):
             if meeting.owner != user["user_id"]:
                 return jsonify({"error": "Unauthorized"}), 403
 
+            print(f"Meeting title 1 : {body.get('title')}")
             meeting.title = body.get("title", meeting.title)
-            meeting.date = body.get("datetime", meeting.date)
+            print(f"Meeting title 2 : {meeting.title}")
+            meeting.date = body.get("date", meeting.date)
             meeting.recurrence = body.get("recurrence", meeting.recurrence)
 
             session.commit()
