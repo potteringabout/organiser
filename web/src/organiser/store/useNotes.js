@@ -25,7 +25,9 @@ export const useNotes = (boardId = null) => {
           }
         }
       }
-      load()
+      if ( boardId ){
+        load()
+      } 
     }, [boardId])
   
 

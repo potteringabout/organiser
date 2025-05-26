@@ -25,7 +25,9 @@ export const useMeetings = (boardId = null) => {
           }
         }
       }
-      load()
+      if ( boardId ){
+        load()
+      }
     }, [boardId])
   
 

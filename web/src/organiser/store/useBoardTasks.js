@@ -4,7 +4,7 @@ import { useStore } from './useStore'
 import { fetchBoardTasks } from '../services/taskService'
 import { parseISO, isBefore } from "date-fns";
 
-export const useBoardTasks = (boardId) => {
+export const useBoardTasks = (boardId = null) => {
 
   const tasks = useStore(state => state.tasks)
   const upsertTaskLocal = useStore(state => state.upsertTaskLocal) 
@@ -51,7 +51,9 @@ export const useBoardTasks = (boardId) => {
         }
       }
     }
-    load()
+    if ( boardId ){
+      load()
+    }
   }, [boardId])
 
   return { boardTasks, groupedTasks }
