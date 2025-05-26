@@ -7,7 +7,8 @@ import {
   ChevronRight,
   ListTodo,
   MessageSquare,
-  ExternalLink
+  ExternalLink,
+  Trash2
 } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import StatusDropdown from "./statusDropdown";
@@ -103,14 +104,21 @@ export default function TaskCard({ task, depth = 0 }) {
 
 
         <div className="flex items-center gap-2 shrink-0">
-          <DropdownMenu onDelete={() => {
-            // Optional: confirm first
-            if (window.confirm("Are you sure you want to delete this task?")) {
-              deleteTask(task.id); // Add this hook if not already available
-              //deleteTask(task.id); // Add this hook if not already available
-              console.log("Deleted task", task.id);
-            }
-          }} />
+          <DropdownMenu
+            items={[
+              {
+                label: "Delete",
+                icon: Trash2,
+                onClick: () => {
+                  if (window.confirm("Are you sure you want to delete this task?")) {
+                    deleteTask(task.id);
+                    console.log("Deleted task", task.id);
+                  }
+                },
+                style: "danger",
+              },
+            ]}
+          />
 
           {task.snoozed_until && (
             <span className="flex items-center gap-1 text-xs text-blue-600">
@@ -182,11 +190,18 @@ export default function TaskCard({ task, depth = 0 }) {
                 />
 
                 <DropdownMenu
-                  onDelete={() => {
-                    if (window.confirm("Delete this note?")) {
-                      deleteNote(note.id);
-                    }
-                  }}
+                  items={[
+                    {
+                      label: "Delete",
+                      icon: Trash2,
+                      onClick: () => {
+                        if (window.confirm("Delete this note?")) {
+                          deleteNote(note.id);
+                        }
+                      },
+                      style: "danger",
+                    },
+                  ]}
                 />
 
               </div>

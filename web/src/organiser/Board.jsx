@@ -9,7 +9,8 @@ import { useTasks } from "@/organiser/store/useTasks";
 import { useNotes } from "@/organiser/store/useNotes";
 import {
   ListTodo,
-  MessageSquare
+  MessageSquare,
+  Trash2
 } from "lucide-react";
 
 
@@ -86,12 +87,19 @@ function Board() {
                   {note.last_modified ? new Date(note.last_modified).toLocaleString() : ''}
                 </div>
               </div>
-              <DropdownMenu onDelete={() => {
-                if (window.confirm("Are you sure you want to delete this note?")) {
-                  deleteNote(note.id);
-                  console.log("Deleted note", note.id);
-                }
-              }} />
+              <DropdownMenu items={[
+              {
+                label: "Delete",
+                icon: Trash2,
+                onClick: () => {
+                  if (window.confirm("Are you sure you want to delete this task?")) {
+                    deleteNote(note.id);
+                    console.log("Deleted note", note.id);
+                  }
+                },
+                style: "danger",
+              },
+            ]} />
             </div>
           ))}
         </div>

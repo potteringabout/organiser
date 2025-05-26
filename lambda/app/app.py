@@ -518,6 +518,101 @@ def list_notes(board_id, user):
             return jsonify([note.model_dump() for note in notes])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+# region Meetings API
+
+@app.route("/api/meetings", methods=["POST"])
+@log_io()
+@user_info
+@parse_json
+def create_meeting(user, body):
+    '''
+    Create a meeting (one-off or recurring)
+    '''
+    try:
+        with get_session() as session:
+            meeting = Meeting(
+                board_id=body["board_id"],
+                title=body["title"],
+                owner=user["user_id"],
+                date=body["date"],
+                recurrence=body.get("recurrence")  # Optional
+            )
+            session.add(meeting)
+            session.commit()
+            session.refresh(meeting)
+            return jsonify({"message": "Meeting created", "meeting": meeting.model_dump()}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/meetings/<int:meeting_id>", methods=["PUT"])
+@log_io()
+@user_info
+@parse_json
+def update_meeting(meeting_id, user, body):
+    '''
+    Update a meeting
+    '''
+    try:
+        with get_session() as session:
+            meeting = session.get(Meeting, meeting_id)
+            if not meeting:
+                return jsonify({"error": "Meeting not found"}), 404
+            if meeting.owner != user["user_id"]:
+                return jsonify({"error": "Unauthorized"}), 403
+
+            meeting.title = body.get("title", meeting.title)
+            meeting.date = body.get("datetime", meeting.date)
+            meeting.recurrence = body.get("recurrence", meeting.recurrence)
+
+            session.commit()
+            session.refresh(meeting)
+            return jsonify({"message": "Meeting updated", "meeting": meeting.model_dump()})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/meetings/<int:meeting_id>", methods=["DELETE"])
+@log_io()
+@user_info
+def delete_meeting(meeting_id, user):
+    '''
+    Delete a meeting
+    '''
+    try:
+        with get_session() as session:
+            meeting = session.get(Meeting, meeting_id)
+            if not meeting:
+                return jsonify({"error": "Meeting not found"}), 404
+            if meeting.owner != user["user_id"]:
+                return jsonify({"error": "Unauthorized"}), 403
+
+            session.delete(meeting)
+            session.commit()
+            return jsonify({"message": "Meeting deleted", "id": meeting_id})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/meetings", methods=["GET"])
+@log_io()
+@user_info
+def list_meetings(user):
+    '''
+    List meetings owned by the user
+    '''
+    try:
+        with get_session() as session:
+            meetings = session.exec(
+                select(Meeting).where(Meeting.owner == user["user_id"])
+            ).all()
+            return jsonify([m.model_dump() for m in meetings])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# endregion Meetings API
     
     
 @app.route("/api/diary/<when>", methods=["GET"])

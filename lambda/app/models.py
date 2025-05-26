@@ -1,7 +1,7 @@
 from sqlmodel import SQLModel, Field, Relationship
 from typing import Optional, List
-from datetime import datetime, timezone
-from sqlalchemy import event
+from datetime import datetime, timezone, date
+from sqlalchemy import event, UniqueConstraint
 from enum import Enum
 
 
@@ -134,9 +134,8 @@ class Meeting(SQLModel, table=True):
     board_id: int = Field(foreign_key="board.id")
     title: str
     description: Optional[str] = None
-    datetime: datetime
+    date: date
     recurrence: Recurrence = Field(default=Recurrence.NONE)
-    created_by: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     last_modified: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     owner: str
@@ -145,6 +144,10 @@ class Meeting(SQLModel, table=True):
     attendees: List[MeetingEntity] = Relationship(back_populates="meeting")
     tasks: List[Task] = Relationship(back_populates="meeting")
     notes: List[Note] = Relationship(back_populates="meeting")
+
+    __table_args__ = (
+        UniqueConstraint("owner", "title", "date", "board_id", name="uq_meeting_owner_title_date"),
+    )
 
 
 class Entity(SQLModel, table=True):
