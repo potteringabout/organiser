@@ -52,7 +52,7 @@ export function MarkdownEditable({ updateId, value, onSave, showToolbar = true, 
 
   if (isEditing) {
     return (
-      <div ref={editorRef}>
+      <div ref={editorRef} className="bg-gray-100 text-gray-900 dark:text-gray-900 dark:bg-gray-900">
         <MarkdownEditor value={draft} onChange={setDraft} showToolbar={showToolbar} />
         <div className="flex justify-end gap-2 mt-2">
           <button

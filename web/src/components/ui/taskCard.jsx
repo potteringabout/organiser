@@ -47,8 +47,8 @@ export default function TaskCard({ task, depth = 0 }) {
       className={`rounded-2xl shadow p-2 mb-2 border hover:shadow-md transition ${statusColor}`}
     >
       {/* Header Row */}
-      <div className="flex justify-between items-center gap-2">
-        <div className="flex-grow overflow-hidden">
+      <div className="flex w-full gap-2">
+        <div className="w-2/3 overflow-hidden">
           <div className="prose prose-sm max-w-none">
             <MarkdownEditable
               updateId={task.id}
@@ -58,50 +58,45 @@ export default function TaskCard({ task, depth = 0 }) {
             />
           </div>
         </div>
-        <div className="flex-shrink-0">
+        <div className="w-1/3">
           <div className="prose prose-sm max-w-none">
-        
             <MarkdownEditable
-            updateId="new-task-input"
-            value={sharedInputText}
-            onSave={() => { }} // fallback no-op
-            alternateSaves={[
-              {
-                icon: <div className="p-2 rounded-full border bg-blue-500 text-white border-blue-500 hover:bg-blue-700"><MessageSquare size={16} /></div>,
-                label: "Save as Note",
-                onClick: (text) => {
-                  const trimmed = text.trim();
-                  if (!trimmed) return;
-
-                  upsertNote({
-                    task_id: task.id,
-                    board_id: task.board_id,
-                    content: trimmed,
-                  });
-                  setExpandedTask(true);
-
-                }
-              },
-              {
-                icon: <div className="p-2 rounded-full border bg-blue-500 text-white border-blue-500 hover:bg-blue-700"><ListTodo size={16} /></div>,
-                label: "Save as Task",
-                onClick: (text) => {
-                  const trimmed = text.trim();
-                  if (!trimmed) return;
-
-                  upsertTask({
-                    board_id: task.board_id,
-                    parent_id: task.id,
-                    title: trimmed,
-                    status: "todo",
-                  });
-                  setExpandedTask(true);
-
-                }
-              },
-            ]}
-            placeholder="Add a comment or sub-task..."
-          />
+              updateId="new-task-input"
+              value={sharedInputText}
+              onSave={() => { }} // fallback no-op
+              alternateSaves={[
+                {
+                  icon: <div className="p-2 rounded-full border bg-blue-500 text-white border-blue-500 hover:bg-blue-700"><MessageSquare size={16} /></div>,
+                  label: "Save as Note",
+                  onClick: (text) => {
+                    const trimmed = text.trim();
+                    if (!trimmed) return;
+                    upsertNote({
+                      task_id: task.id,
+                      board_id: task.board_id,
+                      content: trimmed,
+                    });
+                    setExpandedTask(true);
+                  }
+                },
+                {
+                  icon: <div className="p-2 rounded-full border bg-blue-500 text-white border-blue-500 hover:bg-blue-700"><ListTodo size={16} /></div>,
+                  label: "Save as Task",
+                  onClick: (text) => {
+                    const trimmed = text.trim();
+                    if (!trimmed) return;
+                    upsertTask({
+                      board_id: task.board_id,
+                      parent_id: task.id,
+                      title: trimmed,
+                      status: "todo",
+                    });
+                    setExpandedTask(true);
+                  }
+                },
+              ]}
+              placeholder="Add a comment or sub-task..."
+            />
           </div>
         </div>
 

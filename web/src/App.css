@@ -49,3 +49,13 @@
   border-radius: 0.5rem;
   border: 1px solid #e5e7eb; /* Tailwind gray-200 */
 }
+
+.mde-text {
+  background-color: white;
+  color: black;
+}
+
+.dark .mde-text {
+  background-color: #1f2937; /* Tailwind gray-800 */
+  color: white;
+}
