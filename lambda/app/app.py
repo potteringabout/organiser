@@ -598,6 +598,27 @@ def delete_meeting(meeting_id, user):
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/boards/<int:board_id>/meetings", methods=["GET"])
+@log_io()
+@user_info
+def list_board_meetings(board_id, user):
+    '''
+    List meetings for a board
+    '''
+    try:
+        with get_session() as session:
+            board = session.get(Board, board_id)
+            if not board:
+                return jsonify({"error": "Board not found"}), 404
+            if board.owner != user["user_id"]:
+                return jsonify({"error": "Unauthorized"}), 403
+
+            meetings = session.exec(select(Meeting).where(Meeting.board_id == board_id)).all()
+            return jsonify([note.model_dump() for note in meetings])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/api/meetings", methods=["GET"])
 @log_io()
 @user_info
