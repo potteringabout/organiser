@@ -20,6 +20,7 @@ export const useStore = create((set) => ({
   boards: [],
   tasks: [],
   notes: [],
+  meetings: [],
 
   upsertNoteLocal: (notes) =>
     set((state) => {
@@ -58,6 +59,19 @@ export const useStore = create((set) => ({
       return { boards: updatedBoards }
     }),
 
+  upsertMeetingLocal: (meetings) =>
+    set((state) => {
+      const meetingList = Array.isArray(meetings) ? meetings : [meetings]
+
+      const updatedMeetings = meetingList.reduce(
+        (acc, meeting) => upsertImmutable(acc, meeting),
+        state.meetings
+      )
+      console.log(updatedMeetings)
+      return { meetings: updatedMeetings }
+    }),
+
+
   deleteBoardLocal: (boardId) =>
     set(state => ({
       boards: state.boards.filter(board => board.id !== boardId),
@@ -78,6 +92,11 @@ export const useStore = create((set) => ({
   deleteNoteLocal: (noteId) =>
     set(state => ({
       notes: state.notes.filter(note => note.id !== noteId)
+    })),
+
+  deleteMeetingLocal: (meetingId) =>
+    set(state => ({
+      meetings: state.meetings.filter(meeting => meeting.id !== meetingId)
     })),
 
   setData: (data) => set(() => data)
