@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CheckCircle, Hourglass, Circle, Ban } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { MarkdownEditable } from "@/components/ui/markDownDisplay";
+import { MeetingDropdown } from "@/components/ui/meetingDropDown";
 import DropdownMenu from "@/components/ui/ellipseDropDown";
 import { useTasks } from "@/organiser/store/useTasks";
 import { useNotes } from "@/organiser/store/useNotes";
@@ -86,20 +87,30 @@ function Board() {
                 <div className="text-sm italic text-gray-500">
                   {note.last_modified ? new Date(note.last_modified).toLocaleString() : ''}
                 </div>
+                <MeetingDropdown
+                boardId={boardId}
+                displayOnly={true}
+                onSelect={(meetingId) => {
+                  console.log("Selected meeting:", meetingId)
+                  // Attach meeting ID to task/note/etc
+                }}
+              />
               </div>
               <DropdownMenu items={[
-              {
-                label: "Delete",
-                icon: Trash2,
-                onClick: () => {
-                  if (window.confirm("Are you sure you want to delete this task?")) {
-                    deleteNote(note.id);
-                    console.log("Deleted note", note.id);
-                  }
+                {
+                  label: "Delete",
+                  icon: Trash2,
+                  onClick: () => {
+                    if (window.confirm("Are you sure you want to delete this task?")) {
+                      deleteNote(note.id);
+                      console.log("Deleted note", note.id);
+                    }
+                  },
+                  style: "danger",
                 },
-                style: "danger",
-              },
-            ]} />
+              ]} />
+
+              
             </div>
           ))}
         </div>

@@ -36,10 +36,12 @@ export const useMeetings = (boardId = null) => {
       upsertMeetingLocal(meeting)
       const result = await upsertMeetingRemote(meeting)
       console.log("Upserted meeting x", result.meeting)
+      return result.meeting
     } else {
       const result = await upsertMeetingRemote(meeting)
       upsertMeetingLocal(result.meeting)
       console.log("Upserted meeting", result.meeting)
+      return result.meeting
     }
   }
 

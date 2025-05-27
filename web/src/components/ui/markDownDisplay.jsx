@@ -8,7 +8,7 @@ import "react-mde/lib/styles/css/react-mde-all.css";
 import { Pencil, X, CheckCircle } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
-export function MarkdownEditable({ updateId, value, onSave, showToolbar = true, placeholder = "Click to add update...", alternateSaves }) {
+export function MarkdownEditable({ updateId, value, onSave, onEditStateChange, showToolbar = true, placeholder = "Click to add update...", alternateSaves }) {
 
   const [editingId, setEditingId] = useState(null);
   const clearEditingId = () => setEditingId(null);
@@ -19,6 +19,8 @@ export function MarkdownEditable({ updateId, value, onSave, showToolbar = true, 
   const editorRef = useRef(null);
 
   useEffect(() => {
+    onEditStateChange?.(isEditing);
+    
     if (isEditing) {
       setDraft(value ?? ""); // ✅ Reset when editing starts
     }
@@ -32,7 +34,9 @@ export function MarkdownEditable({ updateId, value, onSave, showToolbar = true, 
   }, [isEditing]);
 
   useEffect(() => {
-    if (!isEditing) return;
+    onEditStateChange?.(isEditing);
+    if (!isEditing)
+      return;
 
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
