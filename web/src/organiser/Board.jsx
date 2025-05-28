@@ -74,51 +74,66 @@ function Board() {
       <div className="flex flex-col md:flex-row gap-4">
         {/* Notes Column */}
         <div className="md:w-1/2 space-y-4">
-          {getNotesWithNoParentForBoard(boardId).map((note) => (
-            <div key={note.id} className="mt-3 flex justify-between items-start gap-2 text-gray-400 border p-2 rounded">
-              <div className="flex-1 space-y-1">
-                <MarkdownEditable
-                  updateId={`${note.id}`}
-                  value={note.content}
-                  onSave={(newText) =>
-                    upsertNote({ id: note.id, content: newText })
-                  }
-                />
-                <div className="text-sm italic text-gray-500">
-                  {note.last_modified ? new Date(note.last_modified).toLocaleString() : ''}
+          <div>Notes</div>
+          {Object.entries(
+            [...getNotesWithNoParentForBoard(boardId)]
+              .sort((a, b) => new Date(b.last_modified) - new Date(a.last_modified))
+              .reduce((acc, note) => {
+                const dateKey = new Date(note.last_modified).toLocaleDateString("en-GB", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                });
+                acc[dateKey] = acc[dateKey] || [];
+                acc[dateKey].push(note);
+                return acc;
+              }, {})
+          ).map(([date, notes]) => (
+            <div key={date} className="space-y-2">
+              <div className="font-bold text-gray-700">{date}</div>
+              {notes.map((note) => (
+                <div key={note.id} className="mt-3 flex justify-between items-start gap-2 text-gray-400 border p-2 rounded">
+                  <div className="flex-1 space-y-1">
+                    <MarkdownEditable
+                      updateId={`${note.id}`}
+                      value={note.content}
+                      onSave={(newText) =>
+                        upsertNote({ id: note.id, content: newText })
+                      }
+                    />
+                    <MeetingDropdown
+                      boardId={boardId}
+                      displayOnly={true}
+                      onSelect={(meetingId) => {
+                        console.log("Selected meeting:", meetingId)
+                      }}
+                    />
+                  </div>
+                  <DropdownMenu items={[
+                    {
+                      label: "Delete",
+                      icon: Trash2,
+                      onClick: () => {
+                        if (window.confirm("Are you sure you want to delete this task?")) {
+                          deleteNote(note.id);
+                          console.log("Deleted note", note.id);
+                        }
+                      },
+                      style: "danger",
+                    },
+                  ]} />
                 </div>
-                <MeetingDropdown
-                boardId={boardId}
-                displayOnly={true}
-                onSelect={(meetingId) => {
-                  console.log("Selected meeting:", meetingId)
-                  // Attach meeting ID to task/note/etc
-                }}
-              />
-              </div>
-              <DropdownMenu items={[
-                {
-                  label: "Delete",
-                  icon: Trash2,
-                  onClick: () => {
-                    if (window.confirm("Are you sure you want to delete this task?")) {
-                      deleteNote(note.id);
-                      console.log("Deleted note", note.id);
-                    }
-                  },
-                  style: "danger",
-                },
-              ]} />
-
-              
+              ))}
             </div>
           ))}
         </div>
 
         {/* Tasks Column */}
         <div className="md:w-1/2 space-y-4">
+          <div>Tasks</div>
           {statusOrder.map((status) => {
             const tasks = groupedTasks[status] || [];
+            tasks.sort((a, b) => new Date(b.last_modified) - new Date(a.last_modified));
             return (
               <div key={status}>
                 <h2 className="flex items-center gap-2">
