@@ -5,9 +5,12 @@ import { CheckCircle, Hourglass, Circle, Ban } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { MarkdownEditable } from "@/components/ui/markDownDisplay";
 import { MeetingDropdown } from "@/components/ui/meetingDropDown";
+import { TaskDropdown } from "@/components/ui/taskDropDown";
+
 import DropdownMenu from "@/components/ui/ellipseDropDown";
 import { useTasks } from "@/organiser/store/useTasks";
 import { useNotes } from "@/organiser/store/useNotes";
+import { useMeetings } from "@/organiser/store/useMeetings";
 import {
   ListTodo,
   MessageSquare,
@@ -20,10 +23,10 @@ function Board() {
   const { boardId } = useParams();
   const { groupedTasks } = useBoardTasks(boardId);
   const [sharedInputText, setSharedInputText] = useState("");
-  const { upsertTask } = useTasks();
+  const { tasks, upsertTask } = useTasks();
   const { upsertNote, getNotesWithNoParentForBoard, deleteNote } = useNotes(boardId);
+  const { meetings } = useMeetings(boardId);
 
-  console.log("Notes for board", boardId, getNotesWithNoParentForBoard(boardId));
   const statusOrder = ["todo", "in_progress", "done", "blocked"];
   const statuses = {
     todo: "To Do",
@@ -101,11 +104,34 @@ function Board() {
                         upsertNote({ id: note.id, content: newText })
                       }
                     />
-                    <MeetingDropdown
+                    Meeting : <MeetingDropdown
                       boardId={boardId}
                       displayOnly={true}
                       onSelect={(meetingId) => {
                         console.log("Selected meeting:", meetingId)
+                        const selectedMeeting = meetings.find(m => m.id === Number(meetingId))
+                        if (selectedMeeting) {
+                          upsertNote({
+                            ...note,
+                            meeting_id: Number(meetingId),
+                          });
+                        }
+                        
+                      }}
+                    />
+
+                    Task : <TaskDropdown
+                      boardId={boardId}
+                      displayOnly={true}
+                      onSelect={(taskId) => {
+                        console.log("Selected task:", taskId)
+                        const selectedTask = tasks.find(t => t.id === Number(taskId))
+                        if (selectedTask) {
+                          upsertNote({
+                            ...note,
+                            task_id: Number(taskId),
+                          });
+                        }
                       }}
                     />
                   </div>

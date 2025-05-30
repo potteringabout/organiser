@@ -323,6 +323,7 @@ def update_task(task_id, user, body):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route("/api/tasks/<int:task_id>", methods=["DELETE"])
 @log_io()
 @user_info
@@ -345,6 +346,7 @@ def delete_task(task_id, user):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route("/api/boards/<int:board_id>/tasks", methods=["GET"])
 @log_io()
 @user_info
@@ -366,7 +368,7 @@ def list_tasks(board_id, user):
             return jsonify([task.model_dump() for task in tasks])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
 
 @app.route("/api/tasks/<int:task_id>", methods=["GET"])
 @log_io()
@@ -433,7 +435,6 @@ def add_note(user, body):
                 if task.owner != user["user_id"]:
                     return jsonify({"error": "Unauthorized"}), 403
 
-
             note = Note(
                 board_id=board_id,
                 task_id=task_id,
@@ -447,7 +448,8 @@ def add_note(user, body):
             return jsonify({"message": "Note created", "note": note.model_dump()}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
+
 @app.route("/api/notes/<int:note_id>", methods=["PUT"])
 @log_io()
 @user_info
@@ -463,12 +465,37 @@ def update_note(note_id, user, body):
                 return jsonify({"error": "Note not found"}), 404
             if note.owner != user["user_id"]:
                 return jsonify({"error": "Unauthorized"}), 403
-            
+
             board = session.get(Board, note.board_id)
             if board.owner != user["user_id"]:
                 return jsonify({"error": "Unauthorized"}), 403
 
             note.content = body.get("content", note.content)
+            
+            if "task_id" in body:
+                new_task_id = body["task_id"]
+                if new_task_id is not None:
+                    task = session.get(Task, new_task_id)
+                    if not task:
+                        return jsonify({"error": "Task not found"}), 404
+                    if task.board_id != note.board_id:
+                        return jsonify({"error": "Task must be on the same board"}), 400
+                    if task.owner != user["user_id"]:
+                        return jsonify({"error": "Unauthorized"}), 403
+                note.task_id = new_task_id  # <- This line applies the change
+
+            if "meeting_id" in body:
+                new_meeting_id = body["meeting_id"]
+                if new_meeting_id is not None:
+                    meeting = session.get(Meeting, new_meeting_id)
+                    if not meeting:
+                        return jsonify({"error": "Meeting not found"}), 404
+                    if meeting.board_id != note.board_id:
+                        return jsonify({"error": "Meeting must be on the same board"}), 400
+                    if meeting.owner != user["user_id"]:
+                        return jsonify({"error": "Unauthorized"}), 403
+                note.meeting_id = new_meeting_id  # <- This line applies the change
+
             session.commit()
             session.refresh(note)
 
