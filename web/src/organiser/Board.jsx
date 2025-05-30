@@ -104,37 +104,42 @@ function Board() {
                         upsertNote({ id: note.id, content: newText })
                       }
                     />
-                    Meeting : <MeetingDropdown
-                      boardId={boardId}
-                      displayOnly={true}
-                      selectedMeetingId={note.meeting_id}
-                      onSelect={(meetingId) => {
-                        console.log("Selected meeting:", meetingId)
-                        const selectedMeeting = meetings.find(m => m.id === Number(meetingId))
-                        if (selectedMeeting) {
-                          upsertNote({
-                            ...note,
-                            meeting_id: Number(meetingId),
-                          });
-                        }
-                        
-                      }}
-                    />
+                    <div className="text-sm text-gray-500 flex justify-end items-center gap-1">
+                      <span>Meeting:</span>
+                      <MeetingDropdown
+                        boardId={boardId}
+                        displayOnly={true}
+                        selectedMeetingId={note.meeting_id}
+                        onSelect={(meetingId) => {
+                          console.log("Selected meeting:", meetingId)
+                          const selectedMeeting = meetings.find(m => m.id === Number(meetingId))
+                          if (selectedMeeting) {
+                            upsertNote({
+                              ...note,
+                              meeting_id: Number(meetingId),
+                            });
+                          }
+                        }}
+                      />
+                    </div>
 
-                    Task : <TaskDropdown
-                      boardId={boardId}
-                      displayOnly={true}
-                      onSelect={(taskId) => {
-                        console.log("Selected task:", taskId)
-                        const selectedTask = tasks.find(t => t.id === Number(taskId))
-                        if (selectedTask) {
-                          upsertNote({
-                            ...note,
-                            task_id: Number(taskId),
-                          });
-                        }
-                      }}
-                    />
+                    <div className="text-sm text-gray-500 flex justify-end items-center gap-1">
+                      <span>Task:</span>
+                      <TaskDropdown
+                        boardId={boardId}
+                        displayOnly={true}
+                        onSelect={(taskId) => {
+                          console.log("Selected task:", taskId)
+                          const selectedTask = tasks.find(t => t.id === Number(taskId))
+                          if (selectedTask) {
+                            upsertNote({
+                              ...note,
+                              task_id: Number(taskId),
+                            });
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                   <DropdownMenu items={[
                     {
