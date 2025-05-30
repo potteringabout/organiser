@@ -49,7 +49,7 @@ export function MeetingDropdown({ boardId, onSelect, displayOnly, selectedMeetin
             setIsDropdownVisible(false)
           }
         }}
-        defaultValue=""
+        defaultValue={selectedMeetingId || ""}
       >
         <option value="" disabled>Select a meeting</option>
         {meetings.map(m => (

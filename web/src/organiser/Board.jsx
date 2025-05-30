@@ -107,6 +107,7 @@ function Board() {
                     Meeting : <MeetingDropdown
                       boardId={boardId}
                       displayOnly={true}
+                      selectedMeetingId={note.meeting_id}
                       onSelect={(meetingId) => {
                         console.log("Selected meeting:", meetingId)
                         const selectedMeeting = meetings.find(m => m.id === Number(meetingId))
