@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useMeetings } from '@/organiser/store/useMeetings'
-import { Plus, CalendarPlus } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Plus, ChevronDown, X } from 'lucide-react'
+
 
 export function MeetingDropdown({ boardId, onSelect, displayOnly, selectedMeetingId }) {
   const { meetings, upsertMeeting } = useMeetings(boardId)
@@ -11,11 +13,24 @@ export function MeetingDropdown({ boardId, onSelect, displayOnly, selectedMeetin
   if (displayOnly && !isDropdownVisible) {
     const selectedMeeting = meetings.find(m => m.id === selectedMeetingId)
     return (
-      <div
-        className="text-sm font-medium cursor-pointer text-blue-700 hover:underline"
-        onClick={() => setIsDropdownVisible(true)}
-      >
-        {selectedMeeting ? `📅 ${selectedMeeting.title}` : 'None'}
+      <div className="flex items-center gap-1 text-sm font-medium">
+        {selectedMeeting ? (
+          <Link
+              to={`/organiser/meeting/${selectedMeeting.id}`}
+              title={selectedMeeting.title}
+              className="text-gray-600 hover:text-gray-800 transition"
+            >
+            {selectedMeeting.title}
+          </Link>
+
+        ) : (
+          <span className="text-blue-700">None</span>
+        )}
+        <ChevronDown
+          size={16}
+          className="cursor-pointer"
+          onClick={() => setIsDropdownVisible(true)}
+        />
       </div>
     )
   }
@@ -60,12 +75,23 @@ export function MeetingDropdown({ boardId, onSelect, displayOnly, selectedMeetin
       </select>
   }
 
-      <button
-        className="flex items-center text-blue-600 hover:underline text-sm mb-1"
-        onClick={() => setShowInput(true)}
-      >
-        <Plus size={12} className="mr-1" /> Create new meeting
-      </button>
+      <div className="flex justify-end gap-2 mt-2">
+        <button
+          onClick={() => setIsDropdownVisible(false)}
+          className="p-2 rounded-full border text-red-500 border-red-300 hover:bg-red-100"
+          title="Cancel"
+        >
+          <X size={16} />
+        </button>
+
+        <button
+          onClick={() => setShowInput(true)}
+          className="p-2 rounded-full border text-blue-500 border-blue-300 hover:bg-blue-100"
+          title="Create new meeting"
+        >
+          <Plus size={16} />
+        </button>
+      </div>
 
       {showInput && (
         <div className="flex items-center gap-2">

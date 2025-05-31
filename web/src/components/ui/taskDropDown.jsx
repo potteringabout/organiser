@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useTasks } from '@/organiser/store/useTasks'
-import { Plus, CalendarPlus } from 'lucide-react'
+import { Plus, ChevronDown, X } from 'lucide-react'
 
 export function TaskDropdown({ boardId, onSelect, displayOnly, selectedTaskId }) {
   const { tasks, upsertTask } = useTasks(boardId)
@@ -9,13 +10,26 @@ export function TaskDropdown({ boardId, onSelect, displayOnly, selectedTaskId })
   const [isDropdownVisible, setIsDropdownVisible] = useState(false)
 
   if (displayOnly && !isDropdownVisible) {
-    const selectedTask = tasks.find(m => m.id === selectedTaskId)
+    const selectedTask = tasks.find(m => m.id === Number(selectedTaskId))
     return (
-      <div
-        className="text-sm font-medium cursor-pointer text-blue-700 hover:underline"
-        onClick={() => setIsDropdownVisible(true)}
-      >
-        {selectedTask ? `📅 ${selectedTask.title}` : 'None'}
+      <div className="flex items-center gap-1 text-sm font-medium">
+        {selectedTask ? (
+          <Link
+              to={`/organiser/task/${selectedTask.id}`}
+              title={selectedTask.title}
+              className="text-gray-600 hover:text-gray-800 transition"
+            >
+            {selectedTask.title}
+          </Link>
+
+        ) : (
+          <span className="text-blue-700">None</span>
+        )}
+        <ChevronDown
+          size={16}
+          className="cursor-pointer"
+          onClick={() => setIsDropdownVisible(true)}
+        />
       </div>
     )
   }
@@ -60,12 +74,23 @@ export function TaskDropdown({ boardId, onSelect, displayOnly, selectedTaskId })
       </select>
   }
 
-      <button
-        className="flex items-center text-blue-600 hover:underline text-sm mb-1"
-        onClick={() => setShowInput(true)}
-      >
-        <Plus size={12} className="mr-1" /> Create new task
-      </button>
+      <div className="flex justify-end gap-2 mt-2">
+        <button
+          onClick={() => setIsDropdownVisible(false)}
+          className="p-2 rounded-full border text-red-500 border-red-300 hover:bg-red-100"
+          title="Cancel"
+        >
+          <X size={16} />
+        </button>
+
+        <button
+          onClick={() => setShowInput(true)}
+          className="p-2 rounded-full border text-blue-500 border-blue-300 hover:bg-blue-100"
+          title="Create new task"
+        >
+          <Plus size={16} />
+        </button>
+      </div>
 
       {showInput && (
         <div className="flex items-center gap-2">

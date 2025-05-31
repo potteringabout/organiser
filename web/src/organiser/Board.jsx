@@ -24,7 +24,7 @@ function Board() {
   const { groupedTasks } = useBoardTasks(boardId);
   const [sharedInputText, setSharedInputText] = useState("");
   const { tasks, upsertTask } = useTasks();
-  const { upsertNote, getNotesWithNoParentForBoard, deleteNote } = useNotes(boardId);
+  const { upsertNote, getNotesForBoard, getNotesWithNoParentForBoard, deleteNote } = useNotes(boardId);
   const { meetings } = useMeetings(boardId);
 
   const statusOrder = ["todo", "in_progress", "done", "blocked"];
@@ -79,7 +79,7 @@ function Board() {
         <div className="md:w-1/2 space-y-4">
           <div>Notes</div>
           {Object.entries(
-            [...getNotesWithNoParentForBoard(boardId)]
+            [...getNotesForBoard(boardId)]
               .sort((a, b) => new Date(b.last_modified) - new Date(a.last_modified))
               .reduce((acc, note) => {
                 const dateKey = new Date(note.last_modified).toLocaleDateString("en-GB", {
@@ -128,6 +128,7 @@ function Board() {
                       <TaskDropdown
                         boardId={boardId}
                         displayOnly={true}
+                        selectedTaskId={note.task_id}
                         onSelect={(taskId) => {
                           console.log("Selected task:", taskId)
                           const selectedTask = tasks.find(t => t.id === Number(taskId))
