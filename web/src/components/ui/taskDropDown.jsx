@@ -68,7 +68,7 @@ export function TaskDropdown({ boardId, onSelect, displayOnly, selectedTaskId })
         <option value="" disabled>Select a Task</option>
         {tasks.map(m => (
           <option key={m.id} value={m.id}>
-            📅 {m.title} ({m.date})
+            📅 {m.title}
           </option>
         ))}
       </select>
