@@ -1,79 +1,74 @@
 import { useState } from 'react'
 import { useMeetings } from '@/organiser/store/useMeetings'
 import { Link } from 'react-router-dom'
-import { Plus, ChevronDown, X } from 'lucide-react'
-
+import { ChevronDown, X, Check } from 'lucide-react'
 
 export function MeetingDropdown({ boardId, onSelect, displayOnly, selectedMeetingId }) {
   const { meetings, upsertMeeting } = useMeetings(boardId)
-  const [newMeetingTitle, setNewMeetingTitle] = useState('')
-  const [showInput, setShowInput] = useState(false)
-  const [isDropdownVisible, setIsDropdownVisible] = useState(false)
+  const [inputValue, setInputValue] = useState('')
+  const [isDropdownVisible, setIsDropdownVisible] = useState(!displayOnly)
+
+  const selectedMeeting = meetings.find(m => m.id === selectedMeetingId)
+
+  const handleSelectOrCreate = async () => {
+    const trimmed = inputValue.trim()
+    if (!trimmed) return
+
+    const existing = meetings.find(m => m.title.toLowerCase() === trimmed.toLowerCase())
+    if (existing) {
+      onSelect(existing)
+    } else {
+      const newMeeting = await upsertMeeting({
+        title: trimmed,
+        board_id: boardId,
+        date: new Date().toISOString().split('T')[0]
+      })
+      onSelect(newMeeting)
+      
+    }
+    setInputValue('')
+    setIsDropdownVisible(false)
+  }
 
   if (displayOnly && !isDropdownVisible) {
-    const selectedMeeting = meetings.find(m => m.id === selectedMeetingId)
     return (
       <div className="flex items-center gap-1 text-sm font-medium">
         {selectedMeeting ? (
           <Link
-              to={`/organiser/meeting/${selectedMeeting.id}`}
-              title={selectedMeeting.title}
-              className="text-gray-600 hover:text-gray-800 transition"
-            >
+            to={`/organiser/meeting/${selectedMeeting.id}`}
+            title={selectedMeeting.title}
+            className="text-gray-600 hover:text-gray-800 transition"
+          >
             {selectedMeeting.title}
           </Link>
-
         ) : (
           <span className="text-blue-700">None</span>
         )}
-        <ChevronDown
-          size={16}
-          className="cursor-pointer"
-          onClick={() => setIsDropdownVisible(true)}
-        />
+        <button onClick={() => setIsDropdownVisible(true)} className="ml-1">
+          <ChevronDown size={16} className="cursor-pointer" />
+        </button>
       </div>
     )
-  }
-
-  const handleCreate = async () => {
-    if (newMeetingTitle.trim()) {
-      const newMeeting = {
-        title: newMeetingTitle,
-        board_id: boardId,
-        date: new Date().toISOString().split('T')[0]
-      }
-      const meeting = await upsertMeeting(newMeeting)
-      setNewMeetingTitle('')
-      setShowInput(false)
-      console.log(meeting)
-      onSelect(meeting.id)
-      setIsDropdownVisible(false)
-    }
   }
 
   return (
     <div className="border p-2 rounded w-full">
       <label className="block text-sm font-semibold mb-1">Select or create a meeting</label>
-      {!showInput && 
-      <select
+      <input
+        list="meeting-options"
         className="w-full p-2 border rounded mb-2"
-        onChange={e => {
-          const val = e.target.value
-          if (val !== '') {
-            onSelect(val)
-            setIsDropdownVisible(false)
-          }
+        placeholder="Search or type to create..."
+        value={inputValue}
+        onChange={e => setInputValue(e.target.value)}
+        onKeyDown={e => {
+          if (e.key === 'Enter') handleSelectOrCreate()
         }}
-        defaultValue={selectedMeetingId || ""}
-      >
-        <option value="" disabled>Select a meeting</option>
+      />
+      <datalist id="meeting-options">
         {meetings.map(m => (
-          <option key={m.id} value={m.id}>
-            📅 {m.title} ({m.date})
-          </option>
+          <option key={m.id} value={m.title} />
         ))}
-      </select>
-  }
+      </datalist>
 
       <div className="flex justify-end gap-2 mt-2">
         <button
@@ -83,36 +78,14 @@ export function MeetingDropdown({ boardId, onSelect, displayOnly, selectedMeetin
         >
           <X size={16} />
         </button>
-
         <button
-          onClick={() => setShowInput(true)}
-          className="p-2 rounded-full border text-blue-500 border-blue-300 hover:bg-blue-100"
-          title="Create new meeting"
+          onClick={handleSelectOrCreate}
+          className="p-2 rounded-full border text-green-600 border-green-300 hover:bg-green-100"
+          title="Select or Create"
         >
-          <Plus size={16} />
+          <Check size={16} />
         </button>
       </div>
-
-      {showInput && (
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            className="flex-1 border p-1 rounded"
-            value={newMeetingTitle}
-            onChange={(e) => setNewMeetingTitle(e.target.value)}
-            placeholder="New meeting title"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleCreate()
-            }}
-          />
-          <button
-            className="bg-blue-500 text-white px-2 py-1 rounded"
-            onClick={handleCreate}
-          >
-            Create
-          </button>
-        </div>
-      )}
     </div>
   )
 }

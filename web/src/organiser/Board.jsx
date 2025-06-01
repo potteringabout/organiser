@@ -110,13 +110,11 @@ function Board() {
                         boardId={boardId}
                         displayOnly={true}
                         selectedMeetingId={note.meeting_id}
-                        onSelect={(meetingId) => {
-                          console.log("Selected meeting:", meetingId)
-                          const selectedMeeting = meetings.find(m => m.id === Number(meetingId))
-                          if (selectedMeeting) {
+                        onSelect={(meeting) => {
+                          if (meeting) {
                             upsertNote({
                               ...note,
-                              meeting_id: Number(meetingId),
+                              meeting_id: Number(meeting.id),
                             });
                           }
                         }}
@@ -129,13 +127,12 @@ function Board() {
                         boardId={boardId}
                         displayOnly={true}
                         selectedTaskId={note.task_id}
-                        onSelect={(taskId) => {
-                          console.log("Selected task:", taskId)
-                          const selectedTask = tasks.find(t => t.id === Number(taskId))
-                          if (selectedTask) {
+                        onSelect={(task) => {
+                          console.log(task)
+                          if (task) {
                             upsertNote({
                               ...note,
-                              task_id: Number(taskId),
+                              task_id: Number(task.id),
                             });
                           }
                         }}

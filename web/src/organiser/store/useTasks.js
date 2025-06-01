@@ -10,7 +10,11 @@ export const useTasks = () => {
   
   const upsertTask = async (task) => {
     const t = await upsertTaskRemote(task)
-    return upsertTaskLocal(t.task)
+    console.log("Upserting")
+    console.log(t.task)
+    
+    upsertTaskLocal(t.task)
+    return t.task
   }
 
   const deleteTask = async (taskId) => {
