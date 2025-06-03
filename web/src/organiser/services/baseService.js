@@ -12,7 +12,7 @@ export async function apiRequest(endpoint, options = {}) {
   const response = await fetch(API_ENDPOINT + endpoint, { ...options, headers });
 
   if (!response.ok) {
-    if (response.status === 401) {
+    if (response.status === 401 || response.status === 403) {
         localStorage.setItem("intendedRoute", window.location.pathname);
         window.location.href = "/login";
         return;
