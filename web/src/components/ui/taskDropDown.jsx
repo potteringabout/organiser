@@ -39,7 +39,7 @@ export function TaskDropdown({ boardId, onSelect, displayOnly, selectedTaskId })
           <Link
             to={`/organiser/task/${selectedTask.id}`}
             title={selectedTask.title}
-            className="text-gray-600 hover:text-gray-800 transition"
+            className="text-gray-800 dark:text-gray-200"
           >
             {selectedTask.title}
           </Link>
@@ -57,7 +57,6 @@ export function TaskDropdown({ boardId, onSelect, displayOnly, selectedTaskId })
     <div className="border p-2 rounded w-full">
       <label className="block text-sm font-semibold mb-1">Select or create a Task</label>
       <input
-        list="task-options"
         className="w-full p-2 border rounded mb-2"
         placeholder="Search or type to create..."
         value={inputValue}
@@ -66,11 +65,27 @@ export function TaskDropdown({ boardId, onSelect, displayOnly, selectedTaskId })
           if (e.key === 'Enter') handleSelectOrCreate()
         }}
       />
-      <datalist id="task-options">
-        {tasks.map(t => (
-          <option key={t.id} value={t.title} />
-        ))}
-      </datalist>
+      <ul className="border rounded max-h-40 overflow-y-auto">
+        {tasks
+          .filter(t => t.title.toLowerCase().includes(inputValue.toLowerCase()))
+          .map(t => (
+            <li
+              key={t.id}
+              onClick={() => {
+                onSelect(t)
+                setInputValue('')
+                setIsDropdownVisible(false)
+              }}
+              className={`px-2 py-1 cursor-pointer ${
+                selectedTask?.id === t.id
+                  ? 'bg-blue-100 dark:bg-blue-800'
+                  : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+              }`}
+            >
+              {t.title}
+            </li>
+          ))}
+      </ul>
 
       <div className="flex justify-end gap-2 mt-2">
         <button

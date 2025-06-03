@@ -37,14 +37,17 @@ export function MeetingDropdown({ boardId, onSelect, displayOnly, selectedMeetin
           <Link
             to={`/organiser/meeting/${selectedMeeting.id}`}
             title={selectedMeeting.title}
-            className="text-gray-600 hover:text-gray-800 transition"
+            className="text-gray-800 dark:text-gray-200"
           >
             {selectedMeeting.title}
           </Link>
         ) : (
           <span className="text-blue-700">None</span>
         )}
-        <button onClick={() => setIsDropdownVisible(true)} className="ml-1">
+        <button onClick={() => {
+          setInputValue(selectedMeeting?.title || '')
+          setIsDropdownVisible(true)
+        }} className="ml-1">
           <ChevronDown size={16} className="cursor-pointer" />
         </button>
       </div>
@@ -55,7 +58,6 @@ export function MeetingDropdown({ boardId, onSelect, displayOnly, selectedMeetin
     <div className="border p-2 rounded w-full">
       <label className="block text-sm font-semibold mb-1">Select or create a meeting</label>
       <input
-        list="meeting-options"
         className="w-full p-2 border rounded mb-2"
         placeholder="Search or type to create..."
         value={inputValue}
@@ -64,11 +66,27 @@ export function MeetingDropdown({ boardId, onSelect, displayOnly, selectedMeetin
           if (e.key === 'Enter') handleSelectOrCreate()
         }}
       />
-      <datalist id="meeting-options">
-        {meetings.map(m => (
-          <option key={m.id} value={m.title} />
-        ))}
-      </datalist>
+      <ul className="border rounded max-h-40 overflow-y-auto">
+        {meetings
+          .filter(m => m.title.toLowerCase().includes(inputValue.toLowerCase()))
+          .map(m => (
+            <li
+              key={m.id}
+              onClick={() => {
+                onSelect(m)
+                setInputValue('')
+                setIsDropdownVisible(false)
+              }}
+              className={`px-2 py-1 cursor-pointer ${
+                selectedMeeting?.id === m.id
+                  ? 'bg-blue-100 dark:bg-blue-800'
+                  : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+              }`}
+            >
+              {m.title}
+            </li>
+          ))}
+      </ul>
 
       <div className="flex justify-end gap-2 mt-2">
         <button
