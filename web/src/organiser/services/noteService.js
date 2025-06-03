@@ -16,6 +16,10 @@ export const fetchNote = async (noteId) => {
   return apiRequest(`/notes/${noteId}`);
 }
 
-export const fetchBoardNotes = async (boardId) => {
-  return apiRequest(`/boards/${boardId}/notes`);
+export const fetchBoardNotes = async (boardId, days) => {
+  let url = `/boards/${boardId}/notes`;
+  if (days !== undefined) {
+    url += `?days=${days}`;
+  }
+  return apiRequest(url);
 }

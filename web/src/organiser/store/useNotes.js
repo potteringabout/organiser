@@ -17,7 +17,7 @@ export const useNotes = (boardId = null) => {
         const hasNotesForBoard = notes.some(note => note.board_id == boardId  );
         if (!hasNotesForBoard) {
           try {
-            const remoteNotes = await fetchBoardNotes(boardId)
+            const remoteNotes = await fetchBoardNotes(boardId, 3)
             upsertNoteLocal(remoteNotes)
             console.log('Loaded notes for board', remoteNotes)
           } catch (err) {
