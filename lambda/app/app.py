@@ -526,12 +526,13 @@ def delete_note(note_id, user):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route("/api/boards/<int:board_id>/notes", methods=["GET"])
 @log_io()
 @user_info
 def list_notes(board_id, user):
     '''
-    List notes for a board
+    List notes for a board, optionally filtered by last_modified within the last X days
     '''
     try:
         with get_session() as session:
@@ -541,7 +542,17 @@ def list_notes(board_id, user):
             if board.owner != user["user_id"]:
                 return jsonify({"error": "Unauthorized"}), 403
 
-            notes = session.exec(select(Note).where(Note.board_id == board_id)).all()
+            days = request.args.get("days")
+            try:
+                days = int(days) if days is not None else None
+            except ValueError:
+                return jsonify({"error": "Invalid value for days"}), 400
+
+            query = select(Note).where(Note.board_id == board_id)
+            if days is not None:
+                cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+                query = query.where(Note.last_modified >= cutoff)
+            notes = session.exec(query).all()
             return jsonify([note.model_dump() for note in notes])
     except Exception as e:
         return jsonify({"error": str(e)}), 500

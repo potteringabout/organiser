@@ -92,6 +92,19 @@ export const AuthProvider = ({ children }) => {
     setAuthChecked(true);
   }, []);
 
+  // Check every minute if we're signed in
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!isSignedIn()) {
+        signOut();
+        setIsLoggedIn(false);
+        window.location.href = "/login";
+      }
+    }, 60 * 1000); // Check every minute
+
+    return () => clearInterval(interval);
+  }, []);
+
   /*useEffect(() => {
     if (!isLoggedIn) {
       router.push('/login');
@@ -130,7 +143,7 @@ export const useAuth = () => {
 
 export function LogoutButton() {
   const { logout } = useAuth();
-  
+
   const handleLogout = () => {
     logout(); // Update authentication state
   };
@@ -149,7 +162,7 @@ export function LoginForm() {
   const { login } = useAuth();
   const navigate = useNavigate();
   //const { darkMode, setDarkMode } = useDarkMode();
-  
+
   //const [darkMode, setDarkMode] = useState(localStorage.getItem('darkMode') ? localStorage.getItem('darkMode') === 'true' : false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -163,12 +176,12 @@ export function LoginForm() {
     }
   }, []);*/
 
- /* useEffect(() => {
-    console.log("Login : Dark mode changed to " + darkMode);
-    localStorage.setItem('darkMode', darkMode);
-  }, [darkMode]);
-*/
-  
+  /* useEffect(() => {
+     console.log("Login : Dark mode changed to " + darkMode);
+     localStorage.setItem('darkMode', darkMode);
+   }, [darkMode]);
+ */
+
   /*function handleLogin(event) {
     event.preventDefault();
     const form = event.currentTarget;
@@ -183,7 +196,7 @@ export function LoginForm() {
 
   function handleSubmit(event) {
     event.preventDefault();
-    
+
     login(username, password);
 
     const intendedRoute = localStorage.getItem("intendedRoute") || "/";
@@ -197,14 +210,14 @@ export function LoginForm() {
       <Card className={`w-full max-w-sm p-6 rounded-2xl shadow-lg bg-white`}>
         <div className="flex justify-between items-center mb-6">
           <h2 className={`text-xl font-semibold text-gray-900`}>Login</h2>
-          
+
         </div>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className={`block text-gray-900`}>Username</label>
               <Input type="text" placeholder="Enter your email" className={`mt-1 w-full text-gray-900`} value={username}
-                onChange={(e) => setUsername(e.target.value)}/>
+                onChange={(e) => setUsername(e.target.value)} />
             </div>
             <div>
               <label className={`block text-gray-900`}>Password</label>

@@ -20,8 +20,12 @@ import Meeting from "./organiser/Meeting";
 function TopBar() {
   const { darkMode, setDarkMode } = useOrganiserStore();
 
-  const menuItems = [
+  /*const menuItems = [
     { name: "Home", path: "/" },
+    { name: "Organiser", path: "/organiser" },
+  ];*/
+
+  const menuItems = [
     { name: "Organiser", path: "/organiser" },
   ];
 
@@ -74,8 +78,8 @@ function App() {
 
   return (
     <Router>
-    <AuthProvider>
-      <BodyWithAuthCheck>        
+      <AuthProvider>
+        <BodyWithAuthCheck>
           <div className="flex flex-col min-h-screen">
             {showHeader ? (
               <CloseIcon size={16}
@@ -89,7 +93,7 @@ function App() {
               />
             )}
             <div
-              >
+            >
               {showHeader && <TopBar />}
               <main className="p-4 pl-0 pt-0">
                 <Routes>
@@ -112,8 +116,8 @@ function App() {
               </main>
             </div>
           </div>
-      </BodyWithAuthCheck>
-    </AuthProvider>
+        </BodyWithAuthCheck>
+      </AuthProvider>
     </Router>
   );
 }
@@ -133,7 +137,7 @@ function Loading() {
 }
 
 function Body({ children }) {
-  
+
   return (
     <div className="bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
       {children}

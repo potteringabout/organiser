@@ -13,6 +13,7 @@ export async function apiRequest(endpoint, options = {}) {
 
   if (!response.ok) {
     if (response.status === 401 || response.status === 403) {
+        console.log( "Got a " + response.status)
         localStorage.setItem("intendedRoute", window.location.pathname);
         window.location.href = "/login";
         return;
