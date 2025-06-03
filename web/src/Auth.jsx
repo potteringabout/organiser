@@ -5,11 +5,11 @@ import {
   AuthenticationDetails,
 } from "amazon-cognito-identity-js";
 import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { useDarkMode } from "@/contexts";
 
 const poolData = {
   UserPoolId: "eu-west-2_NHFK9ZIHw",
@@ -147,6 +147,7 @@ export function LogoutButton() {
 
 export function LoginForm() {
   const { login } = useAuth();
+  const navigate = useNavigate();
   //const { darkMode, setDarkMode } = useDarkMode();
   
   //const [darkMode, setDarkMode] = useState(localStorage.getItem('darkMode') ? localStorage.getItem('darkMode') === 'true' : false);
@@ -187,7 +188,7 @@ export function LoginForm() {
 
     const intendedRoute = localStorage.getItem("intendedRoute") || "/";
     localStorage.removeItem("intendedRoute");
-    //router.push(intendedRoute);
+    navigate(intendedRoute); // ✅ Redirect to originally intended page
   };
 
 

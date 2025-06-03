@@ -12,6 +12,11 @@ export async function apiRequest(endpoint, options = {}) {
   const response = await fetch(API_ENDPOINT + endpoint, { ...options, headers });
 
   if (!response.ok) {
+    if (response.status === 401) {
+        localStorage.setItem("intendedRoute", window.location.pathname);
+        window.location.href = "/login";
+        return;
+      }
     const errorDetails = await response.json().catch(() => response.statusText);
     throw new Error(
       `Request failed with status ${response.status}: ${JSON.stringify(errorDetails)}`

@@ -27,7 +27,7 @@ function Menu() {
 
   if (!isOpen) {
     return (
-      <div className="w-8 pt-2 flex-shrink-0">
+      <div className="w-8 pl-4 pt-8 flex-shrink-0">
         <button onClick={() => setIsOpen(true)}>
           <MenuIcon size={16} />
         </button>

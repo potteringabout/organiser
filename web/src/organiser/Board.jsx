@@ -97,6 +97,41 @@ function Board() {
               {notes.map((note) => (
                 <div key={note.id} className="mt-3 flex justify-between items-start gap-2 text-gray-400 border p-2 rounded">
                   <div className="flex-1 space-y-1">
+                    <div className="flex items-center gap-4">
+                      <div className="text-sm text-gray-500 flex items-center gap-1">
+                        <span>Meeting:</span>
+                        <MeetingDropdown
+                          boardId={boardId}
+                          displayOnly={true}
+                          selectedMeetingId={note.meeting_id}
+                          onSelect={(meeting) => {
+                            if (meeting) {
+                              upsertNote({
+                                ...note,
+                                meeting_id: Number(meeting.id),
+                              });
+                            }
+                          }}
+                        />
+                      </div>
+                      <div className="text-sm text-gray-500 flex items-center gap-1">
+                        <span>Task:</span>
+                        <TaskDropdown
+                          boardId={boardId}
+                          displayOnly={true}
+                          selectedTaskId={note.task_id}
+                          onSelect={(task) => {
+                            console.log(task)
+                            if (task) {
+                              upsertNote({
+                                ...note,
+                                task_id: Number(task.id),
+                              });
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
                     <MarkdownEditable
                       updateId={`${note.id}`}
                       value={note.content}
@@ -104,40 +139,7 @@ function Board() {
                         upsertNote({ id: note.id, content: newText })
                       }
                     />
-                    <div className="text-sm text-gray-500 flex justify-end items-center gap-1">
-                      <span>Meeting:</span>
-                      <MeetingDropdown
-                        boardId={boardId}
-                        displayOnly={true}
-                        selectedMeetingId={note.meeting_id}
-                        onSelect={(meeting) => {
-                          if (meeting) {
-                            upsertNote({
-                              ...note,
-                              meeting_id: Number(meeting.id),
-                            });
-                          }
-                        }}
-                      />
-                    </div>
-
-                    <div className="text-sm text-gray-500 flex justify-end items-center gap-1">
-                      <span>Task:</span>
-                      <TaskDropdown
-                        boardId={boardId}
-                        displayOnly={true}
-                        selectedTaskId={note.task_id}
-                        onSelect={(task) => {
-                          console.log(task)
-                          if (task) {
-                            upsertNote({
-                              ...note,
-                              task_id: Number(task.id),
-                            });
-                          }
-                        }}
-                      />
-                    </div>
+                    
                   </div>
                   <DropdownMenu items={[
                     {

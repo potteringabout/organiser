@@ -1,5 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes, Link, Navigate } from "react-router-dom";
+import { Menu, X as CloseIcon } from "lucide-react";
 import "./App.css"; // Ensure your Tailwind imports are here
 import { useAuth, AuthProvider, LoginForm, LogoutButton } from "./Auth";
 import FloatingAlert from "@/components/ui/alert";
@@ -26,36 +27,37 @@ function TopBar() {
 
   return (
     <header
-      className="h-14 w-full flex items-center px-4 shadow-md bg-white dark:bg-gray-800 text-gray-800 dark:text-white shadow-md">
-      
-      <div className="flex items-center">
-        <img
-          src="/mug.png"
-          width="40"
-          height="49"
-          alt="Logo"
-        />
-        <h1 className="text-xl font-bold">
-          potteringabout
-        </h1>
-      </div>
-      <nav className="flex-1 flex justify-center space-x-4">
-        {menuItems.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className="hover:underline">
-            {item.name}
-          </Link>
-        ))}
-      </nav>
-      <div className="flex items-center space-x-4">
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className="p-2 rounded-full transition-colors">
-          {darkMode ? "☀️" : "🌙"}
-        </button>
-        <LogoutButton />
+      className="h-14 w-full flex items-center px-4 pl-12 shadow-md bg-white dark:bg-gray-800 text-gray-800 dark:text-white shadow-md">
+      <div className="flex items-center w-full">
+        <div className="flex items-center">
+          <img
+            src="/mug.png"
+            width="40"
+            height="49"
+            alt="Logo"
+          />
+          <h1 className="text-xl font-bold">
+            potteringabout
+          </h1>
+        </div>
+        <nav className="flex-1 flex justify-center space-x-4">
+          {menuItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className="hover:underline">
+              {item.name}
+            </Link>
+          ))}
+        </nav>
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className="p-2 rounded-full transition-colors">
+            {darkMode ? "☀️" : "🌙"}
+          </button>
+          <LogoutButton />
+        </div>
       </div>
     </header>
   );
@@ -63,6 +65,7 @@ function TopBar() {
 
 function App() {
   const { darkMode } = useOrganiserStore();
+  const [showHeader, setShowHeader] = useState(true);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
@@ -70,14 +73,25 @@ function App() {
   }, [darkMode]);
 
   return (
+    <Router>
     <AuthProvider>
-      <BodyWithAuthCheck>
-        <Router>
+      <BodyWithAuthCheck>        
           <div className="flex flex-col min-h-screen">
+            {showHeader ? (
+              <CloseIcon size={16}
+                className="absolute top-2 left-2 z-50 cursor-pointer"
+                onClick={() => setShowHeader(false)}
+              />
+            ) : (
+              <Menu
+                className="absolute top-2 left-2 z-50 cursor-pointer"
+                onClick={() => setShowHeader(true)}
+              />
+            )}
             <div
               >
-              <TopBar />
-              <main className="p-4 pt-0">
+              {showHeader && <TopBar />}
+              <main className="p-4 pl-0 pt-0">
                 <Routes>
                   <Route
                     path="/"
@@ -98,9 +112,9 @@ function App() {
               </main>
             </div>
           </div>
-        </Router>
       </BodyWithAuthCheck>
     </AuthProvider>
+    </Router>
   );
 }
 
