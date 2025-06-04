@@ -88,3 +88,10 @@ runs:
         cd ${{ inputs.WORKING_DIRECTORY }}
         terraform apply ${{ inputs.EXTRA_ARGS }} -var-file="./variables/input.tfvars.json" -var "deployment_repo=${{ github.repositoryUrl }}" -auto-approve
       shell: bash
+
+    - name: Show Terraform Output
+      id: output
+      run: |
+        cd ${{ inputs.WORKING_DIRECTORY }}
+        terraform output
+      shell: bash
