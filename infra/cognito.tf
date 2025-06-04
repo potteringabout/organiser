@@ -34,7 +34,7 @@ resource "aws_cognito_user_pool_client" "user_pool_client" {
   callback_urls                        = ["https://${aws_cloudfront_distribution.distribution.domain_name}/callback"]
   #callback_urls                        = ["https://d3731pww2dbm89.cloudfront.net/callback"]
   #logout_urls                          = ["https://d3731pww2dbm89.cloudfront.net/logout"]
-  logout_urls                          = ["https://${aws_cloudfront_distribution.distribution.domain_name}/logout"]
+  logout_urls = ["https://${aws_cloudfront_distribution.distribution.domain_name}/logout"]
 }
 
 resource "aws_cognito_user_pool_domain" "user_pool_domain" {
