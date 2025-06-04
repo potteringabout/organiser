@@ -95,6 +95,13 @@ runs:
       shell: bash
       continue-on-error: true
 
+    - name: Show Terraform Output
+      id: output
+      run: |
+        cd ${{ inputs.WORKING_DIRECTORY }}
+        terraform output
+      shell: bash
+      
     - name: Check for Terraform Plan Failure
       if: steps.plan.outputs.exitcode == 1
       run: exit 1
