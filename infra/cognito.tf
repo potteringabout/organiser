@@ -31,15 +31,17 @@ resource "aws_cognito_user_pool_client" "user_pool_client" {
   ]
 
   allowed_oauth_flows_user_pool_client = false
-  callback_urls                        = ["https://d3731pww2dbm89.cloudfront.net/callback"]
-  logout_urls                          = ["https://d3731pww2dbm89.cloudfront.net/logout"]
+  callback_urls                        = ["https://${aws_cloudfront_distribution.distribution.domain_name}/callback"]
+  #callback_urls                        = ["https://d3731pww2dbm89.cloudfront.net/callback"]
+  #logout_urls                          = ["https://d3731pww2dbm89.cloudfront.net/logout"]
+  logout_urls                          = ["https://${aws_cloudfront_distribution.distribution.domain_name}/logout"]
 }
 
 resource "aws_cognito_user_pool_domain" "user_pool_domain" {
   domain       = "organiser"
   user_pool_id = aws_cognito_user_pool.user_pool.id
 }
-
+/*
 import {
   to = aws_cognito_user_pool_domain.user_pool_domain
   id = "organiser"
@@ -48,7 +50,7 @@ import {
 import {
   to = aws_cognito_resource_server.resource_server
   id = "eu-west-2_Qv91VSnrS|api.organiser.potteringabout.net"
-}
+}*/
 
 resource "aws_cognito_resource_server" "resource_server" {
   user_pool_id = aws_cognito_user_pool.user_pool.id
