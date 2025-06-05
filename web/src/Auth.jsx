@@ -98,7 +98,7 @@ export const AuthProvider = ({ children }) => {
       if (!isSignedIn()) {
         signOut();
         setIsLoggedIn(false);
-        window.location.href = "/login";
+        window.location.href = "/";
       }
     }, 60 * 1000); // Check every minute
 

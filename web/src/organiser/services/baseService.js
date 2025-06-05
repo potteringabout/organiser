@@ -15,7 +15,7 @@ export async function apiRequest(endpoint, options = {}) {
     if (response.status === 401 || response.status === 403) {
         console.log( "Got a " + response.status)
         localStorage.setItem("intendedRoute", window.location.pathname);
-        window.location.href = "/login";
+        window.location.href = "/";
         return;
       }
     const errorDetails = await response.json().catch(() => response.statusText);
