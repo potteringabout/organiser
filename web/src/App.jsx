@@ -102,7 +102,9 @@ function App() {
                     element={<Home />}
                   />
                   <Route path="/organiser" element={<Organiser />}>
-                    <Route index element={<Board />} />
+                    {/* <Route index element={<Board />} /> */}
+                    <Route path="" element={<Navigate to="board/1" replace />} />
+                    
                     <Route path="board/:boardId" element={<Board />} />
                     <Route path="board/:boardId/task/new" element={<NewTaskForm />} />
                     <Route path="meeting/new" element={<NewMeetingForm />} />
