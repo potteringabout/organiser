@@ -1,6 +1,6 @@
 import { useBoardTasks } from "./store/useBoardTasks";
 import TaskCard from "@/components/ui/taskCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CheckCircle, Hourglass, Circle, Ban } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { MarkdownEditable } from "@/components/ui/markDownDisplay";
@@ -26,6 +26,15 @@ function Board() {
   const { tasks, upsertTask } = useTasks();
   const { upsertNote, getNotesForBoard, getNotesWithNoParentForBoard, deleteNote } = useNotes(boardId);
   const { meetings } = useMeetings(boardId);
+  const [notesLoading, setNotesLoading] = useState(true);
+
+  useEffect(() => {
+    setNotesLoading(true);
+    const timeout = setTimeout(() => {
+      setNotesLoading(false);
+    }, 500); // simulate loading delay
+    return () => clearTimeout(timeout);
+  }, [boardId]);
 
   const statusOrder = ["todo", "in_progress", "done", "blocked"];
   const statuses = {
@@ -78,7 +87,11 @@ function Board() {
         {/* Notes Column */}
         <div className="md:w-1/2 space-y-4">
           <div>Notes</div>
-          {Object.entries(
+          {notesLoading ? (
+            <div className="flex justify-center items-center p-4">
+              <div className="h-5 w-5 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : Object.entries(
             [...getNotesForBoard(boardId)]
               .sort((a, b) => new Date(b.last_modified) - new Date(a.last_modified))
               .reduce((acc, note) => {
@@ -139,7 +152,6 @@ function Board() {
                         upsertNote({ id: note.id, content: newText })
                       }
                     />
-                    
                   </div>
                   <DropdownMenu items={[
                     {
@@ -165,13 +177,20 @@ function Board() {
           <div>Tasks</div>
           {statusOrder.map((status) => {
             const tasks = groupedTasks[status] || [];
+            const isLoading = !groupedTasks.hasOwnProperty(status);
+
             tasks.sort((a, b) => new Date(b.last_modified) - new Date(a.last_modified));
+
             return (
               <div key={status}>
                 <h2 className="flex items-center gap-2">
                   {getStatusIcon(status)} {statuses[status]}
                 </h2>
-                {tasks.length === 0 ? (
+                {isLoading ? (
+                  <div className="flex justify-center items-center p-4">
+                    <div className="h-5 w-5 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                ) : tasks.length === 0 ? (
                   <div className="text-sm text-gray-500 italic">No tasks found.</div>
                 ) : (
                   tasks.map((task) => (

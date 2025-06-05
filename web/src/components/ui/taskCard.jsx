@@ -20,10 +20,10 @@ import DropdownMenu from "@/components/ui/ellipseDropDown";
 import { useTasks } from "@/organiser/store/useTasks";
 import { useNotes } from "@/organiser/store/useNotes";
 
-export default function TaskCard({ task, depth = 0 }) {
+export default function TaskCard({ task, expanded = false, depth = 0 }) {
   const { deleteTask, upsertTask, getTask, getSubtasks } = useTasks();
   const { deleteNote, upsertNote, getNotesForTask, getNotesForBoard } = useNotes();
-  const [expandedTask, setExpandedTask] = useState(false);
+  const [expandedTask, setExpandedTask] = useState(expanded);
 
   const location = useLocation();
   const isOnTaskPage = location.pathname === `/organiser/task/${task.id}`;

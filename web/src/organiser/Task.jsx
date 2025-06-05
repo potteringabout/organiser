@@ -16,7 +16,7 @@ function Task() {
 
   return (
     <div className="space-y-6">
-      <TaskCard task={task} />
+      <TaskCard task={task} expanded={true} />
     </div>
   );
 }
