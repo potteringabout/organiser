@@ -106,12 +106,12 @@ function Board() {
               }, {})
           ).map(([date, notes]) => (
             <div key={date} className="space-y-2">
-              <div className="font-bold text-gray-700">{date}</div>
+              <div className="font-bold text-gray-900 dark:text-gray-200">{date}</div>
               {notes.map((note) => (
                 <div key={note.id} className="mt-3 flex justify-between items-start gap-2 text-gray-400 border p-2 rounded">
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-4">
-                      <div className="text-sm text-gray-500 flex items-center gap-1">
+                      <div className="text-sm text-gray-900 dark:text-gray-200 flex items-center gap-1 ">
                         <span>Meeting:</span>
                         <MeetingDropdown
                           boardId={boardId}
@@ -127,7 +127,7 @@ function Board() {
                           }}
                         />
                       </div>
-                      <div className="text-sm text-gray-500 flex items-center gap-1">
+                      <div className="text-sm text-gray-900 dark:text-gray-200 flex items-center gap-1">
                         <span>Task:</span>
                         <TaskDropdown
                           boardId={boardId}

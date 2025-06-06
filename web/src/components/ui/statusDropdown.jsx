@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  ChevronDown,
   CheckCircle,
   Hourglass,
   Circle,
@@ -23,7 +22,7 @@ export default function StatusDropdown({ currentStatus, onChange }) {
     <div className="relative inline-block text-left">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 border border-gray-300 dark:border-gray-600 px-3 py-1.5 rounded text-sm text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+        className="flex items-center gap-2 border border-gray-400 dark:border-gray-300 px-3 py-1.5 rounded text-sm text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
       >
         {selected?.icon && <selected.icon size={16} />}
       </button>
