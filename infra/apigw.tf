@@ -29,7 +29,11 @@ resource "aws_iam_role_policy" "api_gw_logging_policy" {
       Action = [
         "logs:CreateLogGroup",
         "logs:CreateLogStream",
-        "logs:PutLogEvents"
+        "logs:PutLogEvents",
+        "logs:DescribeLogStreams",
+        "logs:DescribeLogGroups",
+        "logs:GetLogEvents",
+        "logs:FilterLogEvents"
       ],
       Resource = "*"
     }]
