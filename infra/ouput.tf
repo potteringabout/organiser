@@ -7,7 +7,7 @@ output "cloudfront_distribution_domain_name" {
 }
 
 output "cloudfront_url" {
-  value = "https://${var.project}-${var.environment}.${var.zone}"
+  value = "https://${local.fqdn}"
 }
 
 /*output "dynamodb_table_name" {

@@ -9,7 +9,7 @@ data "aws_route53_zone" "zone" {
 resource "aws_route53_record" "address" {
 
   zone_id = data.aws_route53_zone.zone.zone_id
-  name    = can(regex("prod", var.environment)) ? var.project : "${var.project}-${var.environment}"
+  name    = local.fqdn
   type    = "CNAME"
   ttl     = 5
 
@@ -19,7 +19,7 @@ resource "aws_route53_record" "address" {
 }
 
 resource "aws_acm_certificate" "cert" {
-  domain_name = "${var.project}-${var.environment}.${var.zone}"
+  domain_name = local.fqdn
 
   validation_method = "DNS"
 

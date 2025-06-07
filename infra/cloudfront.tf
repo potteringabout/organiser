@@ -165,7 +165,7 @@ resource "aws_cloudfront_distribution" "distribution" {
     minimum_protocol_version = "TLSv1.2_2021"
   }
 
-  aliases = ["${var.project}-${var.environment}.${var.zone}"]
+  aliases = [local.fqdn]
 
   # Associate the Real-Time Log Configuration
   #realtime_log_config_arn = aws_cloudfront_realtime_log_config.realtime_logs.arn
