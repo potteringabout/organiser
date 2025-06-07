@@ -1,6 +1,6 @@
 import { getIdToken } from '../../Auth';
 
-const API_ENDPOINT = 'https://organiser-dev01.potteringabout.net/api';
+const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT || 'https://organiser-dev01.potteringabout.net/api';
 
 export async function apiRequest(endpoint, options = {}) {
   const headers = {

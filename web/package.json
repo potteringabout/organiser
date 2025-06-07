@@ -7,7 +7,9 @@
     "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:dev01": "VITE_API_ENDPOINT=https://organiser-dev01.potteringabout.net/api vite build",
+    "build:prod01": "VITE_API_ENDPOINT=https://organiser-prod01.potteringabout.net/api vite build"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
