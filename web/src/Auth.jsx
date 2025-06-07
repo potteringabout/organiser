@@ -11,9 +11,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 
+const POOL_ID = import.meta.env.VITE_POOL_ID || 'eu-west-2_NHFK9ZIHw';
+const CLIENT_ID = import.meta.env.VITE_CLIENT_ID || 'av2na55klmkv01n7ud0t68ltj';
+
 const poolData = {
-  UserPoolId: "eu-west-2_NHFK9ZIHw",
-  ClientId: "av2na55klmkv01n7ud0t68ltj",
+  UserPoolId: POOL_ID,
+  ClientId: CLIENT_ID
 };
 
 const userPool = new CognitoUserPool(poolData);

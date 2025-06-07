@@ -8,8 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "build:dev01": "VITE_API_ENDPOINT=https://organiser-dev01.potteringabout.net/api vite build",
-    "build:prod01": "VITE_API_ENDPOINT=https://organiser-prod01.potteringabout.net/api vite build"
+    "build:dev01": "VITE_POOL_ID=eu-west-2_NHFK9ZIHw VITE_CLIENT_ID=av2na55klmkv01n7ud0t68ltj VITE_API_ENDPOINT=https://organiser-prod01.potteringabout.net/api vite build",
+    "build:prod01": "VITE_POOL_ID=eu-west-2_0UJljdKmF VITE_CLIENT_ID=6t4amva7oml2pbcb41c192dbs8 VITE_API_ENDPOINT=https://organiser-prod01.potteringabout.net/api vite build"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
