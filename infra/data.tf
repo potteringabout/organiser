@@ -35,6 +35,6 @@ data "aws_subnets" "pub_subnets" {
   }
   filter {
     name   = "tag:Name"
-    values = ["${var.owner}-${var.account}-pub-*"]
+    values = ["${var.owner}-${var.account}-app-*"]
   }
 }
