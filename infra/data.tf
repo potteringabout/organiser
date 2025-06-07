@@ -17,6 +17,13 @@ data "aws_subnets" "app_subnets" {
   }
 }
 
+locals {
+  access_or_public_subnets = concat(
+    data.aws_subnets.access_subnets.ids,
+    data.aws_subnets.pub_subnets.ids
+  )
+}
+
 data "aws_subnets" "data_subnets" {
   filter {
     name   = "vpc-id"
@@ -35,6 +42,17 @@ data "aws_subnets" "pub_subnets" {
   }
   filter {
     name   = "tag:Name"
-    values = ["${var.owner}-${var.account}-app-*"]
+    values = ["${var.owner}-${var.account}-pub*"]
+  }
+}
+
+data "aws_subnets" "access_subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.vpc.id]
+  }
+  filter {
+    name   = "tag:Name"
+    values = ["${var.owner}-${var.account}-access*"]
   }
 }

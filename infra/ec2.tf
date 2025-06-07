@@ -52,7 +52,7 @@ resource "aws_instance" "linux" {
   count                       = var.create_ec2_instance ? 1 : 0
   ami                         = data.aws_ami.amazon_linux_2.id
   instance_type               = "t3.nano"
-  subnet_id                   = data.aws_subnets.pub_subnets.ids[0] # Replace or add subnet data
+  subnet_id                   = local.access_or_public_subnets[0] # Replace or add subnet data
   vpc_security_group_ids      = [aws_security_group.ec2.id]
   iam_instance_profile        = aws_iam_instance_profile.ssm_instance_profile[0].name
   associate_public_ip_address = true
