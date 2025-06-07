@@ -9,7 +9,7 @@ data "aws_route53_zone" "zone" {
 resource "aws_route53_record" "address" {
 
   zone_id = data.aws_route53_zone.zone.zone_id
-  name    = "${var.project}-${var.environment}"
+  name    = contains(var.environment, "prod") ? var.project : "${var.project}-${var.environment}"
   type    = "CNAME"
   ttl     = 5
 
