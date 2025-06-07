@@ -43,10 +43,6 @@ resource "aws_iam_role_policy_attachment" "lambda_secrets" {
   policy_arn = aws_iam_policy.secrets_access.arn
 }
 
-locals {
-  db_credentials = jsondecode(data.aws_secretsmanager_secret_version.postgres_creds.secret_string)
-}
-
 # -----------------------------
 # Provisioned RDS PostgreSQL
 # -----------------------------
