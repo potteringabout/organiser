@@ -24,6 +24,7 @@ export default function TaskCard({ task, expanded = false, depth = 0 }) {
   const { deleteTask, upsertTask, getTask, getSubtasks } = useTasks();
   const { deleteNote, upsertNote, getNotesForTask, getNotesForBoard } = useNotes();
   const [expandedTask, setExpandedTask] = useState(expanded);
+  const [snoozed, setSnoozed] = useState( task.snoozed_until && isBefore(new Date(), parseISO(task.snoozed_until)) ? true : false);
 
   const location = useLocation();
   const isOnTaskPage = location.pathname === `/organiser/task/${task.id}`;
@@ -32,9 +33,6 @@ export default function TaskCard({ task, expanded = false, depth = 0 }) {
 
   const [isEditingTask, setIsEditingTask] = useState(false);
 
-
-  const isSnoozed =
-    task.snoozed_until && isBefore(new Date(), parseISO(task.snoozed_until));
 
   const formattedLastModifiedDate = format(new Date(task.last_modified), "dd MMM yyyy");
 
@@ -45,15 +43,10 @@ export default function TaskCard({ task, expanded = false, depth = 0 }) {
     blocked: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100",
     cancelled: "bg-red-50 text-red-700 dark:bg-red-900 dark:text-red-200",
     ignored: "bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500",
-    snoozed: "bg-blue-50 text-blue-800 dark:bg-blue-900 dark:text-blue-100",
   }[task.status] || "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300";
 
-  if (isSnoozed) {
-    return (
-      <div className="w-8 pt-2 flex-shrink-0">
-        Snoozed
-      </div>
-    );
+  if (snoozed) {
+    return
   }
   return (
     <div
@@ -109,9 +102,17 @@ export default function TaskCard({ task, expanded = false, depth = 0 }) {
 
           <SnoozeButton
             initialDate={task.snoozed_until ? new Date(task.snoozed_until) : undefined}
-            onSnooze={(date) =>
+            onSnooze={(date) => {
               upsertTask({ id: task.id, snoozed_until: date.toISOString() })
+                
+              if ( isBefore(new Date(), date) ){
+                setSnoozed(true);
+                console.log("setting snoozed to true")
+              }
+              else
+                setSnoozed(false);
             }
+          }
           />
 
           <button
