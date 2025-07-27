@@ -86,180 +86,32 @@ function Board() {
         />
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4">
-        {/* Notes Column */}
-        <div className="md:w-1/2 space-y-4">
-          <div>Notes</div>
-          {notesLoading ? (
-            <div className="flex justify-center items-center p-4">
-              <div className="h-5 w-5 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          ) : (() => {
-            // Group notes and tasks under date headings (YYYY-MM-DD)
-            const groupedByDate = {};
+      <div className="flex flex-row gap-4 overflow-x-auto pb-4">
+        {statusOrder.map((status) => {
+          const tasks = groupedTasks[status] || [];
+          const isLoading = !groupedTasks.hasOwnProperty(status);
 
-            [...getNotesForBoard(boardId)].forEach(note => {
-              const date = new Date(note.last_modified).toISOString().split("T")[0];
-              if (!groupedByDate[date]) groupedByDate[date] = {};
-              const key = note.task_id || "No Task";
-              groupedByDate[date][key] = groupedByDate[date][key] || [];
-              groupedByDate[date][key].push(note);
-            });
+          tasks.sort((a, b) => new Date(b.last_modified) - new Date(a.last_modified));
 
-            tasks.forEach(task => {
-              const taskDate = new Date(task.last_modified).toISOString().split("T")[0];
-              if (!groupedByDate[taskDate]) groupedByDate[taskDate] = {};
-              if (!groupedByDate[taskDate][task.id]) {
-                groupedByDate[taskDate][task.id] = [];
-              }
-            });
-
-            const threeDaysAgo = new Date();
-            threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-
-            const sortedDateGroups = Object.entries(groupedByDate)
-              .filter(([date]) => new Date(date) >= threeDaysAgo)
-              .sort(([a], [b]) => new Date(b) - new Date(a));
-
-            return sortedDateGroups.map(([date, taskGroups]) => (
-              <div key={date} className="space-y-6">
-                <div className="font-semibold text-gray-800 dark:text-gray-100">
-                  {(() => {
-                    const d = new Date(date);
-                    const day = d.getDate();
-                    const ordinal = (n) => {
-                      const s = ["th", "st", "nd", "rd"];
-                      const v = n % 100;
-                      return s[(v - 20) % 10] || s[v] || s[0];
-                    };
-                    const formatted = `${d.toLocaleDateString("en-GB", {
-                      weekday: "long"
-                    })} ${day}${ordinal(day)} ${d.toLocaleDateString("en-GB", {
-                      month: "long"
-                    })}`;
-                    return formatted;
-                  })()}
+          return (
+            <div key={status} className="min-w-[250px] w-1/4 bg-gray-50 rounded-lg p-3 shadow">
+              <h2 className="flex items-center gap-2 font-semibold text-gray-700 mb-2">
+                {getStatusIcon(status)} {statuses[status]}
+              </h2>
+              {isLoading ? (
+                <div className="flex justify-center items-center p-4">
+                  <div className="h-5 w-5 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
                 </div>
-                {Object.entries(taskGroups).map(([taskId, notes]) => {
-                  const task = tasks.find(t => t.id === Number(taskId)) || null;
-                  return (
-                    <div key={taskId} className="space-y-2">
-                      <div className="text-gray-900 dark:text-gray-200">
-                        {task ? (
-                          <span className="flex items-center gap-2">
-                            {getStatusIcon(task.status)} {task.title}
-                          </span>
-                        ) : "No Task"}
-                      </div>
-                      {notes
-                          .sort((a, b) => new Date(b.last_modified) - new Date(a.last_modified))
-                          .map((note) => (
-                        <div key={note.id} className="mt-3 flex justify-between items-start gap-2 text-gray-400 pl-4">
-                          <div className="flex-1 space-y-1">
-                            <MarkdownEditable
-                              updateId={`${note.id}`}
-                              value={note.content}
-                              onSave={(newText) =>
-                                upsertNote({ id: note.id, content: newText })
-                              }
-                            />
-                          </div>
-                          <DropdownMenu items={[
-                            {
-                              label: "Change Meeting",
-                              icon: MessageSquare,
-                              onClick: () => setActiveMeetingNoteId(note.id),
-                            },
-                            {
-                              label: "Change Task",
-                              icon: ListTodo,
-                              onClick: () => setActiveTaskNoteId(note.id),
-                            },
-                            {
-                              label: "Delete",
-                              icon: Trash2,
-                              onClick: () => {
-                                if (window.confirm("Are you sure you want to delete this task?")) {
-                                  deleteNote(note.id);
-                                }
-                              },
-                              style: "danger",
-                            },
-                          ]} />
-                          {/* MeetingDropdown and TaskDropdown for this note */}
-                          {activeMeetingNoteId === note.id && (
-                            <div className="mt-2">
-                              <MeetingDropdown
-                                boardId={boardId}
-                                selectedMeetingId={note.meeting_id}
-                                onSelect={(meeting) => {
-                                  if (meeting) {
-                                    upsertNote({
-                                      ...note,
-                                      meeting_id: Number(meeting.id),
-                                    });
-                                  }
-                                  setActiveMeetingNoteId(null);
-                                }}
-                              />
-                            </div>
-                          )}
-                          {activeTaskNoteId === note.id && (
-                            <div className="mt-2">
-                              <TaskDropdown
-                                boardId={boardId}
-                                selectedTaskId={note.task_id}
-                                onSelect={(task) => {
-                                  if (task) {
-                                    upsertNote({
-                                      ...note,
-                                      task_id: Number(task.id),
-                                    });
-                                  }
-                                  setActiveTaskNoteId(null);
-                                }}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })}
-              </div>
-            ));
-          })()}
-        </div>
-
-        {/* Tasks Column */}
-        <div className="md:w-1/2 space-y-4">
-          <div>Tasks</div>
-          {statusOrder.map((status) => {
-            const tasks = groupedTasks[status] || [];
-            const isLoading = !groupedTasks.hasOwnProperty(status);
-
-            tasks.sort((a, b) => new Date(b.last_modified) - new Date(a.last_modified));
-
-            return (
-              <div key={status}>
-                <h2 className="flex items-center gap-2">
-                  {getStatusIcon(status)} {statuses[status]}
-                </h2>
-                {isLoading ? (
-                  <div className="flex justify-center items-center p-4">
-                    <div className="h-5 w-5 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                  </div>
-                ) : tasks.length === 0 ? (
-                  <div className="text-sm text-gray-500 italic">No tasks found.</div>
-                ) : (
-                  tasks.map((task) => (
-                    <TaskCard key={task.id} task={task} />
-                  ))
-                )}
-              </div>
-            );
-          })}
-        </div>
+              ) : tasks.length === 0 ? (
+                <div className="text-sm text-gray-500 italic">No tasks found.</div>
+              ) : (
+                tasks.map((task) => (
+                  <TaskCard key={task.id} task={task} />
+                ))
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

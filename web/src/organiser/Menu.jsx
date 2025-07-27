@@ -60,19 +60,16 @@ function Menu() {
         ) : (
           <ul>
             {boards.map((item) => (
-              <li key={item.id} className="mb-2 flex items-center justify-between group">
-                <Link
-                  to={`/organiser/board/${item.id}`}
-                  className="hover:underline truncate"
-                >
-                  {item.title}
-                </Link>
-                <button
-                  className="p-1 ml-2 opacity-0 group-hover:opacity-100 hover:text-red-600 transition-opacity"
-                  onClick={() => deleteBoard(item.id)}
-                >
-                  <Trash size={16} />
-                </button>
+              <li key={item.id} className="mb-4">
+                <div className="font-semibold truncate">{item.title}</div>
+                <div className="ml-4 mt-1 space-y-1">
+                  <Link to={`/organiser/board/${item.id}`} className="block hover:underline text-sm">
+                    Board
+                  </Link>
+                  <Link to={`/organiser/boarddiary/${item.id}`} className="block hover:underline text-sm">
+                    Diary
+                  </Link>
+                </div>
               </li>
             ))}
           </ul>

@@ -9,6 +9,7 @@ import Home from "./Home";
 import useOrganiserStore from "./organiser/store/organiserStore";
 
 import Board from "./organiser/Board";
+import Diary from "./organiser/Diary";
 import NewTaskForm from "./organiser/NewTaskForm";
 import NewBoardForm from "./organiser/NewBoardForm";
 import NewNoteForm from "./organiser/NewNoteForm";
@@ -106,6 +107,7 @@ function App() {
                     <Route path="" element={<Navigate to="board/1" replace />} />
                     
                     <Route path="board/:boardId" element={<Board />} />
+                    <Route path="boarddiary/:boardId" element={<Diary />} />
                     <Route path="board/:boardId/task/new" element={<NewTaskForm />} />
                     <Route path="meeting/new" element={<NewMeetingForm />} />
                     <Route path="note/new" element={<NewNoteForm />} />
