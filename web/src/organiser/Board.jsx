@@ -27,6 +27,9 @@ function Board() {
   const { upsertNote, getNotesForBoard, getNotesWithNoParentForBoard, deleteNote } = useNotes(boardId);
   const { meetings } = useMeetings(boardId);
   const [notesLoading, setNotesLoading] = useState(true);
+  // Dropdown state for note actions
+  const [activeMeetingNoteId, setActiveMeetingNoteId] = useState(null);
+  const [activeTaskNoteId, setActiveTaskNoteId] = useState(null);
 
   useEffect(() => {
     setNotesLoading(true);
@@ -91,85 +94,141 @@ function Board() {
             <div className="flex justify-center items-center p-4">
               <div className="h-5 w-5 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
             </div>
-          ) : Object.entries(
-            [...getNotesForBoard(boardId)]
-              .sort((a, b) => new Date(b.last_modified) - new Date(a.last_modified))
-              .reduce((acc, note) => {
-                const dateKey = new Date(note.last_modified).toLocaleDateString("en-GB", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                });
-                acc[dateKey] = acc[dateKey] || [];
-                acc[dateKey].push(note);
-                return acc;
-              }, {})
-          ).map(([date, notes]) => (
-            <div key={date} className="space-y-2">
-              <div className="font-bold text-gray-900 dark:text-gray-200">{date}</div>
-              {notes.map((note) => (
-                <div key={note.id} className="mt-3 flex justify-between items-start gap-2 text-gray-400 border p-2 rounded">
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-center gap-4">
-                      <div className="text-sm text-gray-900 dark:text-gray-200 flex items-center gap-1 ">
-                        <span>Meeting:</span>
-                        <MeetingDropdown
-                          boardId={boardId}
-                          displayOnly={true}
-                          selectedMeetingId={note.meeting_id}
-                          onSelect={(meeting) => {
-                            if (meeting) {
-                              upsertNote({
-                                ...note,
-                                meeting_id: Number(meeting.id),
-                              });
-                            }
-                          }}
-                        />
-                      </div>
-                      <div className="text-sm text-gray-900 dark:text-gray-200 flex items-center gap-1">
-                        <span>Task:</span>
-                        <TaskDropdown
-                          boardId={boardId}
-                          displayOnly={true}
-                          selectedTaskId={note.task_id}
-                          onSelect={(task) => {
-                            console.log(task)
-                            if (task) {
-                              upsertNote({
-                                ...note,
-                                task_id: Number(task.id),
-                              });
-                            }
-                          }}
-                        />
-                      </div>
-                    </div>
-                    <MarkdownEditable
-                      updateId={`${note.id}`}
-                      value={note.content}
-                      onSave={(newText) =>
-                        upsertNote({ id: note.id, content: newText })
-                      }
-                    />
-                  </div>
-                  <DropdownMenu items={[
-                    {
-                      label: "Delete",
-                      icon: Trash2,
-                      onClick: () => {
-                        if (window.confirm("Are you sure you want to delete this task?")) {
-                          deleteNote(note.id);
-                          console.log("Deleted note", note.id);
-                        }
-                      },
-                      style: "danger",
-                    },
-                  ]} />
+          ) : (() => {
+            // Group notes and tasks under date headings (YYYY-MM-DD)
+            const groupedByDate = {};
+
+            [...getNotesForBoard(boardId)].forEach(note => {
+              const date = new Date(note.last_modified).toISOString().split("T")[0];
+              if (!groupedByDate[date]) groupedByDate[date] = {};
+              const key = note.task_id || "No Task";
+              groupedByDate[date][key] = groupedByDate[date][key] || [];
+              groupedByDate[date][key].push(note);
+            });
+
+            tasks.forEach(task => {
+              const taskDate = new Date(task.last_modified).toISOString().split("T")[0];
+              if (!groupedByDate[taskDate]) groupedByDate[taskDate] = {};
+              if (!groupedByDate[taskDate][task.id]) {
+                groupedByDate[taskDate][task.id] = [];
+              }
+            });
+
+            const threeDaysAgo = new Date();
+            threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+            const sortedDateGroups = Object.entries(groupedByDate)
+              .filter(([date]) => new Date(date) >= threeDaysAgo)
+              .sort(([a], [b]) => new Date(b) - new Date(a));
+
+            return sortedDateGroups.map(([date, taskGroups]) => (
+              <div key={date} className="space-y-6">
+                <div className="font-semibold text-gray-800 dark:text-gray-100">
+                  {(() => {
+                    const d = new Date(date);
+                    const day = d.getDate();
+                    const ordinal = (n) => {
+                      const s = ["th", "st", "nd", "rd"];
+                      const v = n % 100;
+                      return s[(v - 20) % 10] || s[v] || s[0];
+                    };
+                    const formatted = `${d.toLocaleDateString("en-GB", {
+                      weekday: "long"
+                    })} ${day}${ordinal(day)} ${d.toLocaleDateString("en-GB", {
+                      month: "long"
+                    })}`;
+                    return formatted;
+                  })()}
                 </div>
-              ))}
-            </div>
-          ))}
+                {Object.entries(taskGroups).map(([taskId, notes]) => {
+                  const task = tasks.find(t => t.id === Number(taskId)) || null;
+                  return (
+                    <div key={taskId} className="space-y-2">
+                      <div className="text-gray-900 dark:text-gray-200">
+                        {task ? (
+                          <span className="flex items-center gap-2">
+                            {getStatusIcon(task.status)} {task.title}
+                          </span>
+                        ) : "No Task"}
+                      </div>
+                      {notes
+                          .sort((a, b) => new Date(b.last_modified) - new Date(a.last_modified))
+                          .map((note) => (
+                        <div key={note.id} className="mt-3 flex justify-between items-start gap-2 text-gray-400 pl-4">
+                          <div className="flex-1 space-y-1">
+                            <MarkdownEditable
+                              updateId={`${note.id}`}
+                              value={note.content}
+                              onSave={(newText) =>
+                                upsertNote({ id: note.id, content: newText })
+                              }
+                            />
+                          </div>
+                          <DropdownMenu items={[
+                            {
+                              label: "Change Meeting",
+                              icon: MessageSquare,
+                              onClick: () => setActiveMeetingNoteId(note.id),
+                            },
+                            {
+                              label: "Change Task",
+                              icon: ListTodo,
+                              onClick: () => setActiveTaskNoteId(note.id),
+                            },
+                            {
+                              label: "Delete",
+                              icon: Trash2,
+                              onClick: () => {
+                                if (window.confirm("Are you sure you want to delete this task?")) {
+                                  deleteNote(note.id);
+                                }
+                              },
+                              style: "danger",
+                            },
+                          ]} />
+                          {/* MeetingDropdown and TaskDropdown for this note */}
+                          {activeMeetingNoteId === note.id && (
+                            <div className="mt-2">
+                              <MeetingDropdown
+                                boardId={boardId}
+                                selectedMeetingId={note.meeting_id}
+                                onSelect={(meeting) => {
+                                  if (meeting) {
+                                    upsertNote({
+                                      ...note,
+                                      meeting_id: Number(meeting.id),
+                                    });
+                                  }
+                                  setActiveMeetingNoteId(null);
+                                }}
+                              />
+                            </div>
+                          )}
+                          {activeTaskNoteId === note.id && (
+                            <div className="mt-2">
+                              <TaskDropdown
+                                boardId={boardId}
+                                selectedTaskId={note.task_id}
+                                onSelect={(task) => {
+                                  if (task) {
+                                    upsertNote({
+                                      ...note,
+                                      task_id: Number(task.id),
+                                    });
+                                  }
+                                  setActiveTaskNoteId(null);
+                                }}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+            ));
+          })()}
         </div>
 
         {/* Tasks Column */}
