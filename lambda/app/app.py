@@ -10,6 +10,7 @@ from bedrock import Mistral, Meta
 from db import get_session, init_db, drop_db
 from models import Board, Task, Note, Entity, MeetingEntity, Meeting, TaskBlocker, EntityType
 from sqlmodel import select
+from sqlalchemy import not_
 
 
 '''
@@ -363,8 +364,13 @@ def list_tasks(board_id, user):
             if board.owner != user["user_id"]:
                 return jsonify({"error": "Unauthorized"}), 403
 
-            tasks = session.exec(select(Task).where(
-                Task.board_id == board_id)).all()
+            cutoff = datetime.now(timezone.utc) - timedelta(days=14)
+            tasks = session.exec(
+                select(Task).where(
+                    Task.board_id == board_id,
+                    not_((Task.status == "done") & (Task.last_modified < cutoff))
+                )
+            ).all()
             return jsonify([task.model_dump() for task in tasks])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
