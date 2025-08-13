@@ -533,12 +533,80 @@ def delete_note(note_id, user):
         return jsonify({"error": str(e)}), 500
 
 
+
+# --- helpers for date range parsing ---
+def _parse_iso_datetime_utc(value: str) -> datetime:
+    """
+    Parse an ISO-like string. Supports:
+    - full datetime with or without timezone (assumes UTC if none)
+    - date-only (YYYY-MM-DD), interpreted as 00:00:00 UTC that day
+    Returns an aware UTC datetime.
+    """
+    try:
+        dt = datetime.fromisoformat(value)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(timezone.utc)
+    except Exception:
+        # try date-only
+        try:
+            d = datetime.strptime(value, "%Y-%m-%d").date()
+            return datetime(d.year, d.month, d.day, tzinfo=timezone.utc)
+        except Exception as e:
+            raise ValueError(f"Invalid date/datetime: {value}") from e
+
+
+def _resolve_time_window_from_args(args):
+    """
+    Compute a half-open UTC interval [start, end) from query params.
+    Priority: if either 'from' or 'to' is supplied, ignore 'days'.
+    - from: ISO date/datetime (UTC assumed when tz missing)
+    - to:   ISO date/datetime; if date-only, treated inclusive by bumping to next midnight UTC
+    - days: positive integer; window is [now-days, now)
+    Returns (start_utc or None, end_utc or None).
+    """
+    q_from = args.get("from")
+    q_to = args.get("to")
+    q_days = args.get("days")
+
+    # Explicit bounds take precedence
+    if q_from or q_to:
+        start_utc = _parse_iso_datetime_utc(q_from) if q_from else None
+        end_utc = None
+        if q_to:
+            end_utc = _parse_iso_datetime_utc(q_to)
+            # If 'to' looked like a date-only, make it inclusive by bumping to next day
+            if "T" not in q_to and ":" not in q_to:
+                end_utc = end_utc + timedelta(days=1)
+        return start_utc, end_utc
+
+    # Fallback to days rolling window
+    if q_days is not None:
+        try:
+            days = int(q_days)
+            if days <= 0:
+                raise ValueError
+        except ValueError:
+            raise ValueError("days must be a positive integer")
+        now_utc = datetime.now(timezone.utc)
+        return now_utc - timedelta(days=days), now_utc
+
+    # No time filter
+    return None, None
+# --- end helpers ---
+
+
 @app.route("/api/boards/<int:board_id>/notes", methods=["GET"])
 @log_io()
 @user_info
 def list_notes(board_id, user):
     '''
-    List notes for a board, optionally filtered by last_modified within the last X days
+    List notes for a board, optionally filtered by last_modified using one of:
+      - ?days=INTEGER               → last X days (rolling window)
+      - ?from=ISO[Z]&to=ISO[Z]      → explicit UTC range (half-open [start,end))
+      - ?from=ISO[Z]                → from this time onwards
+      - ?to=ISO[Z]                  → up to (but not including) this time
+    For date-only values (YYYY-MM-DD), 'to' is treated inclusive (bumped to next midnight UTC).
     '''
     try:
         with get_session() as session:
@@ -548,16 +616,20 @@ def list_notes(board_id, user):
             if board.owner != user["user_id"]:
                 return jsonify({"error": "Unauthorized"}), 403
 
-            days = request.args.get("days")
+            # Resolve time window
             try:
-                days = int(days) if days is not None else None
-            except ValueError:
-                return jsonify({"error": "Invalid value for days"}), 400
+                start_utc, end_utc = _resolve_time_window_from_args(request.args)
+            except ValueError as ve:
+                return jsonify({"error": str(ve)}), 400
 
             query = select(Note).where(Note.board_id == board_id)
-            if days is not None:
-                cutoff = datetime.now(timezone.utc) - timedelta(days=days)
-                query = query.where(Note.last_modified >= cutoff)
+
+            # Apply half-open interval [start, end)
+            if start_utc is not None:
+                query = query.where(Note.last_modified >= start_utc)
+            if end_utc is not None:
+                query = query.where(Note.last_modified < end_utc)
+
             notes = session.exec(query).all()
             return jsonify([note.model_dump() for note in notes])
     except Exception as e:
