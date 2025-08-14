@@ -6,7 +6,7 @@ import {
   fetchBoardNotes
 } from '../services/noteService'
 
-export const useNotes = (boardId = null) => {
+export const useNotes = (boardId = null, windowOpts = 3) => {
   const upsertNoteLocal = useStore(state => state.upsertNoteLocal)
   const deleteNoteLocal = useStore(state => state.deleteNoteLocal)
   const notes = useStore(state => state.notes)
@@ -17,7 +17,7 @@ export const useNotes = (boardId = null) => {
         const hasNotesForBoard = notes.some(note => note.board_id == boardId  );
         if (!hasNotesForBoard) {
           try {
-            const remoteNotes = await fetchBoardNotes(boardId, 3)
+            const remoteNotes = await fetchBoardNotes(boardId, windowOpts)
             upsertNoteLocal(remoteNotes)
             console.log('Loaded notes for board', remoteNotes)
           } catch (err) {
@@ -28,7 +28,7 @@ export const useNotes = (boardId = null) => {
       if ( boardId ){
         load()
       } 
-    }, [boardId])
+    }, [boardId, JSON.stringify(windowOpts)])
   
 
   const upsertNote = async (note) => {

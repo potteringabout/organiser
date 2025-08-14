@@ -24,7 +24,39 @@ function Diary() {
   const { groupedTasks } = useBoardTasks(boardId);
   const [sharedInputText, setSharedInputText] = useState("");
   const { tasks, upsertTask } = useTasks();
-  const { upsertNote, getNotesForBoard, getNotesWithNoParentForBoard, deleteNote } = useNotes(boardId);
+  // Time window controls for notes — dual-handle slider in "days ago"
+  const MAX_LOOKBACK = 180; // configurable max (days), Today = 0 on the RIGHT
+  const maxLookback = MAX_LOOKBACK;
+  const [startAgo, setStartAgo] = useState(3); // left handle: older (days ago)
+  const [endAgo, setEndAgo] = useState(0);     // right handle: newer (0 = today)
+
+  // Keep handles ordered: startAgo >= endAgo (both are "days ago")
+  const handleStartChange = (pos) => {
+    const proposed = maxLookback - Math.max(0, Math.min(maxLookback, Number(pos)));
+    setStartAgo(Math.max(proposed, endAgo));
+  };
+  const handleEndChange = (pos) => {
+    const proposed = maxLookback - Math.max(0, Math.min(maxLookback, Number(pos)));
+    setEndAgo(Math.min(proposed, startAgo));
+  };
+
+  // Helper: convert N days ago to YYYY-MM-DD (local)
+  const daysAgoToDate = (n) => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - n);
+    // format as YYYY-MM-DD
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const notesFrom = daysAgoToDate(startAgo);
+  const notesTo   = daysAgoToDate(endAgo);
+  const windowOpts = { from: notesFrom, to: notesTo };
+
+  const { upsertNote, getNotesForBoard, getNotesWithNoParentForBoard, deleteNote } = useNotes(boardId, windowOpts);
   const { meetings } = useMeetings(boardId);
   const [notesLoading, setNotesLoading] = useState(true);
   // Dropdown state for note actions
@@ -56,6 +88,60 @@ function Diary() {
 
   return (
     <div className="space-y-6">
+      {/* Local styles for dual-range sliders: make track ignore events, thumbs handle them */}
+      <style>
+        {`
+        input.dual-range { pointer-events: none; }
+        input.dual-range::-webkit-slider-thumb { pointer-events: auto; }
+        input.dual-range::-moz-range-thumb { pointer-events: auto; }
+        input.dual-range::-ms-thumb { pointer-events: auto; }
+        `}
+      </style>
+      {/* Notes time window controls — dual handle days-ago slider */}
+      <div className="flex flex-col gap-3 p-3 border rounded-md bg-white dark:bg-gray-900 dark:border-gray-700">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="text-sm text-gray-700 dark:text-gray-300">
+            Window: <span className="font-medium">{startAgo}d ago</span> → <span className="font-medium">{endAgo}d ago</span>
+            <span className="ml-2 text-xs text-gray-500">(Today = 0)</span>
+          </div>
+          <div className="text-xs text-gray-500">{notesFrom} → {notesTo} (inclusive 'to' handled by API)</div>
+        </div>
+
+        {/* Dual handle: two overlapping range inputs */}
+        <div className="relative flex flex-col gap-2">
+          {/* Track */}
+          <div className="h-2 rounded-full bg-gray-200 dark:bg-gray-700" />
+          {/* Right (endAgo) — render first, lower z-index */}
+          <input
+            type="range"
+            min={0}
+            max={maxLookback}
+            step={1}
+            value={maxLookback - endAgo}
+            onChange={(e) => handleEndChange(e.target.value)}
+            className="dual-range absolute -top-1 w-full appearance-none bg-transparent"
+            style={{ zIndex: 1 }}
+            aria-label="End of window (days ago)"
+          />
+          {/* Left (startAgo) — render second, higher z-index so it's draggable above the other */}
+          <input
+            type="range"
+            min={0}
+            max={maxLookback}
+            step={1}
+            value={maxLookback - startAgo}
+            onChange={(e) => handleStartChange(e.target.value)}
+            className="dual-range absolute -top-1 w-full appearance-none bg-transparent"
+            style={{ zIndex: 2 }}
+            aria-label="Start of window (days ago)"
+          />
+          {/* Fallback labels to ensure accessibility */}
+          <div className="flex justify-between text-xs text-gray-500 pt-4">
+            <span>Past {maxLookback}d</span>
+            <span>Today</span>
+          </div>
+        </div>
+      </div>
       {/* Shared Input */}
       <div className="text-gray-800">
         <MarkdownEditable
@@ -111,11 +197,14 @@ function Diary() {
               }
             });
 
-            const threeDaysAgo = new Date();
-            threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-
+            const fromDate = new Date(notesFrom);
+            const toDate = new Date(notesTo);
+            // inclusive of 'to' since dates are midnight-local strings
             const sortedDateGroups = Object.entries(groupedByDate)
-              .filter(([date]) => new Date(date) >= threeDaysAgo)
+              .filter(([date]) => {
+                const d = new Date(date);
+                return d >= fromDate && d <= toDate;
+              })
               .sort(([a], [b]) => new Date(b) - new Date(a));
 
             return sortedDateGroups.map(([date, taskGroups]) => (
