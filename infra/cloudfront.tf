@@ -1,6 +1,6 @@
 # Define the WAF
 resource "aws_wafv2_web_acl" "waf" {
-  provider    = aws.us_east_1
+  region      = var.aws_region
   name        = "organiser_waf"
   scope       = "CLOUDFRONT"
   description = "WAF for CloudFront"
