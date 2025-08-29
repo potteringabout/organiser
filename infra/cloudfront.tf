@@ -1,6 +1,6 @@
 # Define the WAF
 resource "aws_wafv2_web_acl" "waf" {
-  provider    = aws.us_east_1
+  provider = aws.us_east_1
   #region      = "us-east-1"
   name        = "organiser_waf"
   scope       = "CLOUDFRONT"
