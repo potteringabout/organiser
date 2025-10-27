@@ -86,3 +86,14 @@ variable "create_ec2_instance" {
   type        = bool
   default     = false
 }
+
+variable "tags" {
+  description = "A map of tags to add to all resources"
+  type        = map(string)
+  default     = {}
+}
+
+variable "schedule" {
+  description = "The schedule for the rds"
+  type        = string
+}
