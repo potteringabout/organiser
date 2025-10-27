@@ -64,7 +64,7 @@ resource "aws_db_instance" "rds" {
   backup_retention_period = 1
 
   tags = {
-    Name = "${var.project}-${var.environment}-postgres",
+    Name     = "${var.project}-${var.environment}-postgres",
     Schedule = var.schedule
   }
 }
