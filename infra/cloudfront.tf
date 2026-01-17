@@ -31,7 +31,47 @@ resource "aws_wafv2_web_acl" "waf" {
       sampled_requests_enabled   = true
     }
   }
+
+  // add another rule here which blocls request great than 50 per minitue from same IP
+  rule {
+    name     = "RateLimitRule"
+    priority = 2
+    action {
+      block {
+        custom_response {
+          response_code = 429
+          response_header {
+            name  = "Retry-After"
+            value = "60"
+          }
+        }
+      }
+    }
+    statement {
+      rate_based_statement {
+        limit              = 50
+        aggregate_key_type    = "CONSTANT"  # GLOBAL bucket (not per-IP)
+        evaluation_window_sec = 60
+      }
+
+    
+    }
+  
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "RateLimitRule"
+      sampled_requests_enabled   = true
+    }
+  }
+  
+  
 }
+
+
+
+
+
+
 
 
 # Define the S3 bucket
