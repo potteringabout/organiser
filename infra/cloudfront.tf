@@ -34,6 +34,11 @@ resource "aws_wafv2_web_acl" "waf" {
 
   // add another rule here which blocls request great than 50 per minitue from same IP
   rule {
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "globalThrottle50PerMinute"
+      sampled_requests_enabled   = true
+    }
     name     = "RateLimitRule"
     priority = 2
     action {
@@ -52,16 +57,45 @@ resource "aws_wafv2_web_acl" "waf" {
         limit                 = 50
         aggregate_key_type    = "CONSTANT" # GLOBAL bucket (not per-IP)
         evaluation_window_sec = 60
+
+        scope_down_statement {
+          and_statement {
+            # Only POST
+            statement {
+              byte_match_statement {
+                search_string         = "GET"
+                positional_constraint = "EXACTLY"
+                field_to_match {
+                  method {}
+                }
+                text_transformation {
+                  priority = 0
+                  type     = "NONE"
+                }
+              }
+            }
+            # Only POST
+            statement {
+              byte_match_statement {
+                search_string         = "/"
+                positional_constraint = "EXACTLY"
+                field_to_match {
+                  uri_path {}
+                }
+                text_transformation {
+                  priority = 0
+                  type     = "NONE"
+                }
+              }
+            }
+          }
+
+        }
       }
 
 
     }
 
-    visibility_config {
-      cloudwatch_metrics_enabled = true
-      metric_name                = "RateLimitRule"
-      sampled_requests_enabled   = true
-    }
   }
 
 
